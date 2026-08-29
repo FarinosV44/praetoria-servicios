@@ -44,9 +44,9 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. Done+verified: #2 #3 #5 #6 #7 #8 #9 #10 #11 #28 (10). Awaiting user close on GitHub.
+- Phase: 5 — Development. Done+verified: #2 #3 #5 #6 #7 #8 #9 #10 #11 #12 #28 (11). Awaiting user close on GitHub.
 - User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — access details still needed at deploy time: git-pull+restart or webhook, and where Postgres lives).
-- Next action: Sprint 7 — #12 (quotes, apply benchmark D4). Then #13 → #16 → #14 → #15 → #4 → #17 → #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
+- Next action: Sprint 8 — #13 (email + WhatsApp comms). Then #16 → #14 → #15 → #4 → #17 → #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
@@ -63,4 +63,4 @@
 - ER diagram of the request model (issue #9) — Phase 6
 - Scheduled job to run `requestService.deleteExpiredDrafts()` in production — wire in #17/#19
 
-Last updated: 2026-08-29 — Phase 5; 10 issues done; next: Sprint 7 (#12 quotes)
+Last updated: 2026-08-29 — Phase 5; 11 issues done; next: Sprint 8 (#13 comms)

@@ -10,3 +10,4 @@
 
 Estimate (informal, no client budget — D-001): MVP core issues #1–#19 ≈ 30–60 AI working hours across
 many sessions; growth #20–#27 a comparable amount again.
+| 2 | 2026-08-29 | Sprints 3-7: #3 #5 #6 #7 #8 #10 #11 #12 + #2 verify + #28 benchmark | claude-sonnet-5 | ~5M cumulative in-context | design system, assistant flow (browser-verified), photos, admin panel (browser-verified), quotes; 88 tests |

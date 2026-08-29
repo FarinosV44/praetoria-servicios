@@ -158,6 +158,13 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
             </p>
           </section>
 
+          <section className={styles.card}>
+            <h2>Presupuesto</h2>
+            <Link href={`/admin/solicitudes/${request.reference}/presupuesto`}>
+              Preparar / ver presupuesto →
+            </Link>
+          </section>
+
           <AdminRequestControls
             reference={request.reference}
             status={request.status}

@@ -177,6 +177,16 @@ enum QuoteStatus {
   CADUCADO
 }
 
+enum QuoteLineKind {
+  VISITA
+  DESPLAZAMIENTO
+  MANO_OBRA
+  MATERIALES
+  PREPARACION
+  RETIRADA_LIMPIEZA
+  OTRO
+}
+
 model Quote {
   id            String      @id @default(cuid())
   request       Request     @relation(fields: [requestId], references: [id], onDelete: Cascade)
@@ -185,27 +195,63 @@ model Quote {
   status        QuoteStatus @default(BORRADOR)
 
   workDescription String
+  lines         QuoteLine[]
+
   // All amounts are integer EUR cents (issue #12: no floating point).
   subtotalCents Int
   taxRateBps    Int         @default(2100) // 21% IVA in basis points
   taxCents      Int
   totalCents    Int
-  extrasNote    String?
+  // Benchmark D4: distinguish a firm total from a labelled estimate.
+  isEstimate    Boolean     @default(false)
+  maxTotalCents Int?
+
+  // Visit / diagnosis fee handling (D4)
+  visitFeeCents Int?
+  visitFeeDiscounted Boolean @default(false)
+
   exclusionsNote String?
-  professionalRef String? // internal professional or free reference
+  assumptions   String[]     // "supuestos que podrían modificar el precio"
+  extrasApprovalNote String?  // procedimiento de aprobación de extras
+  preparatoryNote String?
+
+  professionalRef String?     // internal professional or free reference
+  verificationScope String?   // "alcance de la verificación del profesional"
+
+  scheduledFor  DateTime?     // fecha/franja
+  durationEstimate String?    // duración estimada
+
+  warrantyText  String?       // garantía aplicable
+  warrantyResponsible String? // responsable de la garantía
+
   estimatedTimeframe String?
   validUntil    DateTime?
   observations  String?
-  attachmentKey String? // private blob key
+  attachmentKey String?       // private blob key
 
   sentAt        DateTime?
   acceptedAt    DateTime?
   rejectedAt    DateTime?
+  // Evidence recorded when the client accepts/rejects via the signed link (#16).
+  decisionEvidence Json?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
   @@unique([requestId, version])
   @@index([requestId, status])
+}
+
+model QuoteLine {
+  id          String        @id @default(cuid())
+  quote       Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  quoteId     String
+  kind        QuoteLineKind @default(OTRO)
+  concept     String
+  amountCents Int           // integer cents; may be 0 for an "included, no charge" line
+  included    Boolean       @default(true) // false = explicitly NOT included
+  position    Int           @default(0)
+
+  @@index([quoteId, position])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

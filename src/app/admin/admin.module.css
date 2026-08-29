@@ -263,6 +263,66 @@
   gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
+.quoteLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+}
+.quoteLine select,
+.quoteLine input[type="text"],
+.quoteLine input:not([type]) {
+  padding: var(--space-2);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font: inherit;
+}
+.quoteLine input:not([type]) {
+  flex: 1 1 10rem;
+}
+.quoteLine button {
+  border: 1px solid var(--c-border-strong);
+  background: var(--c-surface);
+  border-radius: var(--radius-sm);
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  color: var(--c-text-soft);
+}
+.totals {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  background: var(--c-surface-sunken);
+  border-radius: var(--radius-md);
+}
+.totals label {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+.totals input {
+  width: 5rem;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+@media (min-width: 34rem) {
+  .twoCol {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 
 @media (min-width: 40rem) {
   .kpis {

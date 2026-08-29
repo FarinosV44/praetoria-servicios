@@ -28,7 +28,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 9 | Modelar solicitudes, estados y trazabilidad de negocio | task | high | resolved (Sprint 2) — awaiting user close; ER diagram deferred to Phase 6 | E-002 |
 | 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 11 | Autenticación y panel administrativo de solicitudes | feature | high | resolved (Sprint 6) — awaiting user close | E-007 |
-| 12 | Gestionar presupuestos y plazos desde administración | feature | high | open | — |
+| 12 | Gestionar presupuestos y plazos desde administración | feature | high | resolved (Sprint 7) — awaiting user close | E-008 |
 | 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | open | — |
 | 14 | Subir y procesar una póliza de seguro de hogar | feature | med | open | — |
 | 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | open | — |

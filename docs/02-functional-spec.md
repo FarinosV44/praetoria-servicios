@@ -46,6 +46,41 @@ estimated duration, applicable warranty + who is responsible, a maximum total wh
 where it is an estimate, label it clearly as such. Never "precio cerrado" while variables are
 undefined. No extra is added without the client's documented acceptance.
 
+## Benchmark decisions (issue #28 — `docs/benchmark-competencia.md`, 2026-08-29)
+
+Binding decisions D1–D12 from the competitive benchmark. Full evidence in that document.
+
+- **D1** Assistant starts with 3 intent entries (avería/problema · trabajo en casa · comprobar
+  seguro); "No sé qué profesional necesito" always visible. (#5)
+- **D2** Immediate safety triage after intent (water/gas/smoke/electrical/locked-in/structural) →
+  brief safe instructions + emergencies; never fake 24/7. (#5, #23)
+- **D3** The request is NEVER distributed to multiple professionals — single interlocutor; make it
+  an explicit, verifiable promise on the landing + Carta de Confianza. (#4, #21)
+- **D4** Quote template with mandatory fields: visit/diagnosis price (and whether discounted),
+  call-out, labour, materials in/out, prep + removal/cleanup, taxes, price-changing assumptions,
+  extras-approval procedure, assigned professional + verification scope, date/slot + duration,
+  warranty + responsible party, and a maximum total (or clearly labelled estimate). No "precio
+  cerrado" with open variables. (#12, #21)
+- **D5** Insurance analysis always separates *policy clause · legal norm · assessment*; every
+  contractual claim carries a page reference; 4-state verdict; draft labelled "borrador pendiente de
+  revisión" until an admin acts; explain the real process (perito, tercer perito, Defensor del
+  Asegurado, DGSFP) and the "falta de mantenimiento" denial pattern. Never "no pagarás". (#14, #15)
+- **D6** Professional identity + verification scope shown to the client BEFORE the visit; never
+  "verificado" if only phone/email was checked; expiry alerts. (#21, #22)
+- **D7** Comprehensible client states via signed link + a clear "Tengo un problema con el trabajo"
+  button; define a realistic internal first-response SLA (not 24/7) and show it. (#16, #23)
+- **D8** Walk + capture 5 live request forms (no data submitted) before closing #5's design;
+  assets in `docs/benchmark-assets/`. (#5, #28)
+- **D9** Landing: explicit contrast block (traditional local web vs marketplace vs Praetoria);
+  "Por qué puedes confiar" block (→#21); data-protection explanation; visual quote example; urgency
+  CTA without a 24/7 promise; insurance copy "podría estar cubierto". Zero invented
+  figures/reviews/years/guarantees. (#4, #21)
+- **D10** Honest local SEO: a municipality page is indexed only with real specific content; no
+  "trade + every municipality" duplication. Verified reviews + anonymised cases as content sources.
+  (#18, #24, #25, #26)
+- **D11 / D12** Experiments to run once there is volume: single-interlocutor vs "several quotes"
+  completion rate; visual quote example → landing conversion. (#18, #4)
+
 ## Actors
 
 - **Client** — a resident with a home problem. No account. Identified by name + phone/email.

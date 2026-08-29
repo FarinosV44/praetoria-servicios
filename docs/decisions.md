@@ -64,6 +64,13 @@
 - Why: issues #9, #11, #16 all require "identificador público no secuencial" and that "identificadores secuenciales no sirven para acceder".
 - Supersedes: none
 
+## D-011 — Benchmark deliverable (#28) written in Spanish
+- Date / phase: 2026-08-29 / Phase 5
+- Decision: `docs/benchmark-competencia.md` (issue #28) is written in Spanish, not English.
+- Why: the client specified the exact filename and the full deliverable structure in Spanish in issue #28; it is a client-facing research artifact whose findings are converted into issue comments (which, for Spanish-authored issues, are answered in Spanish per Keel). The English-by-default rule yields here to an explicit client specification.
+- Alternatives rejected: English doc + Spanish summary (double the surface, and the client asked for the doc itself).
+- Supersedes: none (narrows D-006/token-economy for this one artifact)
+
 ## D-010 — Money is integer minor units
 - Date / phase: 2026-08-29 / Phase 2
 - Decision: All monetary amounts stored and computed as integer cents (EUR). No floating point anywhere in quote/budget math. A small `Money` helper owns arithmetic, tax and formatting.

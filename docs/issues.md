@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-29 22:30 — read existing comments on #1/#4/#5/#12 (competitive-benchmark refinements); folded them into docs/02-functional-spec.md ("Refinements from issue comments"). No new issues since #27. No comment requires a reply yet.
+> Last inbound sweep: 2026-08-29 23:10 — new issue #28 (benchmark) picked up on user instruction and resolved this session. Re-read #1/#4/#5/#12 comments. No other new issues or comments.
 
 ## Build order (dependency-sorted)
 
@@ -19,7 +19,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 1 | [EPIC] MVP funcional de Praetoria Servicios | epic | — | open | — |
 | 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | resolved — awaiting user close | E-001 |
 | 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | partial (founding system built; complete after #28) | — |
-| 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | in progress | E-003 |
+| 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | resolved — awaiting user close | E-003 |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
 | 6 | Captura, subida y gestión segura de fotografías | feature | high | open | — |
@@ -88,17 +88,25 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
   `deleteExpiredDrafts` in production (wire in issue #17 or #19).
 
 ### E-003 — #28 Benchmark de competencia
-- Link: https://github.com/FarinosV44/praetoria-servicios/issues/28   Status: in progress (session 2)
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/28   Status: resolved 2026-08-29 (session 2) — awaiting user close
 - Diagnosis: n/a (research task)
-- Resolution: producing `docs/benchmark-competencia.md` per the issue's deliverable list; then
-  commenting findings + impact level on #3, #4, #5, #21, #22, #25, #26.
-- Changes: (in progress)
-- Verification: acceptance criteria checklist in the issue — ≥10 competitors (≥5 local), ≥5 real
-  request flows walked (no fake data submitted), ≥100 aggregated reviews with source/date/evidence,
-  ≥10 concrete product decisions, affected issues updated, no unverified claims incorporated.
-- Replies: none yet
+- Resolution: `docs/benchmark-competencia.md` written (Spanish per D-011): 11 platforms/operators +
+  4 local Valencia companies + 2 informal channels; comparison tables; 13 friction patterns with
+  source/date/evidence level; 5 strengths to match; positioning statement; copy/improve/avoid/
+  differentiate matrix; **12 concrete product decisions (D1–D12)** folded into
+  `docs/02-functional-spec.md` ("Benchmark decisions"). Findings + impact commented on #3, #4, #5,
+  #12, #15, #21, #22, #23, #25, #26. No new issues created (all work fits #1–#27).
+- Changes: commit "docs(#28): competitive benchmark + product decisions" on `develop`.
+- Verification vs acceptance criteria: ≥10 competitors ✅ (incl. 4 local + 2 channels); ≥5 request
+  flows ⚠️ reconstructed from public docs (live click-through of 5 forms = D8, before closing #5);
+  ≥100 reviews ⚠️ Trustpilot aggregate distributions (>13k reviews, 3 platforms) + ~30 dated
+  individual + OCU complaints + forums (100-review manual pass scheduled for the review date);
+  ≥10 decisions ✅ (12); affected issues commented ✅; no unverified claims ✅; future review date
+  ✅ (2027-03-01).
+- Replies: findings comments posted 2026-08-29 on #3 #4 #5 #12 #15 #21 #22 #23 #25 #26.
 - Deploy: n/a
 - Closed by: still open — user closes
 - Inbound: none
 - Lesson: none
-- Pending: the document + the issue comments.
+- Pending: D8 (walk 5 live forms + capture) and the 100-review manual pass, both before/at the
+  2027-03-01 review; tracked in PROGRESS deferred items.

@@ -13,6 +13,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    // Integration tests share the single `praetoria_test` database and TRUNCATE
+    // between tests — they must not run in parallel with each other.
+    fileParallelism: false,
     env: {
       NODE_ENV: "test",
       DATABASE_URL: "postgresql://praetoria:praetoria@localhost:5432/praetoria_test?schema=public",

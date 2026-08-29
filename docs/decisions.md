@@ -64,6 +64,14 @@
 - Why: issues #9, #11, #16 all require "identificador público no secuencial" and that "identificadores secuenciales no sirven para acceder".
 - Supersedes: none
 
+## D-012 — Admin auth: minimal signed-cookie session, not Auth.js
+- Date / phase: 2026-08-29 / Phase 5 (issue #11)
+- Decision: admin authentication is a minimal, dependency-free HMAC-signed httpOnly cookie session (`src/server/auth.ts`) with scrypt password hashing (`src/lib/password.ts`), instead of Auth.js / NextAuth v5.
+- Why: NextAuth v5 is still beta and its Next.js 16 compatibility is unproven; the admin surface is a single credentials login for a small internal team with no social providers, no registration, no account recovery. A ~120-line session module is lower risk and fully under our control. The proxy does a cheap presence/expiry check; the real verification (HMAC + DB + per-resource) runs in the Node runtime in the layout and every server action.
+- Alternatives rejected: NextAuth v5 (beta + compat risk for the payoff of features we don't need); Lucia (unmaintained as of 2025).
+- Not checked: whether a future requirement (SSO, MFA, multiple providers) would justify a library — revisit then.
+- Supersedes: the tentative "Auth.js (NextAuth v5)" line in docs/03-technical-plan.md
+
 ## D-011 — Benchmark deliverable (#28) written in Spanish
 - Date / phase: 2026-08-29 / Phase 5
 - Decision: `docs/benchmark-competencia.md` (issue #28) is written in Spanish, not English.

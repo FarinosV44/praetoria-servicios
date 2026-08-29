@@ -1,0 +1,52 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 38, 32, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 50;
+  animation: overlay-in var(--motion-base) var(--ease-out);
+}
+.dialog {
+  background: var(--c-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 34rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--space-5);
+  animation: dialog-in var(--motion-slow) var(--ease-out);
+}
+.title {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-3);
+}
+.body {
+  color: var(--c-text-soft);
+}
+.footer {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes dialog-in {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+@media (min-width: 40rem) {
+  .overlay {
+    align-items: center;
+  }
+}

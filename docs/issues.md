@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-29 23:10 — new issue #28 (benchmark) picked up on user instruction and resolved this session. Re-read #1/#4/#5/#12 comments. No other new issues or comments.
+> Last inbound sweep: 2026-08-29 23:30 — no new issues or comments since #28. Building through the backlog per user instruction.
 
 ## Build order (dependency-sorted)
 
@@ -18,17 +18,17 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 |---|-------|------|----------|--------|-------|
 | 1 | [EPIC] MVP funcional de Praetoria Servicios | epic | — | open | — |
 | 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | resolved — awaiting user close | E-001 |
-| 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | partial (founding system built; complete after #28) | — |
+| 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | resolved (Sprint 3); a11y automated pass at #19 — awaiting user close | E-004 |
 | 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | resolved — awaiting user close | E-003 |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
-| 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
-| 6 | Captura, subida y gestión segura de fotografías | feature | high | open | — |
-| 7 | Análisis multimodal del problema mediante IA | feature | high | open | — |
-| 8 | Validación, corrección y nuevo análisis por el usuario | feature | high | open | — |
+| 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
+| 6 | Captura, subida y gestión segura de fotografías | feature | high | resolved (Sprint 4) — awaiting user close | E-005 |
+| 7 | Análisis multimodal del problema mediante IA | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
+| 8 | Validación, corrección y nuevo análisis por el usuario | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 9 | Modelar solicitudes, estados y trazabilidad de negocio | task | high | resolved (Sprint 2) — awaiting user close; ER diagram deferred to Phase 6 | E-002 |
-| 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | open | — |
-| 11 | Autenticación y panel administrativo de solicitudes | feature | high | open | — |
-| 12 | Gestionar presupuestos y plazos desde administración | feature | high | open | — |
+| 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
+| 11 | Autenticación y panel administrativo de solicitudes | feature | high | resolved (Sprint 6) — awaiting user close | E-007 |
+| 12 | Gestionar presupuestos y plazos desde administración | feature | high | resolved (Sprint 7) — awaiting user close | E-008 |
 | 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | open | — |
 | 14 | Subir y procesar una póliza de seguro de hogar | feature | med | open | — |
 | 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | open | — |
@@ -86,6 +86,59 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 - Lesson: none
 - Pending: ER diagram of the model (Phase 6). Draft-expiry needs a scheduled job to actually run
   `deleteExpiredDrafts` in production (wire in issue #17 or #19).
+
+### E-007 — #11 Admin auth + panel
+- Link: /issues/11   Status: resolved 2026-08-29 (Sprint 6) — awaiting user close
+- Resolution: `lib/password.ts` (scrypt), `server/auth.ts` (HMAC signed-cookie session, D-012 —
+  not Auth.js), `src/proxy.ts` guard + `(panel)/layout.tsx` + `requireSession()` per action,
+  `server/services/admin.ts` (list/filters/search, detail w/ signed photo URLs, classify, status via
+  state machine, more-info, KPIs, `AdminActionLog`), `/admin/{login,inbox,solicitudes/[ref]}`.
+- Verification: TP-7 — 10 tests + browser walkthrough (unauth→login; status change PS-W25F-TAYZ→
+  EN_REVISION with ADMIN StatusEvent + action-log row). 76 total green.
+- Closed by: still open — user closes.
+- Pending: real admin user management UI (create/disable other admins) — deferred to growth/ops.
+
+### E-006 — #5 #7 #8 #10 Client assistant flow
+- Links: /issues/5 /7 /8 /10   Status: resolved 2026-08-29 (Sprint 5) — awaiting user close
+- Resolution: 9-step assistant (`src/app/solicitar`): intent (3 entries + "no sé", benchmark D1) →
+  safety triage (`domain/assistant/triage.ts`, D2) → category → photos (#6 component) → explanation
+  + location + coverage → AI analysis (`server/services/analysis.ts`, mock adapter, schema-validated
+  versioned `AnalysisVersion`, one active, history preserved) → validation/correction/re-analysis
+  (#8, cap 3) → contact + granular never-prechecked consent + privacy link (#10) → done with
+  non-sequential reference. localStorage draft recovery. Rate-limited actions.
+- Changes: commit "feat(#5 #7 #8 #10): client assistant flow end to end".
+- Verification: TP-6 — 8 new tests (67 total green) + full browser walkthrough to "Solicitud
+  recibida" PS-2PTJ-46H9; DB VALIDADA_CLIENTE, AI-classified trade, normalised phone, 3 consents,
+  immutable status history, no console errors.
+- Replies: none yet.
+- Closed by: still open — user closes.
+- Pending: real Claude adapter (issue #7 note — needs ANTHROPIC_API_KEY; mock covers dev/test).
+  Audio input UI (issue #5 deferred). Email/WhatsApp confirmation send is issue #13.
+
+### E-005 — #6 Captura, subida y gestión segura de fotografías
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/6   Status: resolved 2026-08-29 (Sprint 4) — awaiting user close
+- Resolution: `domain/photos/validation.ts` (magic-byte type sniff; rejects executables),
+  `lib/rate-limit.ts` + `lib/http.ts`, `server/services/photos.ts` (key-only storage, signed URLs,
+  soft-delete + blob delete, `deleteAllForRequest` wired into draft expiry), `POST /api/uploads`
+  (origin check + rate limit + one file), `ui/patterns/{image-client.ts,PhotoUpload.tsx}`
+  (EXIF orientation + downscale + per-file progress/retry).
+- Verification: TP-5 — 17 unit + 5 photo integration tests; live curl (201 / 422 / 403 / signed 200 /
+  tampered 403); file lands in private `.storage/`, not `public/`.
+- Replies: none yet.
+- Closed by: still open — user closes.
+
+### E-004 — #3 Identidad visual y sistema de diseño
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/3   Status: resolved 2026-08-29 (Sprint 3) — awaiting user close
+- Resolution: founding in-code design system. `src/ui/tokens.css` (colour/type/space/radius/shadow/
+  motion + dark + reduced-motion). Components: Button, Field, Card, Alert, Spinner, EmptyState,
+  Stepper, Modal (focus trap), Icon (20 inline-SVG icons — 12 trades + 8 states), Mascot (4 moods),
+  SafetyAlert (D2), IntentCards (D1), Uploader shell. `/estilo` catalogue (noindex).
+  `docs/design-system.md`. Nunito via next/font (no layout shift).
+- Changes: commit "feat(#3): complete founding design system + benchmark D1/D2".
+- Verification: lint + typecheck + build + 44 tests green; `/` and `/estilo` return 200.
+- Replies: none yet.
+- Closed by: still open — user closes
+- Pending: automated WCAG AA / axe pass belongs to issue #19; issue #3 otherwise complete.
 
 ### E-003 — #28 Benchmark de competencia
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/28   Status: resolved 2026-08-29 (session 2) — awaiting user close

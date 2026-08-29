@@ -25,7 +25,7 @@
 - Test-first policy: pure-logic (default) — state machine, money, Zod schemas, phone normalisation, AI-output validation get their tests written and seen failing before code. Asked-once default accepted (D-007).
 - Durability: git remote origin https://github.com/FarinosV44/praetoria-servicios.git
 - Autonomy: automatic — Keel does every merge to develop and every push itself / issues: after-sprint / Issue sweep interval: 24h / Issue capture: on
-- Branches: integration branch `develop` (created from main at session 1) / current work branch: develop / nothing awaiting merge to main yet
+- Branches: integration branch `develop` / current work branch: develop / `main` at 372ef4d — user asked to merge develop→main on 2026-08-29 (session 2); done via `--no-ff`, pushed. No tag (not requested).
 - Notify: none (user chose chat-only) — a block is visible only on the next chat open
 - Chaining: off (user chose "MVP core first"; no chained-chat launch — hand-off file written at every sprint close)
 - Chaining model: n/a
@@ -44,8 +44,9 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development.  Sprints done+verified: 1 (#2), 2 (#9). #28 benchmark done (`docs/benchmark-competencia.md`, decisions D1–D12 in `docs/02-functional-spec.md`, affected issues commented). #2 / #9 / #28 awaiting user close.
-- Next action: Sprint 3 — issue #3 completion (Modal, Uploader shell, consistent trade+state icon set, emotional mascot SVG) applying benchmark D1/D2/D10; then issue #6 (photos: client compression + orientation fix, magic-byte validation client+server, private storage + signed URLs, per-file progress/retry). Then #10 → #5 (assistant, applying D1/D2/D8) → #7 → #8 → #11 → #12 (apply D4) → #13 → #16 → #14 → #15 (apply D5) → #4 (apply D3/D9) → #17 → #18 → #19.
+- Phase: 5 — Development. Done+verified: #2 #3 #5 #6 #7 #8 #9 #10 #11 #12 #28 (11). Awaiting user close on GitHub.
+- User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — access details still needed at deploy time: git-pull+restart or webhook, and where Postgres lives).
+- Next action: Sprint 8 — #13 (email + WhatsApp comms). Then #16 → #14 → #15 → #4 → #17 → #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
@@ -62,4 +63,4 @@
 - ER diagram of the request model (issue #9) — Phase 6
 - Scheduled job to run `requestService.deleteExpiredDrafts()` in production — wire in #17/#19
 
-Last updated: 2026-08-29 — Phase 5; Sprints 1 & 2 + benchmark #28 done; next: Sprint 3 (#3, #6)
+Last updated: 2026-08-29 — Phase 5; 11 issues done; next: Sprint 8 (#13 comms)

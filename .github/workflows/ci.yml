@@ -41,8 +41,10 @@ jobs:
       - run: npx prisma generate
       - run: npx prisma migrate deploy
       - run: npm run lint
+      # build first: Next.js generates route types (LayoutProps, PageProps…)
+      # into .next/types that `tsc --noEmit` then depends on.
+      - run: npm run build
       - run: npm run typecheck
       - run: npm test
-      - run: npm run build
       - run: npm audit --audit-level=critical
         continue-on-error: true

@@ -18,7 +18,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 |---|-------|------|----------|--------|-------|
 | 1 | [EPIC] MVP funcional de Praetoria Servicios | epic | — | open | — |
 | 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | resolved — awaiting user close | E-001 |
-| 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | partial (founding system built; complete after #28) | — |
+| 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | resolved (Sprint 3); a11y automated pass at #19 — awaiting user close | E-004 |
 | 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | resolved — awaiting user close | E-003 |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
@@ -86,6 +86,19 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 - Lesson: none
 - Pending: ER diagram of the model (Phase 6). Draft-expiry needs a scheduled job to actually run
   `deleteExpiredDrafts` in production (wire in issue #17 or #19).
+
+### E-004 — #3 Identidad visual y sistema de diseño
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/3   Status: resolved 2026-08-29 (Sprint 3) — awaiting user close
+- Resolution: founding in-code design system. `src/ui/tokens.css` (colour/type/space/radius/shadow/
+  motion + dark + reduced-motion). Components: Button, Field, Card, Alert, Spinner, EmptyState,
+  Stepper, Modal (focus trap), Icon (20 inline-SVG icons — 12 trades + 8 states), Mascot (4 moods),
+  SafetyAlert (D2), IntentCards (D1), Uploader shell. `/estilo` catalogue (noindex).
+  `docs/design-system.md`. Nunito via next/font (no layout shift).
+- Changes: commit "feat(#3): complete founding design system + benchmark D1/D2".
+- Verification: lint + typecheck + build + 44 tests green; `/` and `/estilo` return 200.
+- Replies: none yet.
+- Closed by: still open — user closes
+- Pending: automated WCAG AA / axe pass belongs to issue #19; issue #3 otherwise complete.
 
 ### E-003 — #28 Benchmark de competencia
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/28   Status: resolved 2026-08-29 (session 2) — awaiting user close

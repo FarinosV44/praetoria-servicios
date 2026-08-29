@@ -242,11 +242,20 @@ export const requestService = {
     });
   },
 
-  /** Retention: delete stale, never-submitted drafts (issue #9, #17). Returns the count. */
+  /** Retention: delete stale, never-submitted drafts + their photo blobs (issue #9, #6, #17). */
   async deleteExpiredDrafts(now: Date = new Date()): Promise<number> {
     const cutoff = new Date(now.getTime() - LIMITS.draft.expiryDays * 24 * 3600_000);
-    const { count } = await db.request.deleteMany({
+    const stale = await db.request.findMany({
       where: { status: "BORRADOR", submittedAt: null, updatedAt: { lt: cutoff } },
+      select: { id: true },
+    });
+    if (stale.length === 0) return 0;
+
+    const { photoService } = await import("./photos");
+    for (const { id } of stale) await photoService.deleteAllForRequest(id);
+
+    const { count } = await db.request.deleteMany({
+      where: { id: { in: stale.map((s) => s.id) } },
     });
     if (count > 0) log.info("expired drafts deleted", { count });
     return count;

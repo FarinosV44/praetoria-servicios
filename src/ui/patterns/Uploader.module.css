@@ -1,0 +1,134 @@
+.uploader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-6) var(--space-4);
+  border: 2px dashed var(--c-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--c-surface-sunken);
+  color: var(--c-text-soft);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+}
+.dropzone:hover {
+  border-color: var(--c-brand);
+  color: var(--c-text);
+}
+.dzTitle {
+  font-weight: var(--weight-bold);
+  color: var(--c-text);
+}
+.dzHint {
+  font-size: var(--text-sm);
+  max-width: 34ch;
+}
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+}
+.error {
+  border-color: var(--c-danger);
+}
+.done {
+  border-color: var(--c-success);
+}
+.thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--c-surface-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.name {
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bar {
+  display: block;
+  height: 4px;
+  background: var(--c-surface-sunken);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--c-brand);
+  transition: width var(--motion-base) var(--ease-out);
+}
+.errorText {
+  font-size: var(--text-xs);
+  color: var(--c-danger);
+}
+.doneText {
+  font-size: var(--text-xs);
+  color: var(--c-success);
+}
+.actions {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+.actions button {
+  width: var(--touch-min);
+  height: var(--touch-min);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text-soft);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+.actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.actions button:hover:not(:disabled) {
+  border-color: var(--c-brand);
+  color: var(--c-text);
+}

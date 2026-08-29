@@ -44,9 +44,9 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development.  Done+verified: #2, #3, #6, #9, #28. All awaiting user close on GitHub.
-- User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — details still needed at deploy time).
-- Next action: Sprint 5 — the client assistant flow, coupled issues built together: #10 (contact/consent UI + "solicitud creada" page) + #5 (assistant wizard: intent → safety triage → category/photos/explanation/location → analysis → validation → contact) + #7 (AI analysis via mock adapter + schema validation + persistence) + #8 (validation/correction/re-analysis). Then #11 (admin auth+inbox) → #12 (quotes, apply D4) → #13 (comms) → #16 (client status link) → #14 (insurance upload) → #15 (coverage analysis, apply D5) → #4 (landing, apply D3/D9) → #17 (security review) → #18 (SEO/analytics) → #19 (E2E/observability/deploy). Then growth #20–#27.
+- Phase: 5 — Development.  Done+verified: #2, #3, #5, #6, #7, #8, #9, #10, #28 (9 issues). All awaiting user close on GitHub.
+- User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — access details still needed at deploy time: git-pull+restart or webhook, and where Postgres lives).
+- Next action: Sprint 6 — #11 (admin auth + inbox: Auth.js credentials, seeded admin, `/admin` list with filters in URL, `/admin/solicitudes/[ref]` detail with private photos via signed URLs, classification/priority/notes/status edit, admin action log, KPIs). Then #12 (quotes — apply benchmark D4 line items) → #13 (email + WhatsApp comms, mock/link adapters) → #16 (signed client status link) → #14 (insurance upload) → #15 (coverage analysis + legal draft, apply D5) → #4 (landing, apply D3/D9) → #17 (security/privacy/retention review) → #18 (SEO + analytics + service pages) → #19 (E2E + observability + deploy). Then growth #20–#27. Then merge develop→main + Hostinger deploy.
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
@@ -63,4 +63,4 @@
 - ER diagram of the request model (issue #9) — Phase 6
 - Scheduled job to run `requestService.deleteExpiredDrafts()` in production — wire in #17/#19
 
-Last updated: 2026-08-29 — Phase 5; Sprints 1 & 2 + benchmark #28 done; next: Sprint 3 (#3, #6)
+Last updated: 2026-08-29 — Phase 5; 9 issues done (#2 #3 #5 #6 #7 #8 #9 #10 #28); next: Sprint 6 (#11 admin)

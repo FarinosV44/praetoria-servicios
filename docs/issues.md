@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-29 23:10 — new issue #28 (benchmark) picked up on user instruction and resolved this session. Re-read #1/#4/#5/#12 comments. No other new issues or comments.
+> Last inbound sweep: 2026-08-29 23:30 — no new issues or comments since #28. Building through the backlog per user instruction.
 
 ## Build order (dependency-sorted)
 
@@ -21,12 +21,12 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | resolved (Sprint 3); a11y automated pass at #19 — awaiting user close | E-004 |
 | 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | resolved — awaiting user close | E-003 |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
-| 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
+| 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 6 | Captura, subida y gestión segura de fotografías | feature | high | resolved (Sprint 4) — awaiting user close | E-005 |
-| 7 | Análisis multimodal del problema mediante IA | feature | high | open | — |
-| 8 | Validación, corrección y nuevo análisis por el usuario | feature | high | open | — |
+| 7 | Análisis multimodal del problema mediante IA | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
+| 8 | Validación, corrección y nuevo análisis por el usuario | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 9 | Modelar solicitudes, estados y trazabilidad de negocio | task | high | resolved (Sprint 2) — awaiting user close; ER diagram deferred to Phase 6 | E-002 |
-| 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | open | — |
+| 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 11 | Autenticación y panel administrativo de solicitudes | feature | high | open | — |
 | 12 | Gestionar presupuestos y plazos desde administración | feature | high | open | — |
 | 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | open | — |
@@ -86,6 +86,23 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 - Lesson: none
 - Pending: ER diagram of the model (Phase 6). Draft-expiry needs a scheduled job to actually run
   `deleteExpiredDrafts` in production (wire in issue #17 or #19).
+
+### E-006 — #5 #7 #8 #10 Client assistant flow
+- Links: /issues/5 /7 /8 /10   Status: resolved 2026-08-29 (Sprint 5) — awaiting user close
+- Resolution: 9-step assistant (`src/app/solicitar`): intent (3 entries + "no sé", benchmark D1) →
+  safety triage (`domain/assistant/triage.ts`, D2) → category → photos (#6 component) → explanation
+  + location + coverage → AI analysis (`server/services/analysis.ts`, mock adapter, schema-validated
+  versioned `AnalysisVersion`, one active, history preserved) → validation/correction/re-analysis
+  (#8, cap 3) → contact + granular never-prechecked consent + privacy link (#10) → done with
+  non-sequential reference. localStorage draft recovery. Rate-limited actions.
+- Changes: commit "feat(#5 #7 #8 #10): client assistant flow end to end".
+- Verification: TP-6 — 8 new tests (67 total green) + full browser walkthrough to "Solicitud
+  recibida" PS-2PTJ-46H9; DB VALIDADA_CLIENTE, AI-classified trade, normalised phone, 3 consents,
+  immutable status history, no console errors.
+- Replies: none yet.
+- Closed by: still open — user closes.
+- Pending: real Claude adapter (issue #7 note — needs ANTHROPIC_API_KEY; mock covers dev/test).
+  Audio input UI (issue #5 deferred). Email/WhatsApp confirmation send is issue #13.
 
 ### E-005 — #6 Captura, subida y gestión segura de fotografías
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/6   Status: resolved 2026-08-29 (Sprint 4) — awaiting user close

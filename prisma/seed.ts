@@ -4,15 +4,10 @@
  * spread across the lifecycle so the admin panel and flows have something to show.
  */
 import { PrismaClient } from "@prisma/client";
-import { createHash } from "node:crypto";
 import { newRequestReference } from "../src/lib/id";
+import { hashPassword } from "../src/lib/password";
 
 const db = new PrismaClient();
-
-// Placeholder password hashing — replaced by the real Auth.js hasher in issue #11.
-function devHash(pw: string) {
-  return "dev$" + createHash("sha256").update(pw).digest("hex");
-}
 
 async function main() {
   if (process.env.NODE_ENV === "production") {
@@ -21,11 +16,11 @@ async function main() {
 
   await db.adminUser.upsert({
     where: { email: "admin@praetoria.local" },
-    update: {},
+    update: { passwordHash: await hashPassword("praetoria-dev") },
     create: {
       email: "admin@praetoria.local",
       name: "Admin de pruebas",
-      passwordHash: devHash("praetoria-dev"),
+      passwordHash: await hashPassword("praetoria-dev"),
       role: "ADMIN",
     },
   });

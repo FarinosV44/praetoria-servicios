@@ -15,7 +15,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | # | Title | Type | Priority | Status | Entry |
 |---|-------|------|----------|--------|-------|
 | 1 | [EPIC] MVP funcional de Praetoria Servicios | epic | — | open | — |
-| 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | in progress (code done, TP-3 pending) | E-001 |
+| 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | resolved — awaiting user close | E-001 |
 | 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | open | — |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
@@ -45,7 +45,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 ## Entries (one per issue worked)
 
 ### E-001 — #2 Inicializar arquitectura, stack y entorno reproducible
-- Link: https://github.com/FarinosV44/praetoria-servicios/issues/2   Status: code complete — awaiting live-DB verification (TP-3) before proposing close
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/2   Status: resolved 2026-08-29 — commented (beat 1); awaiting the user to close
 - Diagnosis: n/a (greenfield task, not a bug)
 - Resolution: Next.js 16 App Router + TS strict + Tailwind v4. Domain-oriented structure
   (`src/domain`, `src/adapters`, `src/lib`, `src/server`, `src/ui`, `src/config`). Prisma schema
@@ -56,10 +56,10 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
   (lint + typecheck + test + build + `npm audit`). Healthcheck `GET /api/health`. Temp landing.
   Founding design system (issue #3 partial).
 - Changes: commits on `develop` — "chore: project scaffold + Keel foundation", "feat(#2): foundation".
-- Verification: `npm run lint`, `npm run typecheck`, `npm test` (30 pass), `npx next build` — all green (TP-1, TP-2). `prisma migrate deploy` against a live DB + healthcheck DB check + seed — NOT run this session (Docker Desktop off) → TP-3, unverified.
-- Replies: none yet (issue not commented — will comment when TP-3 passes, per the 3-beat rule)
-- Deploy: n/a
-- Closed by: still open
+- Verification: `npm run lint`, `npm run typecheck`, `npm test` (30 pass), `npx next build` — all green (TP-1, TP-2). TP-3 (session 2): migration applied against live PostgreSQL, seed OK, dev server up, `/` 200, `/api/health` → `{status:ok, checks:{database:true}}`. All issue-#2 acceptance criteria met.
+- Replies: beat 1 — completion comment posted 2026-08-29 (see GitHub #2). No deploy stands between this and the user; they can close it directly.
+- Deploy: n/a (infrastructure task, verified locally)
+- Closed by: still open — the user closes it
 - Inbound: none since the last sweep
-- Lesson: none
-- Pending: TP-3 (apply migration on a machine with Docker); then comment on #2 and propose close. Remaining issue-#2 AC that depend on TP-3: "un clon limpio arranca siguiendo el README", "la base de datos se crea mediante migraciones".
+- Lesson: L-001 (corrupt migration SQL), L-002 (blank env var) — both fixed
+- Pending: user to close #2.

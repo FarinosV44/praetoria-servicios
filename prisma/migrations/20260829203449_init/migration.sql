@@ -1,9 +1,3 @@
-warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
-For more information, see: https://pris.ly/prisma-config
-
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
-
 -- CreateEnum
 CREATE TYPE "RequestStatus" AS ENUM ('BORRADOR', 'PENDIENTE_ANALISIS', 'REQUIERE_INFORMACION', 'VALIDADA_CLIENTE', 'EN_REVISION', 'PRESUPUESTO_PREPARADO', 'PRESUPUESTO_ENVIADO', 'ACEPTADA', 'RECHAZADA', 'CANCELADA', 'CERRADA');
 
@@ -431,14 +425,3 @@ ALTER TABLE "CoverageDraftRevision" ADD CONSTRAINT "CoverageDraftRevision_covera
 
 -- AddForeignKey
 ALTER TABLE "AdminActionLog" ADD CONSTRAINT "AdminActionLog_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "AdminUser"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-┌─────────────────────────────────────────────────────────┐
-│  Update available 6.19.3 -> 8.0.0-rc.12                 │
-│                                                         │
-│  This is a major update - please follow the guide at    │
-│  https://pris.ly/d/major-version-upgrade                │
-│                                                         │
-│  Run the following to update                            │
-│    npm i --save-dev prisma@latest                       │
-│    npm i @prisma/client@latest                          │
-└─────────────────────────────────────────────────────────┘
-

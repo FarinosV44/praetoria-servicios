@@ -76,9 +76,9 @@ slices:
   email, WhatsApp, OCR + composition root; `src/config` (trades, limits, coverage, copy); founding
   design system (tokens + Button/Field/Card/Alert/Spinner/EmptyState/Stepper); healthcheck +
   signed-download routes; temp landing; Vitest (30 tests green); GitHub Actions CI; README +
-  playground doc. **Not verified this session:** applying the migration against a live PostgreSQL
-  (Docker Desktop was not running) — TP-3, `docs/05-test-points.md`. Carried to next session /
-  the user's machine.
+  playground doc. TP-3 verified in session 2: migration applied against live PostgreSQL, seed OK,
+  dev server + landing + healthcheck (`database: true`) confirmed. Fixed L-001 / L-002 on the way.
+  All issue #2 acceptance criteria met.
 - Moved to next sprint: nothing from Sprint 1 scope. Next: issue #9 refinement (persistence layer +
   transition-recording service on top of the schema) then issue #3 completion (Modal, Uploader,
   icon set, mascot) then issue #6 (photo capture/upload).

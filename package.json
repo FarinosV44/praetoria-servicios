@@ -22,9 +22,6 @@
     "db:studio": "prisma studio",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@prisma/client": "^6.1.0",
     "nanoid": "^5.0.9",
@@ -42,6 +39,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^2.1.8",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
     "jsdom": "^25.0.1",

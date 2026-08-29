@@ -84,7 +84,12 @@ const schema = z
 export type Env = z.infer<typeof schema>;
 
 function load(): Env {
-  const parsed = schema.safeParse(process.env);
+  // Treat an empty-string env var as "not set" — otherwise `.optional()` URL
+  // fields fail on the blank placeholders shipped in .env.example.
+  const raw = Object.fromEntries(
+    Object.entries(process.env).map(([k, v]) => [k, v === "" ? undefined : v]),
+  );
+  const parsed = schema.safeParse(raw);
   if (!parsed.success) {
     // Log the field names only — never the values — then fail fast.
     const fields = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);

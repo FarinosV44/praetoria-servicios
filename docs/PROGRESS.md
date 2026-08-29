@@ -44,13 +44,13 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development.  Sprint: 1 (Foundation, issue #2) — CLOSED (code); one unverified item (TP-3, migration apply — needs Docker).
-- Next action: Start Sprint 2 — issue #9 persistence layer: a `RequestService` in `src/domain/requests` + `src/server/actions` that creates requests, applies validated transitions and writes immutable `StatusEvent` rows on top of the committed Prisma schema; test-first for the transition-recording logic. Then complete issue #3 (Modal, Uploader, icon set, mascot SVG) and move to issue #6 (photo capture/upload).
+- Phase: 5 — Development.  Sprint: 1 (issue #2) CLOSED and fully verified (TP-3 passed, session 2). #2 commented (beat 1), awaiting the user to close.
+- Next action: Sprint 2 — issue #9 persistence layer: `RequestService` (`src/domain/requests/service.ts`) + `src/server/actions/requests.ts` creating requests, applying state-machine-validated transitions and writing immutable `StatusEvent` rows in one transaction, on the committed Prisma schema. Integration tests against the docker `praetoria_test` DB (test-first for the transition-recording + draft-expiry decision logic). Then issue #3 completion (Modal, Uploader, icons, mascot) → issue #6 (photos).
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
 - Open Design Requests: none
-- Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use); TP-3 — initial DB migration not yet applied against a live PostgreSQL (Docker Desktop was off this session)
+- Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use — MVP not blocked)
 - Forge issues in progress: see docs/issues.md — all 27 open; building in dependency order
 
 ### Deferred items (consciously postponed work)
@@ -58,4 +58,4 @@
 - Audio input in the assistant (issue #5) — UI prepared, capture not implemented — before release / when touching the assistant
 - WhatsApp real provider API (issue #13) — link-generation MVP only — when a provider is chosen
 
-Last updated: 2026-08-29 — Phase 5, Sprint 1 closed (issue #2 code complete; TP-3 pending live DB)
+Last updated: 2026-08-29 — Phase 5, Sprint 1 fully verified; starting Sprint 2 (issue #9)

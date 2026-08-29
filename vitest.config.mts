@@ -18,7 +18,11 @@ export default defineConfig({
     fileParallelism: false,
     env: {
       NODE_ENV: "test",
-      DATABASE_URL: "postgresql://praetoria:praetoria@localhost:5432/praetoria_test?schema=public",
+      // CI sets DATABASE_URL (to its own already-migrated DB); locally we use a
+      // dedicated praetoria_test database.
+      DATABASE_URL:
+        process.env.DATABASE_URL ??
+        "postgresql://praetoria:praetoria@localhost:5432/praetoria_test?schema=public",
       APP_URL: "http://localhost:3000",
       AUTH_SECRET: "test-auth-secret-0123456789",
       SIGNED_LINK_SECRET: "test-signed-link-secret-0123456789",

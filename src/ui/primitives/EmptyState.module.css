@@ -1,0 +1,20 @@
+.empty {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  border: 1px dashed var(--c-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--c-surface-sunken);
+}
+.title {
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-2);
+}
+.description {
+  color: var(--c-text-soft);
+  max-width: var(--prose-max);
+  margin-inline: auto;
+}
+.action {
+  margin-top: var(--space-4);
+}

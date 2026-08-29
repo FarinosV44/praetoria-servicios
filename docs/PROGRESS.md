@@ -44,18 +44,22 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development.  Sprint: 1 (Foundation) — issue #2 (scaffold, stack, adapters, reproducible env).
-- Next action: Finish Sprint 1 — Prisma + docker-compose Postgres, `src/lib/env.ts`, adapter interfaces + mock impls, `.env.example`, README run section, base CI workflow. Then issue #9 (data model) and issue #3 (design tokens).
+- Phase: 5 — Development.  Sprints done+verified: 1 (#2), 2 (#9). #28 benchmark done (`docs/benchmark-competencia.md`, decisions D1–D12 in `docs/02-functional-spec.md`, affected issues commented). #2 / #9 / #28 awaiting user close.
+- Next action: Sprint 3 — issue #3 completion (Modal, Uploader shell, consistent trade+state icon set, emotional mascot SVG) applying benchmark D1/D2/D10; then issue #6 (photos: client compression + orientation fix, magic-byte validation client+server, private storage + signed URLs, per-file progress/retry). Then #10 → #5 (assistant, applying D1/D2/D8) → #7 → #8 → #11 → #12 (apply D4) → #13 → #16 → #14 → #15 (apply D5) → #4 (apply D3/D9) → #17 → #18 → #19.
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
 - Open Design Requests: none
-- Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use)
+- Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use — MVP not blocked)
 - Forge issues in progress: see docs/issues.md — all 27 open; building in dependency order
 
 ### Deferred items (consciously postponed work)
 - Issues #20–#27 (professional intake, verified network, post-service/warranty, editorial CMS, SEO architecture, reviews, SEO control centre) — severity: growth features — review trigger: after issues #1–#19 complete (user decision, this session)
 - Audio input in the assistant (issue #5) — UI prepared, capture not implemented — before release / when touching the assistant
 - WhatsApp real provider API (issue #13) — link-generation MVP only — when a provider is chosen
+- Benchmark #28 — D8: walk 5 live request forms + capture (no data submitted) — before closing #5's design
+- Benchmark #28 — 100 individual reviews manual pass — by the 2027-03-01 review date
+- ER diagram of the request model (issue #9) — Phase 6
+- Scheduled job to run `requestService.deleteExpiredDrafts()` in production — wire in #17/#19
 
-Last updated: 2026-08-29 — Phase 5, Sprint 1 setup
+Last updated: 2026-08-29 — Phase 5; Sprints 1 & 2 + benchmark #28 done; next: Sprint 3 (#3, #6)

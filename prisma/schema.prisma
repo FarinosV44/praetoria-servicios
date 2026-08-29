@@ -1,0 +1,440 @@
+// Praetoria Servicios data model.
+// Full business model — issue #9 ("Modelar solicitudes, estados y trazabilidad").
+// Rules: server-validated transitions, immutable status history, non-sequential
+// public identifiers, PII separated from technical logs, consistent timezone (UTC).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Requests (Solicitudes)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum RequestStatus {
+  BORRADOR
+  PENDIENTE_ANALISIS
+  REQUIERE_INFORMACION
+  VALIDADA_CLIENTE
+  EN_REVISION
+  PRESUPUESTO_PREPARADO
+  PRESUPUESTO_ENVIADO
+  ACEPTADA
+  RECHAZADA
+  CANCELADA
+  CERRADA
+}
+
+enum Urgency {
+  BAJA
+  MEDIA
+  ALTA
+  EMERGENCIA
+}
+
+enum ContactChannel {
+  WHATSAPP
+  EMAIL
+}
+
+model Request {
+  id            String        @id @default(cuid())
+  // Public, non-sequential reference shown to the client (e.g. PS-7Q2M-KX9A).
+  reference     String        @unique
+  status        RequestStatus @default(BORRADOR)
+  trade         String? // resolved trade key (see src/config/trades.ts); null while "no sé"
+  clientChoseUnsure Boolean   @default(false)
+  urgency       Urgency?
+  problemText   String? // client's own words (PII-adjacent — never logged)
+
+  municipality  String?
+  postalCode    String?
+  withinCoverage Boolean?
+
+  contact       Contact?
+  location      RequestLocation?
+  photos        Photo[]
+  analyses      AnalysisVersion[]
+  corrections   ClientCorrection[]
+  quotes        Quote[]
+  communications Communication[]
+  consents      Consent[]
+  statusHistory StatusEvent[]
+  insurance     InsuranceCase?
+
+  // Draft lifecycle / retention (issue #9, #17)
+  submittedAt   DateTime?
+  expiresAt     DateTime? // for BORRADOR expiry
+  closedAt      DateTime?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+  @@index([trade])
+  @@index([municipality])
+  @@index([createdAt])
+  @@index([submittedAt])
+}
+
+// Contact data kept in its own table to separate PII from the rest.
+model Contact {
+  id             String         @id @default(cuid())
+  request        Request        @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId      String         @unique
+  name           String
+  phone          String?
+  email          String?
+  preferredChannel ContactChannel
+  availabilityNote String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model RequestLocation {
+  id           String   @id @default(cuid())
+  request      Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId    String   @unique
+  municipality String
+  postalCode   String
+  approxNote   String?
+  createdAt    DateTime @default(now())
+}
+
+model Photo {
+  id           String   @id @default(cuid())
+  request      Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId    String
+  // Storage key in the private blob store — not a public URL.
+  storageKey   String
+  contentType  String
+  byteSize     Int
+  width        Int?
+  height       Int?
+  position     Int      @default(0)
+  hint         String? // "vista general" | "detalle" | "etiqueta" | "zona"
+  deletedAt    DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([requestId, position])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI analysis (issues #7, #8)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AnalysisOutcome {
+  OK
+  NEEDS_MORE_INFO
+  PROVIDER_ERROR
+}
+
+model AnalysisVersion {
+  id             String          @id @default(cuid())
+  request        Request         @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId      String
+  version        Int
+  isActive       Boolean         @default(false)
+  outcome        AnalysisOutcome
+  promptVersion  String
+  // Structured, schema-validated result (src/domain/analysis). No provider "reasoning".
+  result         Json
+  confidence     Int? // 0..100
+  requiresOnSiteInspection Boolean @default(false)
+  createdAt      DateTime        @default(now())
+
+  @@unique([requestId, version])
+  @@index([requestId, isActive])
+}
+
+model ClientCorrection {
+  id           String   @id @default(cuid())
+  request      Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId    String
+  // Which parts the client marked wrong + their clarification text.
+  wrongSections String[]
+  clarification String?
+  addedPhotoIds String[]
+  createdAt    DateTime @default(now())
+
+  @@index([requestId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Quotes (Presupuestos) — issue #12
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum QuoteStatus {
+  BORRADOR
+  ENVIADO
+  ACEPTADO
+  RECHAZADO
+  CADUCADO
+}
+
+model Quote {
+  id            String      @id @default(cuid())
+  request       Request     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId     String
+  version       Int
+  status        QuoteStatus @default(BORRADOR)
+
+  workDescription String
+  // All amounts are integer EUR cents (issue #12: no floating point).
+  subtotalCents Int
+  taxRateBps    Int         @default(2100) // 21% IVA in basis points
+  taxCents      Int
+  totalCents    Int
+  extrasNote    String?
+  exclusionsNote String?
+  professionalRef String? // internal professional or free reference
+  estimatedTimeframe String?
+  validUntil    DateTime?
+  observations  String?
+  attachmentKey String? // private blob key
+
+  sentAt        DateTime?
+  acceptedAt    DateTime?
+  rejectedAt    DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([requestId, version])
+  @@index([requestId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Communications (issue #13)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum CommChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum CommKind {
+  CONFIRMATION
+  INFO_REQUEST
+  QUOTE_AVAILABLE
+  GENERIC
+}
+
+enum CommStatus {
+  PENDING
+  SENT
+  FAILED
+  LINK_PREPARED // WhatsApp: link generated, not auto-sent
+}
+
+model Communication {
+  id           String     @id @default(cuid())
+  request      Request    @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId    String
+  channel      CommChannel
+  kind         CommKind
+  status       CommStatus @default(PENDING)
+  subject      String?
+  // Rendered body is kept for the audit trail; secrets/tokens are never stored here.
+  bodyPreview  String?
+  providerId   String?
+  error        String?
+  attempts     Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([requestId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Consent (issues #10, #14, #18)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ConsentType {
+  REQUEST_HANDLING
+  OPERATIONAL_COMMS
+  MARKETING
+  INSURANCE_DOC_ANALYSIS
+  ANALYTICS
+}
+
+model Consent {
+  id          String      @id @default(cuid())
+  request     Request     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId   String
+  type        ConsentType
+  granted     Boolean
+  textVersion String // which version of the legal text was shown
+  createdAt   DateTime    @default(now())
+
+  @@unique([requestId, type])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Status history — immutable (issue #9)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ActorType {
+  CLIENT
+  ADMIN
+  SYSTEM
+}
+
+model StatusEvent {
+  id         String        @id @default(cuid())
+  request    Request       @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId  String
+  from       RequestStatus?
+  to         RequestStatus
+  actorType  ActorType
+  actorId    String? // admin user id, or null for client/system
+  reason     String?
+  createdAt  DateTime      @default(now())
+
+  @@index([requestId, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Insurance branch (issues #14, #15)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum InsuranceExtractionStatus {
+  PENDING
+  PARTIAL
+  DONE
+  UNREADABLE
+}
+
+enum CoverageVerdict {
+  COBERTURA_PROBABLE
+  EXCLUSION_PROBABLE
+  DUDOSA
+  INFORMACION_INSUFICIENTE
+}
+
+enum DraftReviewStatus {
+  BORRADOR_PENDIENTE_REVISION
+  REVISADO_PRAETORIA
+}
+
+model InsuranceCase {
+  id                 String   @id @default(cuid())
+  request            Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId          String   @unique
+  consentGiven       Boolean  @default(false)
+  documents          InsuranceDocument[]
+  extractionStatus   InsuranceExtractionStatus @default(PENDING)
+  // Tentative identification (issue #14).
+  insurerName        String?
+  policyNumber       String?
+  validFrom          DateTime?
+  validTo            DateTime?
+  extraction         Json? // structured extraction with page references
+  missingDocsNote    String?
+
+  coverage           CoverageAnalysis?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model InsuranceDocument {
+  id            String   @id @default(cuid())
+  case          InsuranceCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId        String
+  storageKey    String // encrypted private blob
+  contentType   String
+  byteSize      Int
+  kind          String? // "condiciones particulares" | "condiciones generales" | "otro"
+  ocrUsed       Boolean  @default(false)
+  pageCount     Int?
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([caseId])
+}
+
+model CoverageAnalysis {
+  id             String   @id @default(cuid())
+  case           InsuranceCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId         String   @unique
+  verdict        CoverageVerdict
+  // Structured result with exact page/text references (issue #15).
+  result         Json
+  confidence     Int?
+  draftText      String? // "parte" / reclamación draft
+  draftStatus    DraftReviewStatus @default(BORRADOR_PENDIENTE_REVISION)
+  reviewedByAdminId String?
+  reviewedAt     DateTime?
+  revisions      CoverageDraftRevision[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model CoverageDraftRevision {
+  id         String   @id @default(cuid())
+  coverage   CoverageAnalysis @relation(fields: [coverageId], references: [id], onDelete: Cascade)
+  coverageId String
+  adminId    String?
+  note       String?
+  draftText  String
+  createdAt  DateTime @default(now())
+
+  @@index([coverageId, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin users (issue #11)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AdminRole {
+  OPERATOR
+  ADMIN
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         AdminRole  @default(OPERATOR)
+  disabledAt   DateTime?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  actions      AdminActionLog[]
+}
+
+// Who did what (issue #11: "Registro de quién realiza cada acción").
+model AdminActionLog {
+  id         String   @id @default(cuid())
+  admin      AdminUser @relation(fields: [adminId], references: [id])
+  adminId    String
+  requestId  String?
+  action     String
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([requestId, createdAt])
+  @@index([adminId, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Signed client links (issue #16)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ClientLink {
+  id          String   @id @default(cuid())
+  requestId   String
+  // Hash of the token — the raw token is never stored.
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  lastUsedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([requestId])
+}

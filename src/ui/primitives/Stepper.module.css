@@ -1,0 +1,60 @@
+.stepper {
+  margin-bottom: var(--space-5);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--c-text-faint);
+}
+.marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--radius-full);
+  border: 2px solid currentColor;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+}
+.done {
+  color: var(--c-success);
+}
+.current {
+  color: var(--c-brand);
+  font-weight: var(--weight-medium);
+}
+.current .marker {
+  background: var(--c-brand);
+  color: var(--c-on-brand);
+}
+.todo {
+  color: var(--c-text-faint);
+}
+.count {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--c-text-soft);
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

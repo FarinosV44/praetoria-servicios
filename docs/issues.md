@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-29 20:00 — initial triage of all 27 open issues; no comments requiring action.
+> Last inbound sweep: 2026-08-29 22:30 — read existing comments on #1/#4/#5/#12 (competitive-benchmark refinements); folded them into docs/02-functional-spec.md ("Refinements from issue comments"). No new issues since #27. No comment requires a reply yet.
 
 ## Build order (dependency-sorted)
 

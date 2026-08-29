@@ -4,6 +4,48 @@ The authoritative requirements are the **GitHub issues** themselves. This docume
 flows, screens and acceptance criteria groups, and records cross-issue rules so no slice re-derives
 them.
 
+## Refinements from issue comments (competitive benchmark — read before building the flows)
+
+Recorded from comments on issues #1, #4, #5, #12 by the client (2026-08-29). These are binding.
+
+**Positioning (#1).** Praetoria is a *managed service*, not a directory or a lead auction: it
+understands the problem, selects the professional, pins down the scope, protects the data and
+follows through to closure. Eight mandatory differentiators: (1) a single point of contact — never
+several professionals chasing the client; (2) the user never has to pick the right trade;
+(3) a written quote comparable against itself — included, excluded, taxes, call-out, timeframe,
+validity; (4) professional identity + qualification known before the visit; (5) photos, address and
+policy never distributed beyond what is necessary; (6) optional insurance analysis with
+clause/page references and a reviewable draft; (7) post-service follow-up, applicable warranty,
+documented incidents; (8) metrics, reviews and badges only if real and verifiable.
+
+**Assistant entry (#5).** The first step is NOT a grid of trades. Three intent entry points:
+1. "Tengo una avería o problema"
+2. "Necesito hacer un trabajo en casa"
+3. "Quiero comprobar si lo cubre mi seguro"
+Then an **immediate safety triage**: uncontrolled water, gas smell, smoke/sparks, electrical risk,
+a person locked in, structural risk? If danger → short safe instructions (cut the supply only if it
+can be done safely, move away, contact emergencies / the relevant service). Praetoria must not
+pretend to offer 24/7 urgent attention it does not have. After the triage, the AI decides which
+data/photos to request for this case — no long generic questionnaire.
+
+**Landing (#4).** Must visibly contrast with (a) the traditional local web (forces a call / WhatsApp
+without knowing what the technician needs) and (b) the marketplace (distributes the request, makes
+the client compare and field calls). Recommended message: *"No buscamos cuatro profesionales para
+que te llamen. Entendemos el problema, seleccionamos la solución adecuada y te acompañamos hasta que
+quede resuelto."* Add: a "Por qué puedes confiar" block tied to #21; a clear explanation of how
+photos/address/policy are protected; a visual example of a quote (scope, total, timeframe,
+warranty); real company/team identity when available; zero invented figures/reviews/years/guarantees;
+a differentiated urgency CTA without a 24/7 promise; insurance copy always "podría estar cubierto",
+never "no pagarás".
+
+**Quote transparency (#12).** The quote must pre-empt the main causes of distrust before acceptance:
+visit/diagnosis price (and whether it is discounted), call-out, labour, materials included and not
+included, taxes, preparatory work and removal/cleanup, assumptions that could change the price, the
+extras-approval procedure, the assigned professional + scope of their verification, date/slot +
+estimated duration, applicable warranty + who is responsible, a maximum total where possible — and
+where it is an estimate, label it clearly as such. Never "precio cerrado" while variables are
+undefined. No extra is added without the client's documented acceptance.
+
 ## Actors
 
 - **Client** — a resident with a home problem. No account. Identified by name + phone/email.

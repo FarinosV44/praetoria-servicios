@@ -44,8 +44,8 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development.  Sprint: 1 (issue #2) CLOSED and fully verified (TP-3 passed, session 2). #2 commented (beat 1), awaiting the user to close.
-- Next action: Sprint 2 — issue #9 persistence layer: `RequestService` (`src/domain/requests/service.ts`) + `src/server/actions/requests.ts` creating requests, applying state-machine-validated transitions and writing immutable `StatusEvent` rows in one transaction, on the committed Prisma schema. Integration tests against the docker `praetoria_test` DB (test-first for the transition-recording + draft-expiry decision logic). Then issue #3 completion (Modal, Uploader, icons, mascot) → issue #6 (photos).
+- Phase: 5 — Development.  Sprint 1 (issue #2) CLOSED+verified, commented, awaiting user close. Sprint 2 (issue #9 persistence) CLOSED+verified (TP-4, 44 tests green).
+- Next action: **Issue #28** (user instruction, 2026-08-29) — documented competitive benchmark → `docs/benchmark-competencia.md`, then comment findings + impact on affected issues (#3, #4, #5, #21, #22, #25, #26). Bounded research task, must not delay implementation. Needs WebSearch/WebFetch. After #28: resume the build order — issue #3 completion (Modal, Uploader, icons, mascot) → #6 (photos) → #10 → #5 → …
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
@@ -58,4 +58,4 @@
 - Audio input in the assistant (issue #5) — UI prepared, capture not implemented — before release / when touching the assistant
 - WhatsApp real provider API (issue #13) — link-generation MVP only — when a provider is chosen
 
-Last updated: 2026-08-29 — Phase 5, Sprint 1 fully verified; starting Sprint 2 (issue #9)
+Last updated: 2026-08-29 — Phase 5, Sprints 1 & 2 closed+verified; next: issue #28 (benchmark)

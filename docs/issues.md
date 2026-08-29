@@ -6,8 +6,10 @@
 
 ## Build order (dependency-sorted)
 
-MVP core (this engagement, first): #2 → #9 → #3 → #6 → #10 → #5 → #7 → #8 → #11 → #12 → #13 → #16 → #14 → #15 → #4 → #17 → #18 → #19 → (#1 EPIC closes when all land).
+MVP core (this engagement): #2 ✅ → #9 ✅ → **#28 (benchmark — user instruction, do now)** → #3 → #6 → #10 → #5 → #7 → #8 → #11 → #12 → #13 → #16 → #14 → #15 → #4 → #17 → #18 → #19 → (#1 EPIC closes when all land).
 Growth (after core): #22 → #21 → #23 → #24 → #25 → #26 → #20 → #27.
+
+Note: #28 must run before #3/#4/#5/#21/#22/#25/#26 are considered closed (issue #28 "Orden").
 
 Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#6) and contact/consent (#10) feed the assistant (#5). AI analysis (#7) then user validation (#8). Admin (#11) then quotes (#12) then comms (#13) then client status link (#16). Insurance (#14→#15) is an optional branch. Landing (#4) can be built once components + flow entry points exist. Security review (#17), SEO/analytics (#18) and E2E/deploy (#19) are cross-cutting closers.
 
@@ -16,13 +18,14 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 |---|-------|------|----------|--------|-------|
 | 1 | [EPIC] MVP funcional de Praetoria Servicios | epic | — | open | — |
 | 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | resolved — awaiting user close | E-001 |
-| 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | open | — |
+| 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | partial (founding system built; complete after #28) | — |
+| 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | in progress | E-003 |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
 | 6 | Captura, subida y gestión segura de fotografías | feature | high | open | — |
 | 7 | Análisis multimodal del problema mediante IA | feature | high | open | — |
 | 8 | Validación, corrección y nuevo análisis por el usuario | feature | high | open | — |
-| 9 | Modelar solicitudes, estados y trazabilidad de negocio | task | high | open | — |
+| 9 | Modelar solicitudes, estados y trazabilidad de negocio | task | high | resolved (Sprint 2) — awaiting user close; ER diagram deferred to Phase 6 | E-002 |
 | 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | open | — |
 | 11 | Autenticación y panel administrativo de solicitudes | feature | high | open | — |
 | 12 | Gestionar presupuestos y plazos desde administración | feature | high | open | — |
@@ -63,3 +66,39 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 - Inbound: none since the last sweep
 - Lesson: L-001 (corrupt migration SQL), L-002 (blank env var) — both fixed
 - Pending: user to close #2.
+
+### E-002 — #9 Modelar solicitudes, estados y trazabilidad de negocio
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/9   Status: resolved 2026-08-29 (Sprint 2) — awaiting user close
+- Diagnosis: n/a (greenfield)
+- Resolution: Prisma schema (committed in #2) covers every entity. Sprint 2 added the persistence
+  layer: `src/domain/requests/schema.ts` (Zod), `src/domain/requests/draft.ts` (pure expiry),
+  `src/server/services/requests.ts` (`RequestService`: create draft, fetch, describeProblem +
+  coverage, attachContact + 3 granular consents + phone normalisation, `applyTransition`
+  transactional writing an immutable `StatusEvent`, idempotent `submit`, `deleteExpiredDrafts`),
+  `src/server/actions/requests.ts` (thin actions). Server-validated transitions via the
+  state machine; non-sequential public reference; PII in its own `Contact` table.
+- Changes: commit "feat(#9): request persistence layer" on `develop`.
+- Verification: TP-4 — 5 pure + 9 integration tests against `praetoria_test`, all green (44 total).
+- Replies: none yet — will comment (beat 1) with the sweep.
+- Deploy: n/a
+- Closed by: still open — user closes
+- Inbound: none
+- Lesson: none
+- Pending: ER diagram of the model (Phase 6). Draft-expiry needs a scheduled job to actually run
+  `deleteExpiredDrafts` in production (wire in issue #17 or #19).
+
+### E-003 — #28 Benchmark de competencia
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/28   Status: in progress (session 2)
+- Diagnosis: n/a (research task)
+- Resolution: producing `docs/benchmark-competencia.md` per the issue's deliverable list; then
+  commenting findings + impact level on #3, #4, #5, #21, #22, #25, #26.
+- Changes: (in progress)
+- Verification: acceptance criteria checklist in the issue — ≥10 competitors (≥5 local), ≥5 real
+  request flows walked (no fake data submitted), ≥100 aggregated reviews with source/date/evidence,
+  ≥10 concrete product decisions, affected issues updated, no unverified claims incorporated.
+- Replies: none yet
+- Deploy: n/a
+- Closed by: still open — user closes
+- Inbound: none
+- Lesson: none
+- Pending: the document + the issue comments.

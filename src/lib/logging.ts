@@ -41,6 +41,8 @@ type Level = "debug" | "info" | "warn" | "error";
 
 function emit(level: Level, message: string, fields?: Record<string, unknown>) {
   if (level === "debug" && !env.DEBUG_LOGS) return;
+  // Keep the test runner's output clean — errors still surface.
+  if (env.NODE_ENV === "test" && level !== "error" && !env.DEBUG_LOGS) return;
   const line = {
     t: new Date().toISOString(),
     level,

@@ -27,7 +27,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 8 | Validación, corrección y nuevo análisis por el usuario | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 9 | Modelar solicitudes, estados y trazabilidad de negocio | task | high | resolved (Sprint 2) — awaiting user close; ER diagram deferred to Phase 6 | E-002 |
 | 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
-| 11 | Autenticación y panel administrativo de solicitudes | feature | high | open | — |
+| 11 | Autenticación y panel administrativo de solicitudes | feature | high | resolved (Sprint 6) — awaiting user close | E-007 |
 | 12 | Gestionar presupuestos y plazos desde administración | feature | high | open | — |
 | 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | open | — |
 | 14 | Subir y procesar una póliza de seguro de hogar | feature | med | open | — |
@@ -86,6 +86,17 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 - Lesson: none
 - Pending: ER diagram of the model (Phase 6). Draft-expiry needs a scheduled job to actually run
   `deleteExpiredDrafts` in production (wire in issue #17 or #19).
+
+### E-007 — #11 Admin auth + panel
+- Link: /issues/11   Status: resolved 2026-08-29 (Sprint 6) — awaiting user close
+- Resolution: `lib/password.ts` (scrypt), `server/auth.ts` (HMAC signed-cookie session, D-012 —
+  not Auth.js), `src/proxy.ts` guard + `(panel)/layout.tsx` + `requireSession()` per action,
+  `server/services/admin.ts` (list/filters/search, detail w/ signed photo URLs, classify, status via
+  state machine, more-info, KPIs, `AdminActionLog`), `/admin/{login,inbox,solicitudes/[ref]}`.
+- Verification: TP-7 — 10 tests + browser walkthrough (unauth→login; status change PS-W25F-TAYZ→
+  EN_REVISION with ADMIN StatusEvent + action-log row). 76 total green.
+- Closed by: still open — user closes.
+- Pending: real admin user management UI (create/disable other admins) — deferred to growth/ops.
 
 ### E-006 — #5 #7 #8 #10 Client assistant flow
 - Links: /issues/5 /7 /8 /10   Status: resolved 2026-08-29 (Sprint 5) — awaiting user close

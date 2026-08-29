@@ -15,7 +15,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | # | Title | Type | Priority | Status | Entry |
 |---|-------|------|----------|--------|-------|
 | 1 | [EPIC] MVP funcional de Praetoria Servicios | epic | — | open | — |
-| 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | in progress | E-001 |
+| 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | in progress (code done, TP-3 pending) | E-001 |
 | 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | open | — |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
@@ -45,14 +45,21 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 ## Entries (one per issue worked)
 
 ### E-001 — #2 Inicializar arquitectura, stack y entorno reproducible
-- Link: https://github.com/FarinosV44/praetoria-servicios/issues/2   Status: in progress
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/2   Status: code complete — awaiting live-DB verification (TP-3) before proposing close
 - Diagnosis: n/a (greenfield task, not a bug)
-- Resolution: Scaffolded Next.js 16 App Router + TS strict + Tailwind v4 with create-next-app. Adding: domain-oriented structure (`src/domain`, `src/adapters`, `src/lib`, `src/server`, `src/ui`, `src/config`), Prisma + docker-compose Postgres, Zod, `src/lib/env.ts` (validated env), adapter interfaces with mock/dev impls, `.env.example`, README run/migrate/deploy section, GitHub Actions CI (lint + typecheck + test + build).
-- Changes: (in progress) — commits on `develop`
-- Verification: `npm run lint`, `npm run typecheck` (to add), `npm run build`, `npm test` (to add) must pass; healthcheck route responds.
-- Replies: none yet
+- Resolution: Next.js 16 App Router + TS strict + Tailwind v4. Domain-oriented structure
+  (`src/domain`, `src/adapters`, `src/lib`, `src/server`, `src/ui`, `src/config`). Prisma schema
+  (full issue-#9 model) + generated initial migration. `docker-compose.yml` (Postgres 16). Zod
+  everywhere; `src/lib/env.ts` validates process.env and never logs values. Adapter interfaces +
+  mock/dev impls for AI / storage / email / WhatsApp / OCR + `src/server/container.ts` composition
+  root. `.env.example` complete, no secrets. README (install/migrate/run/deploy). GitHub Actions CI
+  (lint + typecheck + test + build + `npm audit`). Healthcheck `GET /api/health`. Temp landing.
+  Founding design system (issue #3 partial).
+- Changes: commits on `develop` — "chore: project scaffold + Keel foundation", "feat(#2): foundation".
+- Verification: `npm run lint`, `npm run typecheck`, `npm test` (30 pass), `npx next build` — all green (TP-1, TP-2). `prisma migrate deploy` against a live DB + healthcheck DB check + seed — NOT run this session (Docker Desktop off) → TP-3, unverified.
+- Replies: none yet (issue not commented — will comment when TP-3 passes, per the 3-beat rule)
 - Deploy: n/a
 - Closed by: still open
 - Inbound: none since the last sweep
 - Lesson: none
-- Pending: Prisma schema (shared with #9), CI workflow, README, healthcheck, dev seed.
+- Pending: TP-3 (apply migration on a machine with Docker); then comment on #2 and propose close. Remaining issue-#2 AC that depend on TP-3: "un clon limpio arranca siguiendo el README", "la base de datos se crea mediante migraciones".

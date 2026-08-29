@@ -1,0 +1,21 @@
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.interactive {
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
+}
+.interactive:hover {
+  border-color: var(--c-brand);
+  box-shadow: var(--shadow-md);
+}
+.interactive:active {
+  transform: translateY(1px);
+}

@@ -44,13 +44,13 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development.  Sprint: 1 (Foundation) — issue #2 (scaffold, stack, adapters, reproducible env).
-- Next action: Finish Sprint 1 — Prisma + docker-compose Postgres, `src/lib/env.ts`, adapter interfaces + mock impls, `.env.example`, README run section, base CI workflow. Then issue #9 (data model) and issue #3 (design tokens).
+- Phase: 5 — Development.  Sprint: 1 (Foundation, issue #2) — CLOSED (code); one unverified item (TP-3, migration apply — needs Docker).
+- Next action: Start Sprint 2 — issue #9 persistence layer: a `RequestService` in `src/domain/requests` + `src/server/actions` that creates requests, applies validated transitions and writes immutable `StatusEvent` rows on top of the committed Prisma schema; test-first for the transition-recording logic. Then complete issue #3 (Modal, Uploader, icon set, mascot SVG) and move to issue #6 (photo capture/upload).
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
 - Open Design Requests: none
-- Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use)
+- Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use); TP-3 — initial DB migration not yet applied against a live PostgreSQL (Docker Desktop was off this session)
 - Forge issues in progress: see docs/issues.md — all 27 open; building in dependency order
 
 ### Deferred items (consciously postponed work)
@@ -58,4 +58,4 @@
 - Audio input in the assistant (issue #5) — UI prepared, capture not implemented — before release / when touching the assistant
 - WhatsApp real provider API (issue #13) — link-generation MVP only — when a provider is chosen
 
-Last updated: 2026-08-29 — Phase 5, Sprint 1 setup
+Last updated: 2026-08-29 — Phase 5, Sprint 1 closed (issue #2 code complete; TP-3 pending live DB)

@@ -1,0 +1,34 @@
+.block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+.inline {
+  display: inline-flex;
+  align-items: center;
+}
+.dot {
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 3px solid var(--c-border-strong);
+  border-top-color: var(--c-brand);
+  border-radius: var(--radius-full);
+  animation: spinner-rotate 0.8s linear infinite;
+}
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

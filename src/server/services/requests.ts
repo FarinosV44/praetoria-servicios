@@ -224,6 +224,16 @@ export const requestService = {
     return ok(updated);
   },
 
+  /** Raise urgency from the assistant's safety triage (issue #5). */
+  async setUrgencyFromTriage(requestId: string, riskKeys: string[]): Promise<void> {
+    if (riskKeys.length === 0) return;
+    const emergency = riskKeys.some((k) => ["gas", "fuego", "estructural"].includes(k));
+    await db.request.update({
+      where: { id: requestId },
+      data: { urgency: emergency ? "EMERGENCIA" : "ALTA" },
+    });
+  },
+
   /** Client submits the assistant. Idempotent: a second call is a no-op. */
   async submit(requestId: string): Promise<Result<Request, ServiceError>> {
     const current = await db.request.findUnique({

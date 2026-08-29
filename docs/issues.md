@@ -22,7 +22,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | resolved — awaiting user close | E-003 |
 | 4 | Landing comercial orientada a conversión | feature | med | open | — |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | open | — |
-| 6 | Captura, subida y gestión segura de fotografías | feature | high | open | — |
+| 6 | Captura, subida y gestión segura de fotografías | feature | high | resolved (Sprint 4) — awaiting user close | E-005 |
 | 7 | Análisis multimodal del problema mediante IA | feature | high | open | — |
 | 8 | Validación, corrección y nuevo análisis por el usuario | feature | high | open | — |
 | 9 | Modelar solicitudes, estados y trazabilidad de negocio | task | high | resolved (Sprint 2) — awaiting user close; ER diagram deferred to Phase 6 | E-002 |
@@ -86,6 +86,18 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 - Lesson: none
 - Pending: ER diagram of the model (Phase 6). Draft-expiry needs a scheduled job to actually run
   `deleteExpiredDrafts` in production (wire in issue #17 or #19).
+
+### E-005 — #6 Captura, subida y gestión segura de fotografías
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/6   Status: resolved 2026-08-29 (Sprint 4) — awaiting user close
+- Resolution: `domain/photos/validation.ts` (magic-byte type sniff; rejects executables),
+  `lib/rate-limit.ts` + `lib/http.ts`, `server/services/photos.ts` (key-only storage, signed URLs,
+  soft-delete + blob delete, `deleteAllForRequest` wired into draft expiry), `POST /api/uploads`
+  (origin check + rate limit + one file), `ui/patterns/{image-client.ts,PhotoUpload.tsx}`
+  (EXIF orientation + downscale + per-file progress/retry).
+- Verification: TP-5 — 17 unit + 5 photo integration tests; live curl (201 / 422 / 403 / signed 200 /
+  tampered 403); file lands in private `.storage/`, not `public/`.
+- Replies: none yet.
+- Closed by: still open — user closes.
 
 ### E-004 — #3 Identidad visual y sistema de diseño
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/3   Status: resolved 2026-08-29 (Sprint 3) — awaiting user close

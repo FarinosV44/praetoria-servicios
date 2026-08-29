@@ -44,8 +44,9 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development.  Sprints done+verified: 1 (#2), 2 (#9). #28 benchmark done (`docs/benchmark-competencia.md`, decisions D1–D12 in `docs/02-functional-spec.md`, affected issues commented). #2 / #9 / #28 awaiting user close.
-- Next action: Sprint 3 — issue #3 completion (Modal, Uploader shell, consistent trade+state icon set, emotional mascot SVG) applying benchmark D1/D2/D10; then issue #6 (photos: client compression + orientation fix, magic-byte validation client+server, private storage + signed URLs, per-file progress/retry). Then #10 → #5 (assistant, applying D1/D2/D8) → #7 → #8 → #11 → #12 (apply D4) → #13 → #16 → #14 → #15 (apply D5) → #4 (apply D3/D9) → #17 → #18 → #19.
+- Phase: 5 — Development.  Done+verified: #2, #3, #6, #9, #28. All awaiting user close on GitHub.
+- User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — details still needed at deploy time).
+- Next action: Sprint 5 — the client assistant flow, coupled issues built together: #10 (contact/consent UI + "solicitud creada" page) + #5 (assistant wizard: intent → safety triage → category/photos/explanation/location → analysis → validation → contact) + #7 (AI analysis via mock adapter + schema validation + persistence) + #8 (validation/correction/re-analysis). Then #11 (admin auth+inbox) → #12 (quotes, apply D4) → #13 (comms) → #16 (client status link) → #14 (insurance upload) → #15 (coverage analysis, apply D5) → #4 (landing, apply D3/D9) → #17 (security review) → #18 (SEO/analytics) → #19 (E2E/observability/deploy). Then growth #20–#27.
 
 ## Open items
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).

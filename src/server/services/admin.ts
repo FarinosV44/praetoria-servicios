@@ -6,6 +6,7 @@ import { analysisService } from "./analysis";
 import { photoService } from "./photos";
 import { communicationService } from "./communications";
 import { insuranceService } from "./insurance";
+import { coverageService } from "./coverage";
 import { env } from "@/lib/env";
 import type { Prisma, RequestStatus, Urgency } from "@prisma/client";
 import { err, ok, type Result } from "@/lib/result";
@@ -105,7 +106,16 @@ export const adminService = {
     });
     const communications = await communicationService.listForRequest(request.id);
     const insurance = await insuranceService.getCase(request.id, { withUrls: true });
-    return { request: full, photos, analysisHistory, corrections, communications, insurance };
+    const coverage = insurance ? await coverageService.getForRequest(request.id) : null;
+    return {
+      request: full,
+      photos,
+      analysisHistory,
+      corrections,
+      communications,
+      insurance,
+      coverage,
+    };
   },
 
   async updateClassification(

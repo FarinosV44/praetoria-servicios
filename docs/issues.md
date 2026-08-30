@@ -31,7 +31,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 12 | Gestionar presupuestos y plazos desde administración | feature | high | resolved (Sprint 7) — awaiting user close | E-008 |
 | 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | resolved (Sprint 8) — awaiting user close | E-009 |
 | 14 | Subir y procesar una póliza de seguro de hogar | feature | med | resolved (Sprint 10) — awaiting user close | E-011 |
-| 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | open | — |
+| 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | resolved (Sprint 11) — awaiting user close | E-012 |
 | 16 | Consulta segura del estado y respuesta del cliente | feature | high | resolved (Sprint 9) — awaiting user close | E-010 |
 | 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | open | — |
 | 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | open | — |
@@ -46,6 +46,36 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-012 — #15 Analizar cobertura y generar borrador jurídico revisable
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/15   Status: resolved 2026-08-30 (Sprint 11) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/insurance/coverage.ts` (pure — `buildCoverageBreakdown` = the D5
+  three-way split *cláusula de póliza · norma/proceso · valoración*, page refs kept on the clause;
+  `needsPolicyDocument`; `buildDraft` = HECHOS/PETICIÓN/FUNDAMENTO CONTRACTUAL/ANEXOS with the page
+  reference in the fundamento and a prudent footer; `STANDARD_CAVEATS` = never promises coverage, no
+  invented articles, the "falta de mantenimiento" pattern; `PROCESS_STEPS` = perito → tercer perito
+  → Defensor del Asegurado → DGSFP → vía judicial). `src/server/services/coverage.ts` — `analyze`
+  (active analysis + `insuranceService.getPolicyPages` → `adapters.ai.analyzeCoverage` → validate →
+  `CoverageAnalysis` with `draftText`, `BORRADOR_PENDIENTE_REVISION`), `getForRequest`,
+  `markReviewed` (records `reviewedByAdminId` + `reviewedAt` + a `CoverageDraftRevision`),
+  `reviseDraft` (keeps the prior text as a revision). `src/server/actions/coverage.ts`. Admin
+  `CoveragePanel` on the request detail (run, D5 split, page refs, draft labelled, mark reviewed,
+  edit, revision history). `/s/[token]` `CoverageClientView` (verdict + facts + docs + process +
+  caveats always; the draft only once REVISADO_PRAETORIA). No migration (`CoverageAnalysis` /
+  `CoverageDraftRevision` shipped with #9; `coverageResultSchema` shipped with #7).
+- Changes: commit "feat(#15): coverage analysis + reviewable legal draft" on `develop`.
+- Verification: TP-12 — 11 pure + 6 integration tests (162 total green); lint/typecheck/build clean;
+  browser drive of the admin panel (mark reviewed → status flip + revision history) and the client
+  view (draft hidden before review, shown after).
+- Acceptance criteria: pageref ✅, needdoc ✅, draftparts ✅, limits ✅, humanreview ✅.
+- Replies: beat 1 — completion comment to post on GitHub #15. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (a browser-harness quirk with the admin login `type` action is noted in the sprint
+  file for the next session).
+- Pending: the real AI coverage provider (mock covers dev/test); an in-assistant entry to trigger
+  the coverage analysis (the admin runs it now).
 
 ### E-011 — #14 Subir y procesar una póliza de seguro de hogar
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/14   Status: resolved 2026-08-30 (Sprint 10) — awaiting user close

@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { clientLinkService } from "@/server/services/clientLink";
 import { photoService } from "@/server/services/photos";
 import { insuranceService } from "@/server/services/insurance";
+import { coverageService } from "@/server/services/coverage";
 import { ClientStatusView } from "./ClientStatusView";
 import { InsuranceSection } from "./InsuranceSection";
+import { CoverageClientView } from "./CoverageClientView";
 import { RecoverAccess } from "./RecoverAccess";
 import styles from "./link.module.css";
 
@@ -59,6 +61,7 @@ export default async function ClientLinkPage({
 
   const photos = view.canAddInfo ? await photoService.list(link.value.requestId) : [];
   const insuranceCase = await insuranceService.getCase(link.value.requestId);
+  const coverage = insuranceCase ? await coverageService.getForRequest(link.value.requestId) : null;
 
   return (
     <main id="contenido" className={styles.page}>
@@ -94,6 +97,19 @@ export default async function ClientLinkPage({
           pageCount: d.pageCount,
         }))}
       />
+
+      {coverage && coverage.breakdown && (
+        <CoverageClientView
+          verdictLabel={coverage.breakdown.assessment.verdictLabel}
+          needsPolicyDocument={coverage.needsPolicyDocument}
+          factsToProve={coverage.breakdown.assessment.factsToProve}
+          recommendedDocumentation={coverage.breakdown.assessment.recommendedDocumentation}
+          process={coverage.breakdown.legalNorm.process}
+          caveats={coverage.breakdown.assessment.caveats}
+          reviewed={coverage.reviewed}
+          draftText={coverage.reviewed ? coverage.draftText : null}
+        />
+      )}
     </main>
   );
 }

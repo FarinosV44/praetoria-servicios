@@ -5,6 +5,7 @@ import { findTrade } from "@/config/trades";
 import { AdminRequestControls } from "./Controls";
 import { CommsPanel } from "./CommsPanel";
 import { InsurancePanel } from "./InsurancePanel";
+import { CoveragePanel } from "./CoveragePanel";
 import styles from "../../../admin.module.css";
 
 function fmt(d: Date | null | undefined) {
@@ -18,7 +19,8 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
   const data = await adminService.getDetail(ref);
   if (!data) notFound();
 
-  const { request, photos, analysisHistory, corrections, communications, insurance } = data;
+  const { request, photos, analysisHistory, corrections, communications, insurance, coverage } =
+    data;
   const active = analysisHistory.find((a) => a.isActive);
   const result =
     active && active.outcome !== "PROVIDER_ERROR"
@@ -181,6 +183,33 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
                 extraction: insurance.extraction,
                 documents: insurance.documents,
               }}
+            />
+          )}
+
+          {insurance && (
+            <CoveragePanel
+              reference={request.reference}
+              coverage={
+                coverage
+                  ? {
+                      verdict: coverage.verdict,
+                      confidence: coverage.confidence,
+                      draftText: coverage.draftText,
+                      draftStatusLabel: coverage.draftStatusLabel,
+                      reviewed: coverage.reviewed,
+                      reviewedAt: coverage.reviewedAt
+                        ? coverage.reviewedAt.toISOString()
+                        : null,
+                      needsPolicyDocument: coverage.needsPolicyDocument,
+                      breakdown: coverage.breakdown,
+                      revisions: coverage.revisions.map((r) => ({
+                        id: r.id,
+                        note: r.note,
+                        createdAt: r.createdAt.toISOString(),
+                      })),
+                    }
+                  : null
+              }
             />
           )}
 

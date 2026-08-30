@@ -251,6 +251,35 @@ export const insuranceService = {
     return ok(null);
   },
 
+  /**
+   * OCR pages across every document of the case, for the coverage analysis
+   * (issue #15). Deterministic with the mock OCR. `document` is the readable
+   * kind label so references in the draft are human-legible.
+   */
+  async getPolicyPages(
+    requestId: string,
+  ): Promise<{ document: string; page: number; text: string }[]> {
+    const insCase = await db.insuranceCase.findUnique({
+      where: { requestId },
+      include: { documents: { where: { deletedAt: null } } },
+    });
+    if (!insCase) return [];
+    const ocr = getAdapters().ocr;
+    const storage = getAdapters().storage;
+    const out: { document: string; page: number; text: string }[] = [];
+    for (const doc of insCase.documents) {
+      const data = await storage.get(doc.storageKey);
+      const label = DOC_KIND_LABEL[(doc.kind as DocKind) ?? "otro"];
+      const res = await ocr.extract({
+        data: data ?? new Uint8Array(),
+        contentType: doc.contentType,
+        documentLabel: label,
+      });
+      for (const p of res.pages) out.push({ document: label, page: p.page, text: p.text });
+    }
+    return out;
+  },
+
   /** Retention purge — every document blob + row + the case (issue #14, #17). */
   async purge(requestId: string): Promise<number> {
     const insCase = await db.insuranceCase.findUnique({

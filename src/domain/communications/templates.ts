@@ -79,6 +79,9 @@ export function renderTemplate(kind: CommKind, ctx: TemplateContext): RenderedMe
     case "CONFIRMATION":
       subjectTpl = c.confirmation.subject;
       bodyTpl = c.confirmation.body;
+      base.url = ctx.url?.trim()
+        ? fill(c.confirmation.urlLine, { url: ctx.url.trim() })
+        : c.confirmation.noUrlLine;
       break;
     case "INFO_REQUEST":
       subjectTpl = c.infoRequest.subject;

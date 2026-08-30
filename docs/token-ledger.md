@@ -12,3 +12,4 @@ Estimate (informal, no client budget — D-001): MVP core issues #1–#19 ≈ 30
 many sessions; growth #20–#27 a comparable amount again.
 | 2 | 2026-08-29 | Sprints 3-7: #3 #5 #6 #7 #8 #10 #11 #12 + #2 verify + #28 benchmark | claude-sonnet-5 | ~5M cumulative in-context | design system, assistant flow (browser-verified), photos, admin panel (browser-verified), quotes; 88 tests |
 | 3 | 2026-08-30 | Keel v5.19.0→v5.19.2 update; Sprint 8 (#13 email + WhatsApp comms, TP-9) | claude-sonnet-5 | ~0.3M this session (of 15M budget) | communications domain + service + admin panel; 20 new tests (108 total); browser-verified admin comms flow; L-003. |
+| 3 | 2026-08-30 | Sprint 9 (#16 signed client status link, TP-10) + #13 retro-wire | claude-sonnet-5 | ~0.7M cumulative this session | client-view domain + clientLinkService + /s/[token] page + token-scoped uploads; 19 new tests (121 total); browser-verified client accept flow with evidence. |

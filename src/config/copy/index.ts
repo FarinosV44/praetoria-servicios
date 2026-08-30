@@ -49,9 +49,11 @@ export const COPY = {
         "Hola {name}:\n\n" +
         "Hemos recibido tu solicitud con la referencia {reference}. La estamos revisando y te " +
         "responderemos en menos de 24 horas laborables con un presupuesto y un plazo.\n\n" +
-        "No necesitas hacer nada más por ahora. Si quieres añadir información o fotos, responde a " +
-        "este mensaje.\n\n" +
+        "{url}\n\n" +
+        "No necesitas hacer nada más por ahora.\n\n" +
         "{signature}",
+      urlLine: "Puedes seguir el estado de tu solicitud aquí: {url}",
+      noUrlLine: "Si quieres añadir información o fotos, responde a este mensaje.",
     },
     infoRequest: {
       subject: "Necesitamos un dato más para tu solicitud ({reference}) · {brand}",

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { analysisService, type AnalysisView } from "@/server/services/analysis";
 import { requestService } from "@/server/services/requests";
 import { communicationService } from "@/server/services/communications";
+import { clientLinkService } from "@/server/services/clientLink";
 import { contactSchema } from "@/domain/requests/schema";
 import { TRIAGE_RISKS } from "@/domain/assistant/triage";
 import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -85,9 +86,15 @@ export async function finishRequestAction(
     });
   }
 
-  // Send the request confirmation (issue #13). Best-effort — a comms failure
-  // never affects the submitted request.
-  await communicationService.notify({ requestId, kind: "CONFIRMATION" });
+  // Issue a signed status link (issue #16) and send the confirmation with it
+  // (issue #13). Best-effort — a comms failure never affects the submitted request.
+  let statusUrl: string | undefined;
+  try {
+    statusUrl = (await clientLinkService.issue(requestId)).url;
+  } catch {
+    statusUrl = undefined;
+  }
+  await communicationService.notify({ requestId, kind: "CONFIRMATION", url: statusUrl });
 
   return ok({ reference: submitted.value.reference });
 }

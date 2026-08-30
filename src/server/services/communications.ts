@@ -147,31 +147,25 @@ export const communicationService = {
         html: wrapStoredText(brand, row.request.reference, text),
         tag: `${row.kind}:${row.request.reference}`,
       });
-      if (receipt.ok) {
-        await db.communication.update({
-          where: { id: row.id },
-          data: {
-            status: "SENT",
-            providerId: receipt.providerId ?? null,
-            error: null,
-            attempts: { increment: 1 },
-          },
-        });
-        sent++;
-      } else {
-        await db.communication.update({
-          where: { id: row.id },
-          data: {
-            status: "FAILED",
-            error: (receipt.error ?? "send failed").slice(0, 500),
-            attempts: { increment: 1 },
-          },
-        });
-        failed++;
-      }
+      await this.applyReceipt(row.id, receipt);
+      if (receipt.ok) sent++;
+      else failed++;
     }
     if (sent || failed) log.info("communication queue processed", { sent, failed });
     return { sent, failed };
+  },
+
+  /** Record a delivery attempt on a row. */
+  async applyReceipt(
+    rowId: string,
+    receipt: { ok: boolean; providerId?: string; error?: string },
+  ): Promise<void> {
+    await db.communication.update({
+      where: { id: rowId },
+      data: receipt.ok
+        ? { status: "SENT", providerId: receipt.providerId ?? null, error: null, attempts: { increment: 1 } }
+        : { status: "FAILED", error: (receipt.error ?? "send failed").slice(0, 500), attempts: { increment: 1 } },
+    });
   },
 
   /** Move FAILED rows that still have retries left back to PENDING. */
@@ -237,9 +231,37 @@ export const communicationService = {
         log.warn("communication enqueue skipped", { kind: input.kind, reason: r.error.kind });
         return;
       }
-      if (!r.value.skipped && r.value.status === "PENDING") {
-        await this.sendPending({ max: 3 });
+      if (r.value.skipped || r.value.status !== "PENDING") return;
+
+      // Immediate send with the live context (e.g. the signed `/s/<token>` URL,
+      // issue #16) which is NOT persisted on the row. If this send fails, the
+      // row stays PENDING and `sendPending` later delivers the stored fallback
+      // body (which has no URL) — degraded but never lost.
+      const row = await db.communication.findUnique({
+        where: { id: r.value.id },
+        include: { request: { select: { reference: true, contact: { select: { name: true, email: true } } } } },
+      });
+      if (!row || row.channel !== "EMAIL" || row.status !== "PENDING") return;
+      const to = row.request.contact?.email;
+      if (!to) {
+        await this.applyReceipt(row.id, { ok: false, error: "no email on contact" });
+        return;
       }
+      const rendered = renderTemplate(row.kind, {
+        clientName: row.request.contact?.name ?? "",
+        reference: row.request.reference,
+        message: input.message,
+        url: input.url,
+      });
+      const { mailer } = getAdapters();
+      const receipt = await mailer.send({
+        to,
+        subject: rendered.subject,
+        text: rendered.text,
+        html: rendered.html,
+        tag: `${row.kind}:${row.request.reference}`,
+      });
+      await this.applyReceipt(row.id, receipt);
     } catch (e) {
       log.error("communication notify failed", { kind: input.kind, error: String(e) });
     }

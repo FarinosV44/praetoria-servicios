@@ -32,7 +32,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | resolved (Sprint 8) — awaiting user close | E-009 |
 | 14 | Subir y procesar una póliza de seguro de hogar | feature | med | open | — |
 | 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | open | — |
-| 16 | Consulta segura del estado y respuesta del cliente | feature | high | open | — |
+| 16 | Consulta segura del estado y respuesta del cliente | feature | high | resolved (Sprint 9) — awaiting user close | E-010 |
 | 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | open | — |
 | 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | open | — |
 | 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | open | — |
@@ -46,6 +46,31 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-010 — #16 Consulta segura del estado y respuesta del cliente
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/16   Status: resolved 2026-08-30 (Sprint 9) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/requests/client-view.ts` (pure — every `RequestStatus` → comprehensible
+  label/description/tone, `canDecideQuote`/`canAddInfo`), `src/lib/phone.ts` `phoneLast4Matches`.
+  `src/server/services/clientLink.ts` — `issue` (stores only the SHA-256 hash), `resolve`
+  (HMAC verify → hash match → not revoked → not expired), `revokeAll`, `regenerate` (reference +
+  phone last-4), `getClientView` (per-request only), `addClientInfo` (ClientCorrection; re-queues on
+  REQUIERE_INFORMACION), `decideQuote` (phone last-4 → `quoteService.recordDecision` with evidence).
+  `src/server/actions/clientLink.ts` (rate-limited `linkLookup`/`linkIssue`). `/s/[token]` page +
+  `ClientStatusView` + `RecoverAccess`. `/api/uploads` accepts a link `token`; `PhotoUpload` gained
+  `linkToken`. Wired: link issued on submit + on quote send; CONFIRMATION and QUOTE_AVAILABLE emails
+  carry the `/s/<token>` URL (applied at send time, never persisted — L-003 principle). No migration
+  (`ClientLink` shipped with #9; `lib/signed-link.ts` shipped with #2 groundwork).
+- Changes: commit "feat(#16): signed client status link + response" on `develop`.
+- Verification: TP-10 — 13 pure + 6 integration tests (121 total green); lint/typecheck/build clean;
+  browser drive of `/s/[token]` (full D4 quote view, wrong-code rejected, correct-code accepted →
+  DB `ACEPTADA`/`ACEPTADO` + evidence `{via:signed-link,quoteVersion:1,ip}`).
+- Acceptance criteria: nosequential ✅, noleak ✅, verify ✅, evidence ✅, nointernal ✅.
+- Replies: beat 1 — completion comment to post on GitHub #16. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (an env note on `SIGNED_LINK_SECRET` went to `docs/playground.md`).
+- Pending: a scheduled runner for `clientLink` expiry cleanup is optional (#17/#19).
 
 ### E-009 — #13 Comunicaciones por email y WhatsApp
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/13   Status: resolved 2026-08-30 (Sprint 8) — awaiting user close
@@ -71,8 +96,8 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
   into the single end-of-backlog Hostinger deploy per the user's standing instruction.
 - Closed by: still open — the user closes.
 - Lesson: L-003 (WhatsApp link re-rendered without the admin message) — fixed in-sprint.
-- Pending: retro-wire the signed `/s/<token>` URL into the QUOTE_AVAILABLE template at #16;
-  a scheduled `sendPending()` runner at #17/#19.
+- Pending: a scheduled `sendPending()` runner at #17/#19. (The `/s/<token>` URL retro-wire into
+  QUOTE_AVAILABLE + CONFIRMATION was done in Sprint 9 / #16.)
 
 ### E-001 — #2 Inicializar arquitectura, stack y entorno reproducible
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/2   Status: resolved 2026-08-29 — commented (beat 1); awaiting the user to close

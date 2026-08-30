@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeSpanishPhone } from "./phone";
+import { normalizeSpanishPhone, phoneLast4Matches } from "./phone";
 
 describe("normalizeSpanishPhone", () => {
   it("normalises common mobile formats to E.164", () => {
@@ -44,5 +44,24 @@ describe("normalizeSpanishPhone", () => {
   it("rejects empty and non-numeric", () => {
     expect(normalizeSpanishPhone("")).toEqual({ ok: false, reason: "empty" });
     expect(normalizeSpanishPhone("abc")).toEqual({ ok: false, reason: "not_numeric" });
+  });
+});
+
+describe("phoneLast4Matches", () => {
+  it("matches the last 4 digits regardless of formatting", () => {
+    expect(phoneLast4Matches("+34600111222", "1222")).toBe(true);
+    expect(phoneLast4Matches("600 111 222", "1222")).toBe(true);
+  });
+
+  it("rejects a wrong or malformed attempt", () => {
+    expect(phoneLast4Matches("+34600111222", "9999")).toBe(false);
+    expect(phoneLast4Matches("+34600111222", "222")).toBe(false);
+    expect(phoneLast4Matches("+34600111222", "12220")).toBe(false);
+  });
+
+  it("rejects when there is no stored phone", () => {
+    expect(phoneLast4Matches(null, "1222")).toBe(false);
+    expect(phoneLast4Matches("", "1222")).toBe(false);
+    expect(phoneLast4Matches("12", "0012")).toBe(false);
   });
 });

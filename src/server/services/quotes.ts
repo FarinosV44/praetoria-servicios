@@ -203,9 +203,21 @@ export const quoteService = {
     }
     await adminService.logAction(adminId, "quote_sent", request.id, { quoteId: quote.id });
 
-    // Tell the client the quote is available (issue #13). The signed status link
-    // (#16) is retro-wired into this template once it exists.
-    await communicationService.notify({ requestId: request.id, kind: "QUOTE_AVAILABLE" });
+    // Issue a fresh signed status link (issue #16) and tell the client the quote
+    // is available (issue #13) with that link. Dynamic import avoids the
+    // quotes <-> clientLink import cycle.
+    let statusUrl: string | undefined;
+    try {
+      const { clientLinkService } = await import("./clientLink");
+      statusUrl = (await clientLinkService.issue(request.id)).url;
+    } catch {
+      statusUrl = undefined;
+    }
+    await communicationService.notify({
+      requestId: request.id,
+      kind: "QUOTE_AVAILABLE",
+      url: statusUrl,
+    });
     return ok(null);
   },
 

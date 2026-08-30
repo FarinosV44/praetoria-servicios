@@ -25,7 +25,7 @@
 - Test-first policy: pure-logic (default) — state machine, money, Zod schemas, phone normalisation, AI-output validation get their tests written and seen failing before code. Asked-once default accepted (D-007).
 - Durability: git remote origin https://github.com/FarinosV44/praetoria-servicios.git
 - Autonomy: automatic — Keel does every merge to develop and every push itself / issues: after-sprint / Issue sweep interval: 24h / Issue capture: on
-- Branches: integration branch `develop` / `main` at 34a1cd0 (11 issues, CI green) — merged develop→main 2026-08-30 on user instruction (`sube a main`). No tag. `develop` ahead of `main` by Sprint 8 (#13).
+- Branches: integration branch `develop` / `main` at 34a1cd0 (11 issues, CI green) — merged develop→main 2026-08-30 on user instruction (`sube a main`). No tag. `develop` ahead of `main` by Sprints 8–9 (#13, #16).
 - Notify: none (user chose chat-only) — a block is visible only on the next chat open
 - Chaining: off (user chose "MVP core first"; no chained-chat launch — hand-off file written at every sprint close)
 - Chaining model: n/a
@@ -44,9 +44,10 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. Done+verified: #2 #3 #5 #6 #7 #8 #9 #10 #11 #12 #13 #28 (12). Awaiting user close on GitHub.
+- Phase: 5 — Development. Done+verified: #2 #3 #5 #6 #7 #8 #9 #10 #11 #12 #13 #16 #28 (13). Awaiting user close on GitHub.
 - User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — access details still needed at deploy time: git-pull+restart or webhook, and where Postgres lives).
-- Next action: Sprint 9 — #16 (signed client status link, `/s/[token]`). Then #14 → #15 → #4 → #17 → #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
+- Next action: Sprint 10 — #14 (insurance policy upload + OCR). Then #15 → #4 → #17 → #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
+- Sprint 9 (#16 signed client link `/s/[token]`) closed 2026-08-30 — TP-10 green (121 tests + browser drive: full quote view, phone-last-4 verify, accept recorded with evidence). Retro-wired #13 QUOTE_AVAILABLE + CONFIRMATION emails to carry the `/s/<token>` URL (applied at send time, never persisted).
 - Sprint 8 (#13 comms) closed 2026-08-30 — TP-9 green (108 tests + browser drive). Keel updated v5.19.0→v5.19.2 (skill install + lock stamps + baseline); reconciliation delta was stamp-only + a keel-stop-hook note (no hook on this project) + a keel-verify `Not checked:` rule (no scripts/keel-verify on this project — pre-existing lightweight setup, D-004).
 
 ## Open items
@@ -64,6 +65,6 @@
 - ER diagram of the request model (issue #9) — Phase 6
 - Scheduled jobs for production — `requestService.deleteExpiredDrafts()`, `quoteService.expireStale()`,
   and `communicationService.sendPending()` (email queue drain + retry) — wire a cron/runner in #17/#19
-- #13 QUOTE_AVAILABLE email currently has no client link — retro-wire the signed `/s/<token>` URL when #16 lands
+- ~~#13 QUOTE_AVAILABLE email retro-wire~~ done in Sprint 9 (URL applied at send time, never persisted)
 
-Last updated: 2026-08-30 — Phase 5; 12 issues done (#13 comms landed); next: Sprint 9 (#16 signed client link)
+Last updated: 2026-08-30 — Phase 5; 13 issues done (#16 signed client link landed); next: Sprint 10 (#14 insurance upload)

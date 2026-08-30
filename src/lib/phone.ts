@@ -41,3 +41,19 @@ export function normalizeSpanishPhone(input: string): PhoneResult {
 export function isValidSpanishPhone(input: string): boolean {
   return normalizeSpanishPhone(input).ok;
 }
+
+/**
+ * Constant-time-ish check of the last 4 digits of a stored phone against what a
+ * client typed — the extra verification for sensitive actions on the signed link
+ * (issue #16: "Acciones sensibles exigen verificación adicional cuando proceda").
+ * Returns false when the stored phone is missing or has fewer than 4 digits.
+ */
+export function phoneLast4Matches(storedPhone: string | null | undefined, typed: string): boolean {
+  const stored = (storedPhone ?? "").replace(/\D/g, "");
+  const attempt = (typed ?? "").replace(/\D/g, "");
+  if (stored.length < 4 || attempt.length !== 4) return false;
+  const last4 = stored.slice(-4);
+  let diff = 0;
+  for (let i = 0; i < 4; i++) diff |= last4.charCodeAt(i) ^ attempt.charCodeAt(i);
+  return diff === 0;
+}

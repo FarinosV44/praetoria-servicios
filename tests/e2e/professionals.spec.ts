@@ -63,3 +63,30 @@ test("the incidences panel loads (issue #23)", async ({ page }) => {
   await expect(page.getByText(/Valoraciones pendientes de autorizar/i)).toBeVisible();
   expect(meaningfulErrors(errors)).toEqual([]);
 });
+
+test("create an article, edit its block body, save (issue #24)", async ({ page }) => {
+  // The publish/schedule/redirect/restore behaviour is integration-tested
+  // (content.test.ts, 8); here we prove the editor UI drives the service.
+  await login(page);
+  await page.goto("/admin/contenido");
+  await expect(page.getByRole("heading", { name: /Contenido editorial/i })).toBeVisible();
+
+  await page.getByLabel("Título", { exact: true }).fill(`Guía E2E ${Date.now()}`);
+  await page.getByRole("button", { name: /Crear borrador/i }).click();
+
+  await expect(page).toHaveURL(/\/admin\/contenido\/[a-z0-9]+$/i);
+  await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("heading", { name: /Revisión y publicación/i })).toBeVisible();
+
+  await page
+    .getByLabel(/Cuerpo \(bloques JSON\)/i)
+    .fill(
+      JSON.stringify([
+        { type: "heading", level: 2, text: "Pasos inmediatos" },
+        { type: "text", md: "Cierra la **llave de paso** general." },
+      ]),
+    );
+  await page.getByLabel("Autor", { exact: true }).fill("Equipo Praetoria");
+  await page.getByRole("button", { name: "Guardar", exact: true }).click();
+  await expect(page.getByText(/^Guardado\.$/)).toBeVisible();
+});

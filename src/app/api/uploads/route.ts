@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { photoService } from "@/server/services/photos";
+import { clientLinkService } from "@/server/services/clientLink";
 import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { clientIp, isSameOrigin } from "@/lib/http";
 import { LIMITS } from "@/config/limits";
@@ -33,11 +34,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 
-  const requestId = form.get("requestId");
+  const formRequestId = form.get("requestId");
+  const token = form.get("token");
   const hint = form.get("hint");
   const file = form.get("file");
 
-  if (typeof requestId !== "string" || !(file instanceof File)) {
+  if (!(file instanceof File)) {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
+
+  // A signed client link (issue #16) may upload without exposing the request id.
+  let requestId: string;
+  if (typeof token === "string" && token) {
+    const link = await clientLinkService.resolve(token);
+    if (!link.ok) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    requestId = link.value.requestId;
+  } else if (typeof formRequestId === "string" && formRequestId) {
+    requestId = formRequestId;
+  } else {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
   if (file.size > LIMITS.photos.maxBytes) {

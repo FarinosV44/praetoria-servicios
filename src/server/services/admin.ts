@@ -4,6 +4,9 @@ import { getAdapters } from "@/server/container";
 import { requestService } from "./requests";
 import { analysisService } from "./analysis";
 import { photoService } from "./photos";
+import { communicationService } from "./communications";
+import { insuranceService } from "./insurance";
+import { coverageService } from "./coverage";
 import { env } from "@/lib/env";
 import type { Prisma, RequestStatus, Urgency } from "@prisma/client";
 import { err, ok, type Result } from "@/lib/result";
@@ -101,7 +104,18 @@ export const adminService = {
       where: { requestId: request.id },
       orderBy: { createdAt: "asc" },
     });
-    return { request: full, photos, analysisHistory, corrections };
+    const communications = await communicationService.listForRequest(request.id);
+    const insurance = await insuranceService.getCase(request.id, { withUrls: true });
+    const coverage = insurance ? await coverageService.getForRequest(request.id) : null;
+    return {
+      request: full,
+      photos,
+      analysisHistory,
+      corrections,
+      communications,
+      insurance,
+      coverage,
+    };
   },
 
   async updateClassification(
@@ -164,9 +178,14 @@ export const adminService = {
       reason: "Solicitud de información adicional al cliente",
     });
     if (!r.ok) return err({ kind: r.error.kind });
-    // `message` is admin-authored text (not client PII); recorded so issue #13
-    // can later actually send it by email/WhatsApp.
+    // `message` is admin-authored text (not client PII).
     await this.logAction(adminId, "request_more_info", request.id, {
+      message: message.slice(0, 2000),
+    });
+    // Deliver it to the client on their chosen channel (issue #13).
+    await communicationService.notify({
+      requestId: request.id,
+      kind: "INFO_REQUEST",
       message: message.slice(0, 2000),
     });
     return ok(null);
@@ -202,5 +221,70 @@ export const adminService = {
 
   async signedPhotoUrl(storageKey: string) {
     return getAdapters().storage.getSignedUrl(storageKey, 60 * 10);
+  },
+
+  /**
+   * Export a request as a JSON bundle for a data-subject request (issue #17).
+   * Includes the structured records + photo/document metadata (not the raw
+   * bytes; the blobs are reachable via the admin's signed URLs).
+   */
+  async exportRequest(adminId: string, reference: string): Promise<Result<object, { kind: string }>> {
+    const request = await db.request.findUnique({
+      where: { reference },
+      include: {
+        contact: true,
+        location: true,
+        photos: true,
+        analyses: { orderBy: { version: "asc" } },
+        corrections: { orderBy: { createdAt: "asc" } },
+        quotes: { include: { lines: true }, orderBy: { version: "asc" } },
+        communications: { orderBy: { createdAt: "asc" } },
+        consents: true,
+        statusHistory: { orderBy: { createdAt: "asc" } },
+        insurance: { include: { documents: true, coverage: { include: { revisions: true } } } },
+      },
+    });
+    if (!request) return err({ kind: "not_found" });
+    await this.logAction(adminId, "request_exported", request.id, { reference });
+    return ok({ exportedAt: new Date().toISOString(), request });
+  },
+
+  /**
+   * Hard-delete a request and every dependent record + blob (issue #17
+   * "procedimiento de borrado probado"). Writes an ops-log entry FIRST so the
+   * deletion is traceable even though the request row is gone.
+   */
+  async deleteRequest(
+    adminId: string,
+    reference: string,
+    reason: string,
+  ): Promise<Result<{ photos: number; insuranceBlobs: number }, { kind: string }>> {
+    const request = await db.request.findUnique({ where: { reference }, select: { id: true } });
+    if (!request) return err({ kind: "not_found" });
+
+    await this.logAction(adminId, "request_deleted", undefined, {
+      reference,
+      requestId: request.id,
+      reason: reason.slice(0, 500),
+    });
+
+    const { photoService } = await import("./photos");
+    const photos = await photoService.deleteAllForRequest(request.id);
+    let insuranceBlobs = 0;
+    const insCase = await db.insuranceCase.findUnique({
+      where: { requestId: request.id },
+      select: { id: true },
+    });
+    if (insCase) {
+      insuranceBlobs = await getAdapters().storage.deleteByPrefix(`insurance/${insCase.id}/`);
+    }
+    // Cascade deletes handle every child row (schema `onDelete: Cascade`).
+    await db.request.delete({ where: { id: request.id } });
+    // Detach the ops-log rows we cannot cascade (they intentionally outlive the request).
+    await db.adminActionLog.updateMany({
+      where: { requestId: request.id },
+      data: { requestId: null },
+    });
+    return ok({ photos, insuranceBlobs });
   },
 };

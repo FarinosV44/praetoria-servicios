@@ -59,3 +59,13 @@ export const log = {
   warn: (m: string, f?: Record<string, unknown>) => emit("warn", m, f),
   error: (m: string, f?: Record<string, unknown>) => emit("error", m, f),
 };
+
+/**
+ * Build the exact object a log line would carry, without emitting it — for the
+ * PII-redaction test (issue #17). The real emitter runs `redact` over the same
+ * shape; this exposes the result for assertions.
+ */
+export function redactForTest(fields: Record<string, unknown>): Record<string, unknown> {
+  return redact(fields) as Record<string, unknown>;
+}
+export const maskStringForTest = maskString;

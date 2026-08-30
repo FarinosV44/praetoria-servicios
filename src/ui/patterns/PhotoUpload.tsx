@@ -23,10 +23,14 @@ interface Item extends UploaderFile {
 
 export function PhotoUpload({
   requestId,
+  linkToken,
   initial = [],
   onCountChange,
 }: {
   requestId: string;
+  /** when set, uploads go through the signed client link (issue #16) and
+   *  remove/reorder are disabled — the client only adds photos */
+  linkToken?: string;
   initial?: { id: string; signedUrl: string }[];
   onCountChange?: (n: number) => void;
 }) {
@@ -61,7 +65,8 @@ export function PhotoUpload({
         ),
       );
       const form = new FormData();
-      form.append("requestId", requestId);
+      if (linkToken) form.append("token", linkToken);
+      else form.append("requestId", requestId);
       if (item.hint) form.append("hint", item.hint);
       form.append("file", item.file, item.name);
 
@@ -101,7 +106,7 @@ export function PhotoUpload({
       };
       xhr.send(form);
     },
-    [requestId],
+    [requestId, linkToken],
   );
 
   const onPick = useCallback(
@@ -146,9 +151,9 @@ export function PhotoUpload({
     async (id: string) => {
       const item = items.find((i) => i.id === id);
       setItems((prev) => prev.filter((i) => i.id !== id));
-      if (item?.serverId) await removePhotoAction(requestId, item.serverId);
+      if (item?.serverId && !linkToken) await removePhotoAction(requestId, item.serverId);
     },
-    [items, requestId],
+    [items, requestId, linkToken],
   );
 
   const onRetry = useCallback(
@@ -168,11 +173,11 @@ export function PhotoUpload({
         const copy = [...prev];
         [copy[idx], copy[next]] = [copy[next]!, copy[idx]!];
         const orderedServerIds = copy.map((i) => i.serverId).filter((x): x is string => !!x);
-        void reorderPhotosAction(requestId, orderedServerIds);
+        if (!linkToken) void reorderPhotosAction(requestId, orderedServerIds);
         return copy;
       });
     },
-    [requestId],
+    [requestId, linkToken],
   );
 
   const doneCount = items.filter((i) => i.status === "done").length;

@@ -20,7 +20,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | resolved — awaiting user close | E-001 |
 | 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | resolved (Sprint 3); a11y automated pass at #19 — awaiting user close | E-004 |
 | 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | resolved — awaiting user close | E-003 |
-| 4 | Landing comercial orientada a conversión | feature | med | open | — |
+| 4 | Landing comercial orientada a conversión | feature | med | resolved (Sprint 12) — awaiting user close | E-013 |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 6 | Captura, subida y gestión segura de fotografías | feature | high | resolved (Sprint 4) — awaiting user close | E-005 |
 | 7 | Análisis multimodal del problema mediante IA | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
@@ -29,11 +29,11 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 11 | Autenticación y panel administrativo de solicitudes | feature | high | resolved (Sprint 6) — awaiting user close | E-007 |
 | 12 | Gestionar presupuestos y plazos desde administración | feature | high | resolved (Sprint 7) — awaiting user close | E-008 |
-| 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | open | — |
-| 14 | Subir y procesar una póliza de seguro de hogar | feature | med | open | — |
-| 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | open | — |
-| 16 | Consulta segura del estado y respuesta del cliente | feature | high | open | — |
-| 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | open | — |
+| 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | resolved (Sprint 8) — awaiting user close | E-009 |
+| 14 | Subir y procesar una póliza de seguro de hogar | feature | med | resolved (Sprint 10) — awaiting user close | E-011 |
+| 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | resolved (Sprint 11) — awaiting user close | E-012 |
+| 16 | Consulta segura del estado y respuesta del cliente | feature | high | resolved (Sprint 9) — awaiting user close | E-010 |
+| 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | resolved (Sprint 13) — awaiting user close | E-014 |
 | 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | open | — |
 | 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | open | — |
 | 20 | Página de captación de profesionales | feature | low | open | — |
@@ -46,6 +46,166 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-014 — #17 Seguridad, privacidad, retención y protección contra abuso
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/17   Status: resolved 2026-08-30 (Sprint 13) — awaiting user close
+- Diagnosis: n/a (transversal hardening)
+- Resolution: `next.config.ts` security headers (CSP/HSTS/nosniff/X-Frame-DENY/Referrer/Permissions/
+  COOP, `poweredByHeader:false`); `src/lib/safe-fetch.ts` SSRF guard (no call sites in v1, ready for
+  the first real provider); `src/server/security.test.ts` (cross-resource authz, CSRF/origin,
+  PII-redaction — `src/lib/logging.ts` gained test hooks); retention:
+  `LIMITS.insuranceDocs.retentionDaysAfterClose`, `insuranceService.purgeExpired`,
+  `POST /api/cron/retention` (Bearer `CRON_SECRET`); `adminService.exportRequest` +
+  `adminService.deleteRequest` (ops-log first, cascade + blob purge) + `DangerZone.tsx`;
+  `docs/threat-model.md` all controls → IN PLACE with evidence + expanded Not-defended;
+  `docs/deploy-hostinger.md`. `npm audit` run — remaining high/critical are dev-only.
+- Changes: commit "feat(#17): security headers, SSRF guard, retention cron, admin export/delete" on `develop`.
+- Verification: TP-14 — 183 tests green (22 new); lint/typecheck/build clean; headers + cron-auth
+  verified live with curl.
+- Acceptance criteria: nopublic ✅, authz ✅, audit ✅ (dev-only remain), deletion ✅, logs ✅, headers ✅.
+- Replies: beat 1 comment on GitHub #17. Beat 2 (deploy) is the pending Hostinger step.
+- Closed by: still open — the user closes.
+- Lesson: CRON_SECRET as a hard prod-boot requirement 500'd the app when unset — reverted to a soft
+  check (401 at the endpoint).
+- Pending: definitive legal texts + full DPIA (release gate); wire `safeFetch` into the first real
+  provider; move the rate-limit store to Redis if the app scales out.
+
+### E-013 — #4 Landing comercial orientada a conversión
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/4   Status: resolved 2026-08-30 (Sprint 12) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: rebuilt `src/app/page.tsx` as a static RSC landing + `src/app/page.module.css`, all
+  copy through `src/config/copy` (`COPY.landing`, `COPY.legal` — D-006). Sections: hero (2 CTAs
+  within one screen) · cómo funciona (4 steps) · 11 visual categories (`src/config/trades.ts` +
+  `TRADE_ICONS`) · "No necesitas saber qué profesional necesitas" · "Qué hacemos distinto" (D3
+  single-interlocutor) · D9 contrast table (web tradicional/marketplace/Praetoria) + the recommended
+  message · "Por qué puedes confiar" (→#21) · data-protection block · **visual quote example** with
+  scope/total/plazo/garantía, labelled "Ejemplo ilustrativo" · insurance block ("podría estar
+  cubierto", never "no pagarás") · coverage from `src/config/coverage.ts` · realistic FAQ (incl. no
+  24/7) · urgency block (112, no 24/7 promise) · footer with legal links. OG/Twitter/canonical
+  metadata. `/legal/privacidad` + `/legal/aviso-legal` — shared `LegalDoc` renderer, provisional
+  pending-review banner (issue #17), `noindex`. Zero invented figures/reviews/years.
+- Changes: commit "feat(#4): conversion landing + provisional legal pages" on `develop`.
+- Verification: TP-13 — lint/typecheck/`npx next build` clean (`/` + `/legal/*` prerendered static);
+  162 tests green (static markup — no new tests, per the test-automation not-applied list); browser
+  drive of the landing + `/legal/privacidad`, all CTA hrefs verified 200 and correct.
+- Acceptance criteria: onescreen ✅ (CSS/structure check — see note), cta ✅, nofiller ✅, cwv ✅
+  (static), seo ✅, design ✅.
+- Replies: beat 1 — completion comment to post on GitHub #4. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (browser `resize_window` didn't change the screenshot viewport — mobile layout
+  checked from the CSS).
+- Pending: the definitive legal texts (#17); a hero image / OG image asset (no designer in this
+  engagement — the OG card is text-only for now).
+
+### E-012 — #15 Analizar cobertura y generar borrador jurídico revisable
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/15   Status: resolved 2026-08-30 (Sprint 11) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/insurance/coverage.ts` (pure — `buildCoverageBreakdown` = the D5
+  three-way split *cláusula de póliza · norma/proceso · valoración*, page refs kept on the clause;
+  `needsPolicyDocument`; `buildDraft` = HECHOS/PETICIÓN/FUNDAMENTO CONTRACTUAL/ANEXOS with the page
+  reference in the fundamento and a prudent footer; `STANDARD_CAVEATS` = never promises coverage, no
+  invented articles, the "falta de mantenimiento" pattern; `PROCESS_STEPS` = perito → tercer perito
+  → Defensor del Asegurado → DGSFP → vía judicial). `src/server/services/coverage.ts` — `analyze`
+  (active analysis + `insuranceService.getPolicyPages` → `adapters.ai.analyzeCoverage` → validate →
+  `CoverageAnalysis` with `draftText`, `BORRADOR_PENDIENTE_REVISION`), `getForRequest`,
+  `markReviewed` (records `reviewedByAdminId` + `reviewedAt` + a `CoverageDraftRevision`),
+  `reviseDraft` (keeps the prior text as a revision). `src/server/actions/coverage.ts`. Admin
+  `CoveragePanel` on the request detail (run, D5 split, page refs, draft labelled, mark reviewed,
+  edit, revision history). `/s/[token]` `CoverageClientView` (verdict + facts + docs + process +
+  caveats always; the draft only once REVISADO_PRAETORIA). No migration (`CoverageAnalysis` /
+  `CoverageDraftRevision` shipped with #9; `coverageResultSchema` shipped with #7).
+- Changes: commit "feat(#15): coverage analysis + reviewable legal draft" on `develop`.
+- Verification: TP-12 — 11 pure + 6 integration tests (162 total green); lint/typecheck/build clean;
+  browser drive of the admin panel (mark reviewed → status flip + revision history) and the client
+  view (draft hidden before review, shown after).
+- Acceptance criteria: pageref ✅, needdoc ✅, draftparts ✅, limits ✅, humanreview ✅.
+- Replies: beat 1 — completion comment to post on GitHub #15. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (a browser-harness quirk with the admin login `type` action is noted in the sprint
+  file for the next session).
+- Pending: the real AI coverage provider (mock covers dev/test); an in-assistant entry to trigger
+  the coverage analysis (the admin runs it now).
+
+### E-011 — #14 Subir y procesar una póliza de seguro de hogar
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/14   Status: resolved 2026-08-30 (Sprint 10) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/insurance/` (pure — doc-kind taxonomy, `policyExtractionSchema` with
+  `{doc,page}` refs, `extractPolicyFields` parser, `extractionStatusFor`, `missingDocKinds` /
+  `missingSummary`, `validateInsuranceDoc` with PDF magic-byte sniff). `src/server/services/
+  insurance.ts` — `ensureCase` (1:1 with request), `recordConsent` (`INSURANCE_DOC_ANALYSIS` +
+  `InsuranceCase.consentGiven`), `addDocument` (consent gate → `BlobStore.put({sensitive:true})` →
+  `InsuranceDocument`), `analyze` (OCR per doc, `ocrUsed`/`pageCount`, tentative extraction, status,
+  missing note), `getCase` (signed URLs admin-only), `deleteDocument` (verified — `storage.exists`
+  check → `delete_unverified`), `purge` (retention). `POST /api/insurance/documents` (signed link
+  token or admin session; origin check + rate limit). `src/server/actions/insurance.ts`.
+  `/s/[token]` `InsuranceSection` (consent → which-docs-help → upload → status + missing summary).
+  Admin `InsurancePanel` on the request detail (extraction with page refs, temporary view links,
+  delete + purge). No migration (`InsuranceCase`/`InsuranceDocument` shipped with #9).
+- Changes: commit "feat(#14): insurance policy upload + OCR + extraction" on `develop`.
+- Verification: TP-11 — 18 pure + 6 integration tests (145 total green); lint/typecheck/build clean;
+  curl (201/422/403) + browser drive of the client consent+upload flow and the admin extraction
+  panel (garantías/franquicias/exclusiones with page refs).
+- Acceptance criteria: private ✅, ocrmark ✅, pageref ✅, partial ✅, linkpolicy ✅, consent ✅.
+- Replies: beat 1 — completion comment to post on GitHub #14. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (an env note on `Origin === APP_URL` for `/api/*` POSTs went to `docs/playground.md`).
+- Pending: the in-assistant "seguro" upload step (`/solicitar`); the OCR real provider (mock covers
+  dev/test); coverage analysis + the legal draft are issue #15 (next sprint).
+
+### E-010 — #16 Consulta segura del estado y respuesta del cliente
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/16   Status: resolved 2026-08-30 (Sprint 9) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/requests/client-view.ts` (pure — every `RequestStatus` → comprehensible
+  label/description/tone, `canDecideQuote`/`canAddInfo`), `src/lib/phone.ts` `phoneLast4Matches`.
+  `src/server/services/clientLink.ts` — `issue` (stores only the SHA-256 hash), `resolve`
+  (HMAC verify → hash match → not revoked → not expired), `revokeAll`, `regenerate` (reference +
+  phone last-4), `getClientView` (per-request only), `addClientInfo` (ClientCorrection; re-queues on
+  REQUIERE_INFORMACION), `decideQuote` (phone last-4 → `quoteService.recordDecision` with evidence).
+  `src/server/actions/clientLink.ts` (rate-limited `linkLookup`/`linkIssue`). `/s/[token]` page +
+  `ClientStatusView` + `RecoverAccess`. `/api/uploads` accepts a link `token`; `PhotoUpload` gained
+  `linkToken`. Wired: link issued on submit + on quote send; CONFIRMATION and QUOTE_AVAILABLE emails
+  carry the `/s/<token>` URL (applied at send time, never persisted — L-003 principle). No migration
+  (`ClientLink` shipped with #9; `lib/signed-link.ts` shipped with #2 groundwork).
+- Changes: commit "feat(#16): signed client status link + response" on `develop`.
+- Verification: TP-10 — 13 pure + 6 integration tests (121 total green); lint/typecheck/build clean;
+  browser drive of `/s/[token]` (full D4 quote view, wrong-code rejected, correct-code accepted →
+  DB `ACEPTADA`/`ACEPTADO` + evidence `{via:signed-link,quoteVersion:1,ip}`).
+- Acceptance criteria: nosequential ✅, noleak ✅, verify ✅, evidence ✅, nointernal ✅.
+- Replies: beat 1 — completion comment to post on GitHub #16. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (an env note on `SIGNED_LINK_SECRET` went to `docs/playground.md`).
+- Pending: a scheduled runner for `clientLink` expiry cleanup is optional (#17/#19).
+
+### E-009 — #13 Comunicaciones por email y WhatsApp
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/13   Status: resolved 2026-08-30 (Sprint 8) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/communications/` (pure — `templates.ts` renders CONFIRMATION /
+  INFO_REQUEST / QUOTE_AVAILABLE / GENERIC to `{subject,text,html}` from `src/config/copy.comms`
+  with a configurable brand name and HTML escaping; `schema.ts` — `canSend` purpose/consent gate,
+  `channelForContact`, `idempotencyKey`). `src/server/services/communications.ts` — `enqueue`
+  (idempotent per request+kind; EMAIL→PENDING, WHATSAPP→LINK_PREPARED, consent + reachability
+  guards), `sendPending({max})` email queue with bounded retries (`LIMITS.communications.maxAttempts`),
+  `retry`, `whatsappLink` (deep link from the persisted body — no secret), `listForRequest`, and
+  `notify` (best-effort enqueue+flush for flow wiring). Wired: `finishRequestAction`→CONFIRMATION,
+  `adminService.requestMoreInfo`→INFO_REQUEST, `quoteService.markSent`→QUOTE_AVAILABLE. Admin:
+  `src/server/actions/communications.ts` + `CommsPanel.tsx` on the request detail (status chips,
+  "Procesar cola de envíos", "Generar enlace de WhatsApp"). No migration (the `Communication` model
+  shipped with #9).
+- Changes: commit "feat(#13): email + WhatsApp communications" on `develop`.
+- Verification: TP-9 — 14 pure + 6 integration tests (108 total green); lint/typecheck/build clean;
+  browser drive of the admin INFO_REQUEST → CommsPanel → WhatsApp link path.
+- Acceptance criteria: nolost ✅, status ✅, simmode ✅, nomarketing ✅; **expire ⚠ delegated to #16**
+  (the private client link and its expiry are issue #16; QUOTE_AVAILABLE carries the URL slot).
+- Replies: beat 1 — completion comment to post on GitHub #13 with this sweep. Beat 2 (deploy) folds
+  into the single end-of-backlog Hostinger deploy per the user's standing instruction.
+- Closed by: still open — the user closes.
+- Lesson: L-003 (WhatsApp link re-rendered without the admin message) — fixed in-sprint.
+- Pending: a scheduled `sendPending()` runner at #17/#19. (The `/s/<token>` URL retro-wire into
+  QUOTE_AVAILABLE + CONFIRMATION was done in Sprint 9 / #16.)
 
 ### E-001 — #2 Inicializar arquitectura, stack y entorno reproducible
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/2   Status: resolved 2026-08-29 — commented (beat 1); awaiting the user to close

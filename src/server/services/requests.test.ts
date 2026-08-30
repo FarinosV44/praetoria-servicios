@@ -75,6 +75,7 @@ describe("requestService", () => {
         requestHandling: true,
         operationalComms: true,
         marketing: false,
+        analytics: false,
         textVersion: "v1",
       },
     });
@@ -83,7 +84,9 @@ describe("requestService", () => {
     expect(full?.contact?.phone).toBe("+34600111222");
     const marketing = full?.consents.find((c) => c.type === "MARKETING");
     expect(marketing?.granted).toBe(false);
-    expect(full?.consents).toHaveLength(3);
+    const analytics = full?.consents.find((c) => c.type === "ANALYTICS");
+    expect(analytics?.granted).toBe(false);
+    expect(full?.consents).toHaveLength(4);
   });
 
   it("applies a valid transition and records author + reason immutably", async () => {

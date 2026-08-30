@@ -1,0 +1,128 @@
+.page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-12);
+}
+
+.breadcrumb {
+  font-size: var(--text-sm);
+  color: var(--c-text-soft);
+  margin-bottom: var(--space-4);
+}
+
+.breadcrumb a {
+  color: var(--c-text-soft);
+}
+
+.title {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-3);
+}
+
+.intro {
+  font-size: var(--text-lg);
+  color: var(--c-text-soft);
+  margin: 0 0 var(--space-6);
+}
+
+.section {
+  margin: var(--space-8) 0;
+}
+
+.h2 {
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-3);
+}
+
+.list {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.quotes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.quotes li {
+  background: var(--c-surface-sunken);
+  border-left: 3px solid var(--c-brand-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  color: var(--c-text-soft);
+  font-style: italic;
+}
+
+.steps {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.insurance {
+  background: var(--c-accent-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin: var(--space-8) 0;
+}
+
+.insurance h2 {
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-2);
+}
+
+.cta {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.disclaimer {
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--c-text-faint);
+}
+
+.index {
+  list-style: none;
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.indexCard {
+  display: block;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background: var(--c-surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.indexCard:hover {
+  border-color: var(--c-brand);
+}
+
+.indexCard h2 {
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-1);
+}
+
+.indexCard p {
+  margin: 0;
+  color: var(--c-text-soft);
+  font-size: var(--text-sm);
+}

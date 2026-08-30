@@ -30,6 +30,7 @@ export function ContactStep({
   const [consentHandling, setConsentHandling] = useState(false);
   const [consentOps, setConsentOps] = useState(true);
   const [consentMarketing, setConsentMarketing] = useState(false);
+  const [consentAnalytics, setConsentAnalytics] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [topError, setTopError] = useState<string | null>(null);
 
@@ -50,6 +51,7 @@ export function ContactStep({
         requestHandling: true,
         operationalComms: consentOps,
         marketing: consentMarketing,
+        analytics: consentAnalytics,
         textVersion: "v1-2026-08",
       },
     });
@@ -150,6 +152,17 @@ export function ContactStep({
             onChange={(e) => setConsentMarketing(e.currentTarget.checked)}
           />
           <span>Acepto recibir consejos y novedades de Praetoria (opcional).</span>
+        </label>
+        <label className={styles.check}>
+          <input
+            type="checkbox"
+            checked={consentAnalytics}
+            onChange={(e) => setConsentAnalytics(e.currentTarget.checked)}
+          />
+          <span>
+            Acepto el uso de estadísticas anónimas de navegación para mejorar el servicio. No se
+            registran tu teléfono, tu correo, tus fotos ni la descripción del problema (opcional).
+          </span>
         </label>
       </fieldset>
 

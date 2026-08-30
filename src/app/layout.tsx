@@ -9,6 +9,14 @@ const nunito = Nunito({
   display: "swap",
 });
 
+/**
+ * Every route is dynamically rendered so the per-request CSP nonce (issue #29,
+ * generated in `src/proxy.ts`) is injected into Next's inline hydration scripts.
+ * A statically prerendered page bakes its inline scripts at build time with no
+ * nonce, and the strict CSP then blocks them — hydration never runs.
+ */
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
   title: {

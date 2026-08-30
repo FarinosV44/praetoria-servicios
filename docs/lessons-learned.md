@@ -29,6 +29,30 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-004 — Strict `script-src 'self'` CSP with no nonce breaks Next 16 hydration site-wide
+- Symptom: `next build` + `next start`, every page throws `Minified React error #412` in the
+  console; `/solicitar` never leaves the loading spinner (the assistant never hydrates); the admin
+  panel and all client interactivity are dead. Static pages with no client component (`/legal/*`)
+  throw it too.
+- Cause: Sprint 13 (#17) added `Content-Security-Policy: … script-src 'self' …` in `next.config.ts`
+  with no `nonce` and no `'unsafe-inline'`. Next 16 App Router emits inline `<script>` tags for the
+  RSC hydration payload (`self.__next_f.push(...)`). The browser blocks them → React cannot hydrate.
+  `next.config.ts` even carried a comment saying "scripts use nonces via Next" — but nothing
+  generated a nonce (no `proxy.ts`/middleware doing it), so no nonce was ever applied.
+- Fix: per-request nonce generated in `src/proxy.ts` (`script-src 'self' 'nonce-…' 'strict-dynamic'`,
+  exposed as `x-nonce`); CSP moved out of `next.config.ts`; `export const dynamic = "force-dynamic"`
+  in `src/app/layout.tsx` because a statically prerendered page bakes its inline scripts at build
+  time with no nonce (Next only injects the nonce during a dynamic render). `src/proxy.test.ts` (6)
+  pins the mechanism, written failing first (issue #29).
+- Where: `src/proxy.ts`, `next.config.ts`, `src/app/layout.tsx` — Sprint 14, session 4.
+- What failed first: Sprint 13's verification was `curl -D -` (headers) + a visual check of static
+  pages that need no JS. Neither exercises hydration.
+- Check added: `src/proxy.test.ts` (nonce present in CSP + `x-nonce`, unique per request, never a
+  bare `script-src 'self'`). No mechanical `keel-verify` on this project (D-004).
+- Rule for next time: any change to the CSP (or any security header that can affect script/style
+  loading) requires a browser drive of an interactive page — the assistant, not just the landing —
+  and a read of the console for hydration errors. `curl` proves the header, never the page.
+
 ## L-002 — Empty-string env vars fail Zod `.optional()` URL fields
 - Symptom: dev server 500 on every route: `[env] Invalid environment configuration: S3_ENDPOINT: Invalid URL`, even though S3 is unused.
 - Cause: `.env.example` ships `S3_ENDPOINT=` (blank). `z.string().url().optional()` accepts `undefined`, not `""` — a blank env var is a present, invalid value.

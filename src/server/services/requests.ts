@@ -143,6 +143,11 @@ export const requestService = {
         granted: input.consent.marketing,
         textVersion: input.consent.textVersion,
       },
+      {
+        type: "ANALYTICS",
+        granted: input.consent.analytics ?? false,
+        textVersion: input.consent.textVersion,
+      },
     ];
 
     const updated = await db.$transaction(async (tx) => {

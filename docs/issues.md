@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-29 23:30 — no new issues or comments since #28. Building through the backlog per user instruction.
+> Last inbound sweep: 2026-08-30 (Sprint 14 kickoff) — no new external issues or comments; #13–#17 activity is our own beat-1 comments awaiting user close. Building through the backlog per user instruction.
 
 ## Build order (dependency-sorted)
 
@@ -34,8 +34,9 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | resolved (Sprint 11) — awaiting user close | E-012 |
 | 16 | Consulta segura del estado y respuesta del cliente | feature | high | resolved (Sprint 9) — awaiting user close | E-010 |
 | 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | resolved (Sprint 13) — awaiting user close | E-014 |
-| 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | open | — |
+| 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | resolved (Sprint 14) — awaiting user close | E-015 |
 | 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | open | — |
+| 29 | El CSP estricto (#17) rompe la hidratación de React en toda la app | bug | high | resolved (Sprint 14) — awaiting user close | E-016 |
 | 20 | Página de captación de profesionales | feature | low | open | — |
 | 21 | Carta de Confianza Praetoria y transparencia | feature | med | open | — |
 | 22 | Verificar y gestionar la red de profesionales | feature | med | open | — |
@@ -46,6 +47,36 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-016 — #29 El CSP estricto (#17) rompe la hidratación de React
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/29   Status: resolved 2026-08-30 (Sprint 14) — awaiting user close
+- Diagnosis: `next.config.ts` CSP `script-src 'self'` (no nonce, no `'unsafe-inline'`) blocks Next 16's
+  inline hydration scripts → React #412 on every page, `/solicitar` stuck on the spinner, all client
+  interactivity dead. The `next.config.ts` comment assumed Next auto-applies nonces; nothing generated one.
+- Resolution: per-request nonce in `src/proxy.ts` (`script-src 'self' 'nonce-…' 'strict-dynamic'`,
+  `x-nonce`); CSP removed from `next.config.ts`; `export const dynamic = "force-dynamic"` in
+  `src/app/layout.tsx` (a static page bakes nonce-less inline scripts at build time). D-014, L-004.
+- Commits: (Sprint 14 commit) `src/proxy.ts`, `src/proxy.test.ts`, `next.config.ts`, `src/app/layout.tsx`,
+  `docs/threat-model.md` C11.
+- Verification: `src/proxy.test.ts` (6, failing reproduction written first). Browser drive: assistant
+  hydrates and advances to triage, `/cobertura` checker works, console clean. `curl -D -` shows the
+  nonce'd CSP + `x-nonce`.
+- Pending: none. Found by the assistant during Sprint 14 (issue capture ON).
+
+### E-015 — #18 SEO local, analítica de conversión y páginas de servicio
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/18   Status: resolved 2026-08-30 (Sprint 14) — awaiting user close
+- Diagnosis: n/a (feature). AC from the issue's "Criterios de aceptación".
+- Resolution: `src/lib/analytics.ts` (PII-strip allowlist, consent gate, 16-event list, provider seam);
+  ANALYTICS consent wired end-to-end (schema → `ContactStep` checkbox, never pre-checked → 4th `Consent`
+  row → `track` on submit + funnel events); `robots.ts` / `sitemap.ts` / `manifest.ts` / `icon.tsx`;
+  `src/lib/seo.ts` + `JsonLd` (Organization / WebSite / FAQPage / Service / BreadcrumbList);
+  `/servicios` + `/servicios/[slug]` from `src/config/service-content.ts` (real per-trade prose, D10);
+  `/cobertura` + `CoverageChecker` (no PII); footer/nav links. D-013 (coverage = toda el área de Valencia).
+- Commits: (Sprint 14 commit).
+- Verification: TP-15 — 200 tests, lint/typecheck/build clean, curl of all SEO endpoints, JSON-LD
+  validated by hand, browser drive of a service page + `/cobertura` checker.
+- Pending: real analytics provider wiring (env `NEXT_PUBLIC_ANALYTICS_URL`) is a deploy concern;
+  `landing_cta_click` from the (server) landing needs a client wrapper — deferred, low value pre-consent.
 
 ### E-014 — #17 Seguridad, privacidad, retención y protección contra abuso
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/17   Status: resolved 2026-08-30 (Sprint 13) — awaiting user close

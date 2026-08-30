@@ -21,4 +21,6 @@ export type { Intent } from "./patterns/IntentCards";
 export { Uploader } from "./patterns/Uploader";
 export type { UploaderFile } from "./patterns/Uploader";
 
+export { JsonLd } from "./JsonLd";
+
 export { cn } from "./cn";

@@ -14,6 +14,9 @@ export const LIMITS = {
     max: 6,
     maxBytes: 25 * 1024 * 1024,
     acceptedTypes: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
+    // Insurance cases (docs + extraction + coverage draft) are purged this long
+    // after the request reaches a terminal state (issue #17 retention).
+    retentionDaysAfterClose: 90,
   },
   reanalysis: {
     // Max client-triggered re-analyses before the flow suggests "que lo revise una persona".

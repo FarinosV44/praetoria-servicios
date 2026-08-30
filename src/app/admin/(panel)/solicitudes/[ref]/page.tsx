@@ -6,6 +6,7 @@ import { AdminRequestControls } from "./Controls";
 import { CommsPanel } from "./CommsPanel";
 import { InsurancePanel } from "./InsurancePanel";
 import { CoveragePanel } from "./CoveragePanel";
+import { DangerZone } from "./DangerZone";
 import styles from "../../../admin.module.css";
 
 function fmt(d: Date | null | undefined) {
@@ -234,6 +235,8 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
             trade={request.trade ?? ""}
             urgency={request.urgency ?? ""}
           />
+
+          <DangerZone reference={request.reference} />
         </aside>
       </div>
     </div>

@@ -222,4 +222,69 @@ export const adminService = {
   async signedPhotoUrl(storageKey: string) {
     return getAdapters().storage.getSignedUrl(storageKey, 60 * 10);
   },
+
+  /**
+   * Export a request as a JSON bundle for a data-subject request (issue #17).
+   * Includes the structured records + photo/document metadata (not the raw
+   * bytes; the blobs are reachable via the admin's signed URLs).
+   */
+  async exportRequest(adminId: string, reference: string): Promise<Result<object, { kind: string }>> {
+    const request = await db.request.findUnique({
+      where: { reference },
+      include: {
+        contact: true,
+        location: true,
+        photos: true,
+        analyses: { orderBy: { version: "asc" } },
+        corrections: { orderBy: { createdAt: "asc" } },
+        quotes: { include: { lines: true }, orderBy: { version: "asc" } },
+        communications: { orderBy: { createdAt: "asc" } },
+        consents: true,
+        statusHistory: { orderBy: { createdAt: "asc" } },
+        insurance: { include: { documents: true, coverage: { include: { revisions: true } } } },
+      },
+    });
+    if (!request) return err({ kind: "not_found" });
+    await this.logAction(adminId, "request_exported", request.id, { reference });
+    return ok({ exportedAt: new Date().toISOString(), request });
+  },
+
+  /**
+   * Hard-delete a request and every dependent record + blob (issue #17
+   * "procedimiento de borrado probado"). Writes an ops-log entry FIRST so the
+   * deletion is traceable even though the request row is gone.
+   */
+  async deleteRequest(
+    adminId: string,
+    reference: string,
+    reason: string,
+  ): Promise<Result<{ photos: number; insuranceBlobs: number }, { kind: string }>> {
+    const request = await db.request.findUnique({ where: { reference }, select: { id: true } });
+    if (!request) return err({ kind: "not_found" });
+
+    await this.logAction(adminId, "request_deleted", undefined, {
+      reference,
+      requestId: request.id,
+      reason: reason.slice(0, 500),
+    });
+
+    const { photoService } = await import("./photos");
+    const photos = await photoService.deleteAllForRequest(request.id);
+    let insuranceBlobs = 0;
+    const insCase = await db.insuranceCase.findUnique({
+      where: { requestId: request.id },
+      select: { id: true },
+    });
+    if (insCase) {
+      insuranceBlobs = await getAdapters().storage.deleteByPrefix(`insurance/${insCase.id}/`);
+    }
+    // Cascade deletes handle every child row (schema `onDelete: Cascade`).
+    await db.request.delete({ where: { id: request.id } });
+    // Detach the ops-log rows we cannot cascade (they intentionally outlive the request).
+    await db.adminActionLog.updateMany({
+      where: { requestId: request.id },
+      data: { requestId: null },
+    });
+    return ok({ photos, insuranceBlobs });
+  },
 };

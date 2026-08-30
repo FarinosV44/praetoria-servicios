@@ -25,6 +25,8 @@ const schema = z
     // Secrets
     AUTH_SECRET: z.string().min(16).optional(),
     SIGNED_LINK_SECRET: z.string().min(16).optional(),
+    // Shared secret for the retention cron endpoint (issue #17).
+    CRON_SECRET: z.string().min(16).optional(),
 
     // Adapter selection (see docs/03-technical-plan.md)
     AI_ADAPTER: z.enum(["mock", "claude"]).default("mock"),
@@ -64,6 +66,8 @@ const schema = z
     if (val.NODE_ENV === "production") {
       require(!!val.AUTH_SECRET, "AUTH_SECRET", "AUTH_SECRET is required in production");
       require(!!val.SIGNED_LINK_SECRET, "SIGNED_LINK_SECRET", "SIGNED_LINK_SECRET is required in production");
+      // CRON_SECRET is not a hard boot requirement: without it the retention
+      // endpoint simply refuses every call (401). Set it to enable the cron.
     }
     if (val.AI_ADAPTER === "claude") {
       require(!!val.ANTHROPIC_API_KEY, "ANTHROPIC_API_KEY", "required when AI_ADAPTER=claude");

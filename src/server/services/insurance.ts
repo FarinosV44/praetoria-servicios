@@ -4,6 +4,7 @@ import { log } from "@/lib/logging";
 import { newShortId } from "@/lib/id";
 import { getAdapters } from "@/server/container";
 import { err, ok, type Result } from "@/lib/result";
+import { LIMITS } from "@/config/limits";
 import { validateInsuranceDoc } from "@/domain/insurance/validation";
 import {
   DOC_KIND_LABEL,
@@ -291,6 +292,30 @@ export const insuranceService = {
     await db.insuranceCase.delete({ where: { requestId } });
     log.info("insurance case purged", { requestId, blobs: removed });
     return 1;
+  },
+
+  /**
+   * Retention job (issue #17): purge insurance cases whose request has been in a
+   * terminal state (CERRADA/CANCELADA/RECHAZADA) longer than
+   * `LIMITS.insuranceDocs.retentionDaysAfterClose`.
+   */
+  async purgeExpired(now: Date = new Date()): Promise<number> {
+    const cutoff = new Date(
+      now.getTime() - LIMITS.insuranceDocs.retentionDaysAfterClose * 24 * 3600_000,
+    );
+    const stale = await db.insuranceCase.findMany({
+      where: {
+        request: {
+          status: { in: ["CERRADA", "CANCELADA", "RECHAZADA"] },
+          updatedAt: { lt: cutoff },
+        },
+      },
+      select: { request: { select: { id: true } } },
+    });
+    let n = 0;
+    for (const s of stale) n += await this.purge(s.request.id);
+    if (n > 0) log.info("expired insurance cases purged", { count: n });
+    return n;
   },
 };
 

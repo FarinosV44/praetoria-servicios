@@ -75,3 +75,22 @@ export async function requestMoreInfoAction(
   if (r.ok) revalidatePath(`/admin/solicitudes/${reference}`);
   return r;
 }
+
+export async function exportRequestAction(
+  reference: string,
+): Promise<Result<{ json: string }, { kind: string }>> {
+  const s = await requireSession();
+  const r = await adminService.exportRequest(s.adminId, reference);
+  return r.ok ? ok({ json: JSON.stringify(r.value, null, 2) }) : err({ kind: r.error.kind });
+}
+
+export async function deleteRequestAction(
+  reference: string,
+  reason: string,
+): Promise<Result<{ photos: number; insuranceBlobs: number }, { kind: string }>> {
+  const s = await requireSession();
+  if (!reason.trim()) return err({ kind: "reason_required" });
+  const r = await adminService.deleteRequest(s.adminId, reference, reason);
+  if (r.ok) redirect("/admin");
+  return err({ kind: r.error.kind });
+}

@@ -33,7 +33,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 14 | Subir y procesar una póliza de seguro de hogar | feature | med | resolved (Sprint 10) — awaiting user close | E-011 |
 | 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | resolved (Sprint 11) — awaiting user close | E-012 |
 | 16 | Consulta segura del estado y respuesta del cliente | feature | high | resolved (Sprint 9) — awaiting user close | E-010 |
-| 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | open | — |
+| 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | resolved (Sprint 13) — awaiting user close | E-014 |
 | 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | open | — |
 | 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | open | — |
 | 20 | Página de captación de profesionales | feature | low | open | — |
@@ -46,6 +46,29 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-014 — #17 Seguridad, privacidad, retención y protección contra abuso
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/17   Status: resolved 2026-08-30 (Sprint 13) — awaiting user close
+- Diagnosis: n/a (transversal hardening)
+- Resolution: `next.config.ts` security headers (CSP/HSTS/nosniff/X-Frame-DENY/Referrer/Permissions/
+  COOP, `poweredByHeader:false`); `src/lib/safe-fetch.ts` SSRF guard (no call sites in v1, ready for
+  the first real provider); `src/server/security.test.ts` (cross-resource authz, CSRF/origin,
+  PII-redaction — `src/lib/logging.ts` gained test hooks); retention:
+  `LIMITS.insuranceDocs.retentionDaysAfterClose`, `insuranceService.purgeExpired`,
+  `POST /api/cron/retention` (Bearer `CRON_SECRET`); `adminService.exportRequest` +
+  `adminService.deleteRequest` (ops-log first, cascade + blob purge) + `DangerZone.tsx`;
+  `docs/threat-model.md` all controls → IN PLACE with evidence + expanded Not-defended;
+  `docs/deploy-hostinger.md`. `npm audit` run — remaining high/critical are dev-only.
+- Changes: commit "feat(#17): security headers, SSRF guard, retention cron, admin export/delete" on `develop`.
+- Verification: TP-14 — 183 tests green (22 new); lint/typecheck/build clean; headers + cron-auth
+  verified live with curl.
+- Acceptance criteria: nopublic ✅, authz ✅, audit ✅ (dev-only remain), deletion ✅, logs ✅, headers ✅.
+- Replies: beat 1 comment on GitHub #17. Beat 2 (deploy) is the pending Hostinger step.
+- Closed by: still open — the user closes.
+- Lesson: CRON_SECRET as a hard prod-boot requirement 500'd the app when unset — reverted to a soft
+  check (401 at the endpoint).
+- Pending: definitive legal texts + full DPIA (release gate); wire `safeFetch` into the first real
+  provider; move the rate-limit store to Redis if the app scales out.
 
 ### E-013 — #4 Landing comercial orientada a conversión
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/4   Status: resolved 2026-08-30 (Sprint 12) — awaiting user close

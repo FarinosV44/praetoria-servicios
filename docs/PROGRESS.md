@@ -25,7 +25,7 @@
 - Test-first policy: pure-logic (default) — state machine, money, Zod schemas, phone normalisation, AI-output validation get their tests written and seen failing before code. Asked-once default accepted (D-007).
 - Durability: git remote origin https://github.com/FarinosV44/praetoria-servicios.git
 - Autonomy: automatic — Keel does every merge to develop and every push itself / issues: after-sprint / Issue sweep interval: 24h / Issue capture: on
-- Branches: integration branch `develop` / `main` at 34a1cd0 (11 issues, CI green) — merged develop→main 2026-08-30 on user instruction (`sube a main`). No tag. `develop` ahead of `main` by Sprints 8–12 (#13, #16, #14, #15, #4).
+- Branches: integration branch `develop` / `main`. Two develop→main merges on 2026-08-30 (user instruction): first at 34a1cd0 (11 issues), then again after Sprint 13 (#4 #13 #14 #15 #16 #17 added → 17 issues total, `--no-ff`, pushed). No tag yet (tag at Phase 7 / first real deploy). `develop` == `main` at the Sprint 13 merge.
 - Notify: none (user chose chat-only) — a block is visible only on the next chat open
 - Chaining: off (user chose "MVP core first"; no chained-chat launch — hand-off file written at every sprint close)
 - Chaining model: n/a
@@ -44,9 +44,10 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. Done+verified: #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #28 (16). Awaiting user close on GitHub.
-- User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — access details still needed at deploy time: git-pull+restart or webhook, and where Postgres lives).
-- Next action: Sprint 13 — #17 (security/privacy/retention: threat-model, per-resource authz tests, CSRF, SSRF guard, security headers in next.config.ts, PII-redaction test, scripts/retention.ts + cron, admin export/delete + ops-log). Then #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
+- Phase: 5 — Development. Done+verified: #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #28 (17). Awaiting user close on GitHub.
+- User instruction (2026-08-30): "subelo a main ya … subirlo todo a main" — `develop`→`main` merge authorised and DONE this session (16 issues + #17; `--no-ff`; pushed). Remaining backlog: #18 (SEO/analytics/service pages), #19 (E2E/observability/deploy), growth #20–#27. Then the Hostinger deploy (`docs/deploy-hostinger.md` is drafted; needs the operator's hPanel access + where Postgres lives + the env secrets).
+- Next action: Sprint 14 — #18 (SEO local + analítica de conversión + páginas de servicio). Then #19 → growth #20–#27.
+- Sprint 13 (#17 security/privacy/retention) closed 2026-08-30 — TP-14 green (183 tests; security headers live-verified; SSRF guard; cross-resource authz + PII-redaction tests; `/api/cron/retention`; admin export/delete + ops-log; `docs/threat-model.md` all controls IN PLACE; `docs/deploy-hostinger.md`).
 - Sprint 12 (#4 conversion landing D3/D9 + `/legal/*` provisional pages) closed 2026-08-30 — TP-13 green (lint/typecheck/build clean, 162 tests, browser drive of the landing + legal pages, all CTA hrefs correct).
 - Sprint 11 (#15 coverage analysis + reviewable legal draft, D5) closed 2026-08-30 — TP-12 green (162 tests + browser drive: admin D5 panel with page refs + generated draft + mark-reviewed + revision history; client view hides the draft until reviewed).
 - Sprint 10 (#14 insurance policy upload + OCR + tentative extraction) closed 2026-08-30 — TP-11 green (145 tests + curl + browser drive of `/s/[token]` consent+upload and the admin extraction panel with page refs).
@@ -73,4 +74,4 @@
   `/s/[token]` insurance section + admin panel cover the AC; the in-assistant entry is a follow-up.
 - ~~#13 QUOTE_AVAILABLE email retro-wire~~ done in Sprint 9 (URL applied at send time, never persisted)
 
-Last updated: 2026-08-30 — Phase 5; 16 issues done (#4 landing landed); next: Sprint 13 (#17 security/privacy/retention)
+Last updated: 2026-08-30 — Phase 5; 17 issues done (#17 security landed); develop merged to main; next: Sprint 14 (#18 SEO + analytics)

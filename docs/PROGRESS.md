@@ -25,7 +25,7 @@
 - Test-first policy: pure-logic (default) — state machine, money, Zod schemas, phone normalisation, AI-output validation get their tests written and seen failing before code. Asked-once default accepted (D-007).
 - Durability: git remote origin https://github.com/FarinosV44/praetoria-servicios.git
 - Autonomy: automatic — Keel does every merge to develop and every push itself / issues: after-sprint / Issue sweep interval: 24h / Issue capture: on
-- Branches: integration branch `develop` / `main` at 34a1cd0 (11 issues, CI green) — merged develop→main 2026-08-30 on user instruction (`sube a main`). No tag. `develop` ahead of `main` by Sprints 8–11 (#13, #16, #14, #15).
+- Branches: integration branch `develop` / `main` at 34a1cd0 (11 issues, CI green) — merged develop→main 2026-08-30 on user instruction (`sube a main`). No tag. `develop` ahead of `main` by Sprints 8–12 (#13, #16, #14, #15, #4).
 - Notify: none (user chose chat-only) — a block is visible only on the next chat open
 - Chaining: off (user chose "MVP core first"; no chained-chat launch — hand-off file written at every sprint close)
 - Chaining model: n/a
@@ -44,9 +44,10 @@
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. Done+verified: #2 #3 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #28 (15). Awaiting user close on GitHub.
+- Phase: 5 — Development. Done+verified: #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #28 (16). Awaiting user close on GitHub.
 - User instruction (2026-08-29): do every remaining issue, then push to main, then Hostinger redeploy (hPanel Node.js hosting — access details still needed at deploy time: git-pull+restart or webhook, and where Postgres lives).
-- Next action: Sprint 12 — #4 (conversion landing, benchmark D3/D9) + the `/legal/*` placeholder pages. Then #17 → #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
+- Next action: Sprint 13 — #17 (security/privacy/retention: threat-model, per-resource authz tests, CSRF, SSRF guard, security headers in next.config.ts, PII-redaction test, scripts/retention.ts + cron, admin export/delete + ops-log). Then #18 → #19 → growth #20–#27 → merge develop→main → Hostinger deploy.
+- Sprint 12 (#4 conversion landing D3/D9 + `/legal/*` provisional pages) closed 2026-08-30 — TP-13 green (lint/typecheck/build clean, 162 tests, browser drive of the landing + legal pages, all CTA hrefs correct).
 - Sprint 11 (#15 coverage analysis + reviewable legal draft, D5) closed 2026-08-30 — TP-12 green (162 tests + browser drive: admin D5 panel with page refs + generated draft + mark-reviewed + revision history; client view hides the draft until reviewed).
 - Sprint 10 (#14 insurance policy upload + OCR + tentative extraction) closed 2026-08-30 — TP-11 green (145 tests + curl + browser drive of `/s/[token]` consent+upload and the admin extraction panel with page refs).
 - Sprint 9 (#16 signed client link `/s/[token]`) closed 2026-08-30 — TP-10 green (121 tests + browser drive: full quote view, phone-last-4 verify, accept recorded with evidence). Retro-wired #13 QUOTE_AVAILABLE + CONFIRMATION emails to carry the `/s/<token>` URL (applied at send time, never persisted).
@@ -72,4 +73,4 @@
   `/s/[token]` insurance section + admin panel cover the AC; the in-assistant entry is a follow-up.
 - ~~#13 QUOTE_AVAILABLE email retro-wire~~ done in Sprint 9 (URL applied at send time, never persisted)
 
-Last updated: 2026-08-30 — Phase 5; 15 issues done (#15 coverage analysis + legal draft landed); next: Sprint 12 (#4 landing)
+Last updated: 2026-08-30 — Phase 5; 16 issues done (#4 landing landed); next: Sprint 13 (#17 security/privacy/retention)

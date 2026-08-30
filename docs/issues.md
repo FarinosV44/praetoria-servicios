@@ -20,7 +20,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 2 | Inicializar arquitectura, stack y entorno reproducible | task | high | resolved — awaiting user close | E-001 |
 | 3 | Identidad visual y sistema de diseño premium mobile-first | task | high | resolved (Sprint 3); a11y automated pass at #19 — awaiting user close | E-004 |
 | 28 | Benchmark de competencia, reseñas y foros antes de cerrar el producto | research | high | resolved — awaiting user close | E-003 |
-| 4 | Landing comercial orientada a conversión | feature | med | open | — |
+| 4 | Landing comercial orientada a conversión | feature | med | resolved (Sprint 12) — awaiting user close | E-013 |
 | 5 | Asistente visual para iniciar una solicitud doméstica | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 6 | Captura, subida y gestión segura de fotografías | feature | high | resolved (Sprint 4) — awaiting user close | E-005 |
 | 7 | Análisis multimodal del problema mediante IA | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
@@ -46,6 +46,34 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-013 — #4 Landing comercial orientada a conversión
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/4   Status: resolved 2026-08-30 (Sprint 12) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: rebuilt `src/app/page.tsx` as a static RSC landing + `src/app/page.module.css`, all
+  copy through `src/config/copy` (`COPY.landing`, `COPY.legal` — D-006). Sections: hero (2 CTAs
+  within one screen) · cómo funciona (4 steps) · 11 visual categories (`src/config/trades.ts` +
+  `TRADE_ICONS`) · "No necesitas saber qué profesional necesitas" · "Qué hacemos distinto" (D3
+  single-interlocutor) · D9 contrast table (web tradicional/marketplace/Praetoria) + the recommended
+  message · "Por qué puedes confiar" (→#21) · data-protection block · **visual quote example** with
+  scope/total/plazo/garantía, labelled "Ejemplo ilustrativo" · insurance block ("podría estar
+  cubierto", never "no pagarás") · coverage from `src/config/coverage.ts` · realistic FAQ (incl. no
+  24/7) · urgency block (112, no 24/7 promise) · footer with legal links. OG/Twitter/canonical
+  metadata. `/legal/privacidad` + `/legal/aviso-legal` — shared `LegalDoc` renderer, provisional
+  pending-review banner (issue #17), `noindex`. Zero invented figures/reviews/years.
+- Changes: commit "feat(#4): conversion landing + provisional legal pages" on `develop`.
+- Verification: TP-13 — lint/typecheck/`npx next build` clean (`/` + `/legal/*` prerendered static);
+  162 tests green (static markup — no new tests, per the test-automation not-applied list); browser
+  drive of the landing + `/legal/privacidad`, all CTA hrefs verified 200 and correct.
+- Acceptance criteria: onescreen ✅ (CSS/structure check — see note), cta ✅, nofiller ✅, cwv ✅
+  (static), seo ✅, design ✅.
+- Replies: beat 1 — completion comment to post on GitHub #4. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (browser `resize_window` didn't change the screenshot viewport — mobile layout
+  checked from the CSS).
+- Pending: the definitive legal texts (#17); a hero image / OG image asset (no designer in this
+  engagement — the OG card is text-only for now).
 
 ### E-012 — #15 Analizar cobertura y generar borrador jurídico revisable
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/15   Status: resolved 2026-08-30 (Sprint 11) — awaiting user close

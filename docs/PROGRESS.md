@@ -15,7 +15,7 @@
 - Design system: founding — canonical, will live at src/ui/ + src/app/globals.css tokens (see issue #3)
 - Keel portability: lock only (embedded skill copy not vendored — D-004)
 - Assistant config: none (portability lock only)
-- E2E: `npm run test:e2e` (Playwright; `scripts/e2e-run.mjs` wrapper → `docs/.keel/e2e-status.json`). 30 tests, desktop-chromium + mobile-chrome (Pixel 5). Needs `npm run e2e:install` once. CI `e2e` job runs it on push to `main` / PRs.
+- E2E: `npm run test:e2e` (Playwright; `scripts/e2e-run.mjs` wrapper → `docs/.keel/e2e-status.json`). 33 tests (3 mobile admin-panel skipped), desktop-chromium + mobile-chrome (Pixel 5). Needs `npm run e2e:install` once. CI `e2e` job runs it on push to `main` / PRs.
 - CI runs on: main (default) — GitHub Actions on push to main, tags, and PRs to main
 - Keel baseline: v5.19.2
 - Website intent: no (the product IS the website; marketing landing is issue #4, in-app)

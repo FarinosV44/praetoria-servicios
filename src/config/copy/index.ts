@@ -33,6 +33,20 @@ export const COPY = {
     chooseCategory: "¿Con qué necesitas ayuda?",
     unsure: "No sé qué profesional necesito",
   },
+  insurance: {
+    heading: "¿Podría estar cubierto por tu seguro de hogar?",
+    intro:
+      "Si nos compartes tu póliza, hacemos una lectura orientativa de las coberturas. No garantiza " +
+      "nada: la decisión final es de la aseguradora tras la visita de un perito.",
+    consentLabel:
+      "Autorizo a Praetoria Servicios a analizar los documentos de mi póliza para orientarme sobre la posible cobertura.",
+    whichDocsHelp:
+      "Ayuda mucho tener las condiciones particulares (tu póliza concreta, con tus datos y garantías) " +
+      "y las condiciones generales (el condicionado completo con las exclusiones).",
+    disclaimer:
+      "Tus documentos se guardan cifrados, con acceso mínimo, y puedes pedir su borrado en cualquier momento.",
+    consentNeeded: "Necesitamos tu autorización antes de subir ningún documento.",
+  },
   /**
    * Communication templates (issue #13). `{brand}`, `{name}`, `{reference}`,
    * `{message}` and `{url}` are substituted by the renderer. Configurable — an

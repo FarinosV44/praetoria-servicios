@@ -30,7 +30,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 11 | Autenticación y panel administrativo de solicitudes | feature | high | resolved (Sprint 6) — awaiting user close | E-007 |
 | 12 | Gestionar presupuestos y plazos desde administración | feature | high | resolved (Sprint 7) — awaiting user close | E-008 |
 | 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | resolved (Sprint 8) — awaiting user close | E-009 |
-| 14 | Subir y procesar una póliza de seguro de hogar | feature | med | open | — |
+| 14 | Subir y procesar una póliza de seguro de hogar | feature | med | resolved (Sprint 10) — awaiting user close | E-011 |
 | 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | open | — |
 | 16 | Consulta segura del estado y respuesta del cliente | feature | high | resolved (Sprint 9) — awaiting user close | E-010 |
 | 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | open | — |
@@ -46,6 +46,33 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-011 — #14 Subir y procesar una póliza de seguro de hogar
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/14   Status: resolved 2026-08-30 (Sprint 10) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/insurance/` (pure — doc-kind taxonomy, `policyExtractionSchema` with
+  `{doc,page}` refs, `extractPolicyFields` parser, `extractionStatusFor`, `missingDocKinds` /
+  `missingSummary`, `validateInsuranceDoc` with PDF magic-byte sniff). `src/server/services/
+  insurance.ts` — `ensureCase` (1:1 with request), `recordConsent` (`INSURANCE_DOC_ANALYSIS` +
+  `InsuranceCase.consentGiven`), `addDocument` (consent gate → `BlobStore.put({sensitive:true})` →
+  `InsuranceDocument`), `analyze` (OCR per doc, `ocrUsed`/`pageCount`, tentative extraction, status,
+  missing note), `getCase` (signed URLs admin-only), `deleteDocument` (verified — `storage.exists`
+  check → `delete_unverified`), `purge` (retention). `POST /api/insurance/documents` (signed link
+  token or admin session; origin check + rate limit). `src/server/actions/insurance.ts`.
+  `/s/[token]` `InsuranceSection` (consent → which-docs-help → upload → status + missing summary).
+  Admin `InsurancePanel` on the request detail (extraction with page refs, temporary view links,
+  delete + purge). No migration (`InsuranceCase`/`InsuranceDocument` shipped with #9).
+- Changes: commit "feat(#14): insurance policy upload + OCR + extraction" on `develop`.
+- Verification: TP-11 — 18 pure + 6 integration tests (145 total green); lint/typecheck/build clean;
+  curl (201/422/403) + browser drive of the client consent+upload flow and the admin extraction
+  panel (garantías/franquicias/exclusiones with page refs).
+- Acceptance criteria: private ✅, ocrmark ✅, pageref ✅, partial ✅, linkpolicy ✅, consent ✅.
+- Replies: beat 1 — completion comment to post on GitHub #14. Beat 2 (deploy) folds into the single
+  end-of-backlog Hostinger deploy.
+- Closed by: still open — the user closes.
+- Lesson: none (an env note on `Origin === APP_URL` for `/api/*` POSTs went to `docs/playground.md`).
+- Pending: the in-assistant "seguro" upload step (`/solicitar`); the OCR real provider (mock covers
+  dev/test); coverage analysis + the legal draft are issue #15 (next sprint).
 
 ### E-010 — #16 Consulta segura del estado y respuesta del cliente
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/16   Status: resolved 2026-08-30 (Sprint 9) — awaiting user close

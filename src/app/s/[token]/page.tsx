@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { clientLinkService } from "@/server/services/clientLink";
 import { photoService } from "@/server/services/photos";
+import { insuranceService } from "@/server/services/insurance";
 import { ClientStatusView } from "./ClientStatusView";
+import { InsuranceSection } from "./InsuranceSection";
 import { RecoverAccess } from "./RecoverAccess";
 import styles from "./link.module.css";
 
@@ -56,6 +58,7 @@ export default async function ClientLinkPage({
   }
 
   const photos = view.canAddInfo ? await photoService.list(link.value.requestId) : [];
+  const insuranceCase = await insuranceService.getCase(link.value.requestId);
 
   return (
     <main id="contenido" className={styles.page}>
@@ -75,6 +78,21 @@ export default async function ClientLinkPage({
             : null,
         }}
         photos={photos.map((p) => ({ id: p.id, signedUrl: p.signedUrl }))}
+      />
+
+      <InsuranceSection
+        token={token}
+        consentGiven={insuranceCase?.consentGiven ?? false}
+        status={insuranceCase?.extractionStatus ?? null}
+        insurerName={insuranceCase?.insurerName ?? null}
+        policyNumber={insuranceCase?.policyNumber ?? null}
+        missingDocsNote={insuranceCase?.missingDocsNote ?? null}
+        documents={(insuranceCase?.documents ?? []).map((d) => ({
+          id: d.id,
+          kindLabel: d.kindLabel,
+          ocrUsed: d.ocrUsed,
+          pageCount: d.pageCount,
+        }))}
       />
     </main>
   );

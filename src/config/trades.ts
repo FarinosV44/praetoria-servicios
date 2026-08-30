@@ -7,11 +7,24 @@ export interface Trade {
   label: string;
   /** short guidance shown on the category card */
   hint: string;
+  /**
+   * A regulated trade needs a legally-required, in-date credential before a
+   * professional can be assigned to it (issue #22). `credentialLabel` names the
+   * document an operator should ask for.
+   */
+  regulated?: boolean;
+  credentialLabel?: string;
 }
 
 export const TRADES: readonly Trade[] = [
   { key: "fontaneria", label: "Fontanería", hint: "Fugas, grifos, desagües, calentador" },
-  { key: "electricidad", label: "Electricidad", hint: "Enchufes, cuadro, luces, cortocircuitos" },
+  {
+    key: "electricidad",
+    label: "Electricidad",
+    hint: "Enchufes, cuadro, luces, cortocircuitos",
+    regulated: true,
+    credentialLabel: "Carné de instalador eléctrico de baja tensión (o empresa habilitada)",
+  },
   {
     key: "electrodomesticos",
     label: "Electrodomésticos",
@@ -31,9 +44,16 @@ export const TRADES: readonly Trade[] = [
     key: "climatizacion",
     label: "Climatización",
     hint: "Aire acondicionado, calefacción, radiadores",
+    regulated: true,
+    credentialLabel: "Carné de instalador RITE y/o de manipulación de gases fluorados",
   },
   { key: "cerrajeria", label: "Cerrajería", hint: "Cerraduras, llaves, puertas bloqueadas" },
 ] as const;
+
+/** Does this trade legally require a credential before assignment (issue #22)? */
+export function isRegulatedTrade(key: string): boolean {
+  return TRADES.find((t) => t.key === key)?.regulated === true;
+}
 
 export const UNSURE_KEY = "no-se" as const;
 

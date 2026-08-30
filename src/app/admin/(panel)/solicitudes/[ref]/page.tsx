@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { adminService } from "@/server/services/admin";
+import { professionalService } from "@/server/services/professionals";
+import { assignmentService } from "@/server/services/assignment";
 import { findTrade } from "@/config/trades";
 import { AdminRequestControls } from "./Controls";
+import { AssignPanel } from "./AssignPanel";
 import { CommsPanel } from "./CommsPanel";
 import { InsurancePanel } from "./InsurancePanel";
 import { CoveragePanel } from "./CoveragePanel";
@@ -22,6 +25,11 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
 
   const { request, photos, analysisHistory, corrections, communications, insurance, coverage } =
     data;
+
+  const [approvedPros, activeAssignment] = await Promise.all([
+    professionalService.list({ status: "APROBADO" }),
+    assignmentService.activeAssignment(request.id),
+  ]);
   const active = analysisHistory.find((a) => a.isActive);
   const result =
     active && active.outcome !== "PROVIDER_ERROR"
@@ -226,6 +234,26 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
               error: c.error,
               attempts: c.attempts,
               createdAt: c.createdAt.toISOString(),
+            }))}
+          />
+
+          <AssignPanel
+            requestId={request.id}
+            reference={request.reference}
+            current={
+              activeAssignment
+                ? {
+                    displayName: activeAssignment.professional.displayName,
+                    reference: "activo",
+                  }
+                : null
+            }
+            professionals={approvedPros.map((p) => ({
+              id: p.id,
+              reference: p.reference,
+              displayName: p.displayName,
+              trades: p.trades,
+              municipalities: p.municipalities,
             }))}
           />
 

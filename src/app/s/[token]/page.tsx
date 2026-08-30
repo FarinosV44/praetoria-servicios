@@ -7,6 +7,8 @@ import { ClientStatusView } from "./ClientStatusView";
 import { InsuranceSection } from "./InsuranceSection";
 import { CoverageClientView } from "./CoverageClientView";
 import { RecoverAccess } from "./RecoverAccess";
+import { AssignedProfessional } from "./AssignedProfessional";
+import { assignmentService } from "@/server/services/assignment";
 import styles from "./link.module.css";
 
 export const dynamic = "force-dynamic";
@@ -60,6 +62,7 @@ export default async function ClientLinkPage({
   }
 
   const photos = view.canAddInfo ? await photoService.list(link.value.requestId) : [];
+  const assignedProfessional = await assignmentService.clientProfessionalView(link.value.requestId);
   const insuranceCase = await insuranceService.getCase(link.value.requestId);
   const coverage = insuranceCase ? await coverageService.getForRequest(link.value.requestId) : null;
 
@@ -82,6 +85,8 @@ export default async function ClientLinkPage({
         }}
         photos={photos.map((p) => ({ id: p.id, signedUrl: p.signedUrl }))}
       />
+
+      <AssignedProfessional professional={assignedProfessional} />
 
       <InsuranceSection
         token={token}

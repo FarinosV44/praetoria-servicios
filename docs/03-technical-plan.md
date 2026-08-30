@@ -123,3 +123,9 @@ scripts/
 - `[E]` `src/app/{layout.tsx,page.tsx,globals.css}`, `package.json`, `tsconfig.json`, `eslint.config.mjs`, `next.config.ts`, `postcss.config.mjs`
 - `[A]` this session (Sprint 1): `src/lib/env.ts`, `src/lib/db.ts`, `src/lib/id.ts`, `src/lib/money.ts`, `src/lib/result.ts`, `src/adapters/*/index.ts` (interface + mock), `src/server/container.ts`, `src/config/{coverage.ts,limits.ts,trades.ts}`, `prisma/schema.prisma`, `docker-compose.yml`, `.env.example`, `src/app/api/health/route.ts`, `.github/workflows/ci.yml`, `docs/threat-model.md`, `docs/playground.md`
 - everything else: created by its issue's slice, not before.
+- `[E]` Sprint 14–16 additions: `src/lib/{analytics,seo,observability}.ts`, `src/ui/JsonLd.tsx`,
+  `src/app/{robots,sitemap,manifest,icon,global-error}.*`, `src/app/servicios/`, `src/app/cobertura/`,
+  `src/config/service-content.ts`, `src/proxy.ts` (CSP nonce), `tests/e2e/`, `playwright.config.ts`,
+  `scripts/e2e-run.mjs`, `src/domain/professionals/`, `src/server/services/{professionals,assignment}.ts`,
+  `src/server/actions/professionals.ts`, `src/app/admin/(panel)/profesionales/`,
+  `src/app/admin/(panel)/solicitudes/[ref]/AssignPanel.tsx`, `src/app/s/[token]/AssignedProfessional.tsx`.

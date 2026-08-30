@@ -66,6 +66,7 @@ model Request {
   consents      Consent[]
   statusHistory StatusEvent[]
   insurance     InsuranceCase?
+  assignments   Assignment[]
 
   // Draft lifecycle / retention (issue #9, #17)
   submittedAt   DateTime?
@@ -456,16 +457,18 @@ model AdminUser {
 
 // Who did what (issue #11: "Registro de quién realiza cada acción").
 model AdminActionLog {
-  id         String   @id @default(cuid())
-  admin      AdminUser @relation(fields: [adminId], references: [id])
-  adminId    String
-  requestId  String?
-  action     String
-  detail     Json?
-  createdAt  DateTime @default(now())
+  id             String   @id @default(cuid())
+  admin          AdminUser @relation(fields: [adminId], references: [id])
+  adminId        String
+  requestId      String?
+  professionalId String?  // set for professional-network actions (issue #22)
+  action         String
+  detail         Json?
+  createdAt      DateTime @default(now())
 
   @@index([requestId, createdAt])
   @@index([adminId, createdAt])
+  @@index([professionalId, createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -483,4 +486,139 @@ model ClientLink {
   createdAt   DateTime @default(now())
 
   @@index([requestId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Professional network (issue #22) — manual verification + assignment guardrails.
+// Documents are private blobs; personal data is kept to what is needed; history
+// is never destroyed (suspension only).
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ProfessionalStatus {
+  CANDIDATO
+  DOCUMENTACION_PENDIENTE
+  VERIFICANDO
+  APROBADO
+  SUSPENDIDO
+  RECHAZADO
+}
+
+// What was actually checked in a verification. CONTACT (phone/email) alone never
+// counts as "verificado" for the client-facing scope (issue #22 rule).
+enum VerificationKind {
+  IDENTITY
+  FISCAL
+  RC_INSURANCE
+  CREDENTIAL
+  REFERENCES
+  BANK_ACCOUNT
+  CONTACT
+}
+
+model Professional {
+  id             String   @id @default(cuid())
+  reference      String   @unique // internal non-sequential ref (e.g. PRO-7Q2M)
+  status         ProfessionalStatus @default(CANDIDATO)
+
+  legalName      String
+  displayName    String   // shown to the client
+  taxId          String?  // NIF/CIF
+  phone          String?
+  email          String?
+
+  trades         String[] // admitted trade keys
+  municipalities String[] // covered municipalities
+  availabilityNote String?
+  experienceNote String?
+  referencesNote String?
+
+  // RC (responsabilidad civil) insurance
+  rcInsurer      String?
+  rcPolicyNumber String?
+  rcExpiresAt    DateTime?
+
+  // Bank — only the last 4 of the IBAN in the DB; the full number, if ever
+  // needed, lives in a document blob, not here.
+  bankIbanLast4  String?
+
+  // Client-facing photo — served via a signed URL and ONLY when photoConsent.
+  photoStorageKey String?
+  photoConsent   Boolean  @default(false)
+
+  internalRating Int?     // 1..5, internal only, never shown to the client
+  approvedAt     DateTime?
+  suspendedAt    DateTime?
+
+  credentials    ProfessionalCredential[]
+  verifications  ProfessionalVerification[]
+  documents      ProfessionalDocument[]
+  assignments    Assignment[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+}
+
+model ProfessionalCredential {
+  id             String   @id @default(cuid())
+  professional   Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  professionalId String
+  trade          String   // the regulated trade this credential authorizes
+  label          String
+  reference      String?  // credential number
+  issuedAt       DateTime?
+  expiresAt      DateTime? // null = no stated expiry
+  createdAt      DateTime @default(now())
+
+  @@index([professionalId])
+  @@index([expiresAt])
+}
+
+model ProfessionalVerification {
+  id               String   @id @default(cuid())
+  professional     Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  professionalId   String
+  kind             VerificationKind
+  checkedByAdminId String
+  checkedAt        DateTime @default(now())
+  passed           Boolean
+  note             String?
+  expiresAt        DateTime? // when this check must be redone
+
+  @@index([professionalId, checkedAt])
+  @@index([expiresAt])
+}
+
+model ProfessionalDocument {
+  id             String   @id @default(cuid())
+  professional   Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  professionalId String
+  kind           String   // "identidad" | "fiscal" | "rc" | "carne" | "referencias" | "bancario" | "otro"
+  storageKey     String   // encrypted private blob
+  contentType    String
+  byteSize       Int
+  expiresAt      DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime @default(now())
+
+  @@index([professionalId])
+  @@index([expiresAt])
+}
+
+model Assignment {
+  id                String   @id @default(cuid())
+  request           Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId         String
+  professional      Professional @relation(fields: [professionalId], references: [id])
+  professionalId    String
+  assignedByAdminId String
+  assignedAt        DateTime @default(now())
+  active            Boolean  @default(true)
+  // Set when this professional is replaced — the row stays for traceability.
+  endedAt           DateTime?
+  endedReason       String?
+
+  @@index([requestId, active])
+  @@index([professionalId])
 }

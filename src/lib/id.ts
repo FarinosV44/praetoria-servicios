@@ -20,6 +20,11 @@ export function newRequestReference(): string {
   return `PS-${raw.slice(0, 4)}-${raw.slice(4, 8)}`;
 }
 
+/** e.g. "PRO-7Q2M" — internal professional reference (issue #22), non-sequential. */
+export function newProfessionalReference(): string {
+  return `PRO-${humanId().slice(0, 4)}`;
+}
+
 /** 32-char URL-safe opaque token for signed status links, upload sessions, etc. */
 export function newOpaqueToken(): string {
   return token();

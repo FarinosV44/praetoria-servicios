@@ -53,3 +53,13 @@ test("create → approve a professional, with the regulated-trade guardrail visi
 
   expect(meaningfulErrors(errors)).toEqual([]);
 });
+
+test("the incidences panel loads (issue #23)", async ({ page }) => {
+  const errors = collectConsoleErrors(page);
+  await login(page);
+  await page.goto("/admin/incidencias");
+  await expect(page.getByRole("heading", { name: /Incidencias y valoraciones/i })).toBeVisible();
+  await expect(page.getByText(/Incidencias abiertas/i)).toBeVisible();
+  await expect(page.getByText(/Valoraciones pendientes de autorizar/i)).toBeVisible();
+  expect(meaningfulErrors(errors)).toEqual([]);
+});

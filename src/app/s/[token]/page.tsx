@@ -8,7 +8,10 @@ import { InsuranceSection } from "./InsuranceSection";
 import { CoverageClientView } from "./CoverageClientView";
 import { RecoverAccess } from "./RecoverAccess";
 import { AssignedProfessional } from "./AssignedProfessional";
+import { PostService } from "./PostService";
 import { assignmentService } from "@/server/services/assignment";
+import { serviceClosureService } from "@/server/services/serviceClosure";
+import { reviewService } from "@/server/services/reviews";
 import styles from "./link.module.css";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +66,8 @@ export default async function ClientLinkPage({
 
   const photos = view.canAddInfo ? await photoService.list(link.value.requestId) : [];
   const assignedProfessional = await assignmentService.clientProfessionalView(link.value.requestId);
+  const { completion } = await serviceClosureService.getForRequest(link.value.requestId);
+  const review = await reviewService.forRequest(link.value.requestId);
   const insuranceCase = await insuranceService.getCase(link.value.requestId);
   const coverage = insuranceCase ? await coverageService.getForRequest(link.value.requestId) : null;
 
@@ -87,6 +92,27 @@ export default async function ClientLinkPage({
       />
 
       <AssignedProfessional professional={assignedProfessional} />
+
+      <PostService
+        token={token}
+        rawStatus={view.rawStatus}
+        hasPhone={view.hasPhone}
+        completion={
+          completion
+            ? {
+                workDone: completion.workDone,
+                materialsNote: completion.materialsNote,
+                completedAt: completion.completedAt.toISOString(),
+                warrantyKind: completion.warrantyKind,
+                warrantyText: completion.warrantyText,
+                warrantyExclusions: completion.warrantyExclusions,
+                warrantyResponsible: completion.warrantyResponsible,
+                clientConfirmedAt: completion.clientConfirmedAt?.toISOString() ?? null,
+              }
+            : null
+        }
+        reviewSubmitted={!!review}
+      />
 
       <InsuranceSection
         token={token}

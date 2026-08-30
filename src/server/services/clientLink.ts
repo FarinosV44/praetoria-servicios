@@ -100,6 +100,15 @@ export const clientLinkService = {
   },
 
   /** The comprehensible client view of a request — never another client's data. */
+  /** Ownership check for state-changing client actions (issue #23). */
+  async phoneMatches(requestId: string, phoneLast4: string): Promise<boolean> {
+    const request = await db.request.findUnique({
+      where: { id: requestId },
+      select: { contact: { select: { phone: true } } },
+    });
+    return phoneLast4Matches(request?.contact?.phone, phoneLast4);
+  },
+
   async getClientView(requestId: string) {
     const request = await db.request.findUnique({
       where: { id: requestId },

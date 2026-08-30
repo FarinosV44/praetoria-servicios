@@ -67,6 +67,9 @@ model Request {
   statusHistory StatusEvent[]
   insurance     InsuranceCase?
   assignments   Assignment[]
+  completion    ServiceCompletion?
+  incidences    Incidence[]
+  review        Review?
 
   // Draft lifecycle / retention (issue #9, #17)
   submittedAt   DateTime?
@@ -621,4 +624,108 @@ model Assignment {
 
   @@index([requestId, active])
   @@index([professionalId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Service closure, incidences & post-service review (issue #23)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum WarrantyKind {
+  LEGAL
+  COMERCIAL
+  CORTESIA
+}
+
+enum IncidenceStatus {
+  ABIERTA
+  EN_CLASIFICACION
+  EN_CURSO
+  RESUELTA
+  DESESTIMADA
+}
+
+enum ReviewStatus {
+  PENDIENTE
+  AUTORIZADA
+  RECHAZADA
+}
+
+model ServiceCompletion {
+  id                       String    @id @default(cuid())
+  request                  Request   @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId                String    @unique
+  completedAt              DateTime
+  workDone                 String
+  materialsNote            String?
+  finalPhotosNote          String?
+  executedByProfessionalId String?
+  // Economic traceability (issue #23): which quote version, which approved extras.
+  acceptedQuoteVersion     Int?
+  approvedExtrasNote       String?
+  // Warranty — one of three kinds, never a uniform term (issue #23 rule).
+  warrantyKind             WarrantyKind?
+  warrantyText             String?
+  warrantyExclusions       String?
+  warrantyResponsible      String?
+  clientConfirmedAt        DateTime?
+  recordedByAdminId        String
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+}
+
+model Incidence {
+  id                 String          @id @default(cuid())
+  reference          String          @unique // INC-XXXX
+  request            Request         @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId          String
+  status             IncidenceStatus @default(ABIERTA)
+  openedBy           ActorType
+  kind               String? // classification set by an admin
+  description        String
+  assignedToAdminId  String?
+  firstResponseDueAt DateTime?
+  firstRespondedAt   DateTime?
+  resolutionNote     String?
+  closedReason       String?
+  // A resolution / dismissal is never recorded without evidence (issue #23 rule).
+  evidenceNote       String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  events             IncidenceEvent[]
+
+  @@index([status])
+  @@index([requestId])
+  @@index([firstResponseDueAt])
+}
+
+model IncidenceEvent {
+  id          String          @id @default(cuid())
+  incidence   Incidence       @relation(fields: [incidenceId], references: [id], onDelete: Cascade)
+  incidenceId String
+  actorType   ActorType
+  actorId     String?
+  fromStatus  IncidenceStatus?
+  toStatus    IncidenceStatus?
+  note        String?
+  createdAt   DateTime        @default(now())
+
+  @@index([incidenceId, createdAt])
+}
+
+model Review {
+  id                  String       @id @default(cuid())
+  request             Request      @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId           String       @unique
+  rating              Int // 1..5
+  comment             String?
+  // A name is only shown if the client explicitly consented.
+  authorDisplayName   String?
+  publishConsent      Boolean      @default(false)
+  // Publication is an explicit admin decision; never automatic.
+  status              ReviewStatus @default(PENDIENTE)
+  authorizedByAdminId String?
+  authorizedAt        DateTime?
+  createdAt           DateTime     @default(now())
+
+  @@index([status])
 }

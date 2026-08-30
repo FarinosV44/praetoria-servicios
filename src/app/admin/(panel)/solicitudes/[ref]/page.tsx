@@ -6,6 +6,8 @@ import { assignmentService } from "@/server/services/assignment";
 import { findTrade } from "@/config/trades";
 import { AdminRequestControls } from "./Controls";
 import { AssignPanel } from "./AssignPanel";
+import { CompletionPanel } from "./CompletionPanel";
+import { serviceClosureService } from "@/server/services/serviceClosure";
 import { CommsPanel } from "./CommsPanel";
 import { InsurancePanel } from "./InsurancePanel";
 import { CoveragePanel } from "./CoveragePanel";
@@ -26,9 +28,10 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
   const { request, photos, analysisHistory, corrections, communications, insurance, coverage } =
     data;
 
-  const [approvedPros, activeAssignment] = await Promise.all([
+  const [approvedPros, activeAssignment, closure] = await Promise.all([
     professionalService.list({ status: "APROBADO" }),
     assignmentService.activeAssignment(request.id),
+    serviceClosureService.getForRequest(request.id),
   ]);
   const active = analysisHistory.find((a) => a.isActive);
   const result =
@@ -256,6 +259,40 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
               municipalities: p.municipalities,
             }))}
           />
+
+          {["ACEPTADA", "CERRADA"].includes(request.status) && (
+            <CompletionPanel
+              requestId={request.id}
+              reference={request.reference}
+              current={
+                closure.completion
+                  ? {
+                      completedAt: closure.completion.completedAt.toISOString(),
+                      workDone: closure.completion.workDone,
+                      warrantyKind: closure.completion.warrantyKind,
+                      acceptedQuoteVersion: closure.completion.acceptedQuoteVersion,
+                      clientConfirmedAt:
+                        closure.completion.clientConfirmedAt?.toISOString() ?? null,
+                    }
+                  : null
+              }
+            />
+          )}
+
+          {closure.incidences.length > 0 && (
+            <section className={styles.card}>
+              <h2>Incidencias ({closure.incidences.length})</h2>
+              <ul>
+                {closure.incidences.map((i) => (
+                  <li key={i.id}>
+                    <strong>{i.reference}</strong> · {i.status}
+                    {i.kind ? ` · ${i.kind}` : ""} — {i.description.slice(0, 80)}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/admin/incidencias">Gestionar en el panel de incidencias →</Link>
+            </section>
+          )}
 
           <AdminRequestControls
             reference={request.reference}

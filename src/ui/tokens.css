@@ -13,10 +13,12 @@
 
   --c-text: #2b2620;
   --c-text-soft: #5f584c;
-  --c-text-faint: #8a8172;
+  /* darkened for WCAG AA: 4.75:1 even on --c-brand-soft (was #8a8172 at 3.6:1) — issue #19 a11y audit */
+  --c-text-faint: #6b6353;
 
   /* ---- Colour: brand (terracotta / clay — resolutive, human) ---- */
-  --c-brand: #c05f3c;
+  /* darkened for WCAG AA: #fff on brand 5.1:1, brand-as-bold-text on --c-bg 4.75:1 (was #c05f3c) — issue #19 a11y audit */
+  --c-brand: #b0522f;
   --c-brand-hover: #a94e2f;
   --c-brand-active: #8f3f24;
   --c-brand-soft: #f6e3da;
@@ -110,7 +112,7 @@
 
     --c-text: #f3ede2;
     --c-text-soft: #ccc3b4;
-    --c-text-faint: #9a9081;
+    --c-text-faint: #a89e8c;
 
     --c-brand: #e07a54;
     --c-brand-hover: #ec8a63;

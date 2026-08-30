@@ -15,7 +15,7 @@
 - Design system: founding — canonical, will live at src/ui/ + src/app/globals.css tokens (see issue #3)
 - Keel portability: lock only (embedded skill copy not vendored — D-004)
 - Assistant config: none (portability lock only)
-- E2E: absent (will be added at issue #19 — `npm run test:e2e`, Playwright)
+- E2E: `npm run test:e2e` (Playwright; `scripts/e2e-run.mjs` wrapper → `docs/.keel/e2e-status.json`). 30 tests, desktop-chromium + mobile-chrome (Pixel 5). Needs `npm run e2e:install` once. CI `e2e` job runs it on push to `main` / PRs.
 - CI runs on: main (default) — GitHub Actions on push to main, tags, and PRs to main
 - Keel baseline: v5.19.2
 - Website intent: no (the product IS the website; marketing landing is issue #4, in-app)
@@ -38,15 +38,16 @@
 | 2 Functional spec | done (condensed) | docs/02-functional-spec.md, docs/03-technical-plan.md |
 | 3 Design handoff | deferred — founding design system built inline per issue #3 (D-005); no external Design tool in this engagement | — |
 | 4 Faithful build | n/a (no external design handoff) | — |
-| 5 Development | in progress — Sprints 1–14 done (#2–#18, #28, #29); next Sprint 15 = #19 | docs/sprints/, docs/05-test-points.md |
+| 5 Development | MVP core COMPLETE — Sprints 1–15 done (#2–#19, #28, #29). Next: growth #20–#27. | docs/sprints/, docs/05-test-points.md |
 | 6 Documentation | pending | docs/architecture.md, docs/api/ |
 | 7 Release | pending | docs/07-release.md |
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. Done+verified: #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #18 #28 (18) + #29 (bug, found + fixed this sprint). Awaiting user close on GitHub.
-- User standing instruction: do every remaining issue, merge `develop`→`main` per sprint (authorised, `--no-ff`), then the Hostinger deploy. Remaining backlog: #19 (E2E/observability/deploy), growth #20–#27. Then the deploy (`docs/deploy-hostinger.md` drafted; needs hPanel access + where Postgres lives + env secrets; NOTE: `APP_URL` must be set at BUILD time now — sitemap/robots bake it).
-- Next action: Sprint 15 — #19 (E2E Playwright + observability + accessibility pass + finalise deploy). Then growth #20–#27 in order #22 → #21 → #23 → #24 → #25 → #26 → #20 → #27.
+- Phase: 5 — Development. **MVP core complete**: #2–#19, #28, #29 done + verified. Awaiting user close on GitHub (#1 EPIC closes when the user closes all).
+- User standing instruction: do every remaining issue, merge `develop`→`main` per sprint (authorised, `--no-ff`), then the Hostinger deploy.
+- Next action: **growth backlog #20–#27** in order #22 → #21 → #23 → #24 → #25 → #26 → #20 → #27 (Sprint 16 = #22). Separately, before go-live: definitive legal texts + DPIA (release gate), and the actual Hostinger deploy (`docs/deploy-hostinger.md` is final; needs operator hPanel access + where Postgres lives + the real secrets; NOTE: `APP_URL` and any `NEXT_PUBLIC_*` must be set at BUILD time).
+- Sprint 15 (#19 E2E + observability + deploy docs) closed 2026-08-30 — TP-16 green (207 vitest; **30 E2E pass on desktop + Pixel 5 mobile**; axe 0 serious/critical on 5 pages × 2 viewports; `src/lib/observability.ts` PII-free error+AI-metric seams; `docs/{runbook,known-limitations}.md`; `deploy-hostinger.md` final; CI e2e job; L-005 a11y contrast fix). This completes the MVP core → EPIC #1's dependency (Keel never closes #1, the user does).
 - Sprint 14 (#18 SEO + analytics + service pages; #29 CSP hydration fix) closed 2026-08-30 — TP-15 green (200 tests; analytics PII-strip + consent gate test-first; 11 real service pages D10; `/cobertura` + checker; robots/sitemap/manifest/icon; JSON-LD ×5 types; D-013 coverage = toda el área de Valencia; #29: per-request CSP nonce in `src/proxy.ts` + `force-dynamic` layout, browser-verified hydration).
 - Sprint 13 (#17 security/privacy/retention) closed 2026-08-30 — TP-14 green (183 tests; security headers live-verified; SSRF guard; cross-resource authz + PII-redaction tests; `/api/cron/retention`; admin export/delete + ops-log; `docs/threat-model.md` all controls IN PLACE; `docs/deploy-hostinger.md`).
 - Sprint 12 (#4 conversion landing D3/D9 + `/legal/*` provisional pages) closed 2026-08-30 — TP-13 green (lint/typecheck/build clean, 162 tests, browser drive of the landing + legal pages, all CTA hrefs correct).
@@ -59,8 +60,9 @@
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
 - Open Design Requests: none
 - Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use — MVP not blocked)
-- Forge issues in progress: see docs/issues.md — #2–#18, #28, #29 resolved (awaiting user close); #19–#27 open; building in dependency order
-- Deploy note (#19): `APP_URL` must be set at BUILD time — `/sitemap.xml` and `/robots.txt` bake the base URL. `NEXT_PUBLIC_ANALYTICS_URL` (optional) wires the real analytics beacon.
+- Forge issues in progress: see docs/issues.md — #2–#19, #28, #29 resolved (awaiting user close); #20–#27 (growth) open; building in dependency order
+- Deploy note (#19): `APP_URL` and any `NEXT_PUBLIC_*` must be set at BUILD time — `/sitemap.xml`, `/robots.txt`, the analytics beacon URL are all baked. Full procedure in `docs/deploy-hostinger.md`; incident playbooks in `docs/runbook.md`; v1 boundaries in `docs/known-limitations.md`.
+- Release gate before go-live: definitive legal texts + full DPIA (still provisional/noindex).
 
 ### Deferred items (consciously postponed work)
 - Issues #20–#27 (professional intake, verified network, post-service/warranty, editorial CMS, SEO architecture, reviews, SEO control centre) — severity: growth features — review trigger: after issues #1–#19 complete (user decision, this session)
@@ -81,4 +83,4 @@
 - Marketing pages are now `force-dynamic` (D-014, issue #29) — no static prerender. Revisit with
   ISR/CDN or Next experimental SRI at deploy if page latency matters.
 
-Last updated: 2026-08-30 — Phase 5; 18 issues done (#18 SEO/analytics/service pages) + #29 (CSP hydration bug) landed in Sprint 14; next: Sprint 15 (#19 E2E + observability + deploy)
+Last updated: 2026-08-30 — Phase 5; MVP CORE COMPLETE (#2–#19, #28, #29) after Sprint 15 (#19 E2E/observability/deploy docs); next: growth backlog Sprint 16 = #22

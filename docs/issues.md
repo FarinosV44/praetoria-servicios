@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-30 (Sprint 14 kickoff) — no new external issues or comments; #13–#17 activity is our own beat-1 comments awaiting user close. Building through the backlog per user instruction.
+> Last inbound sweep: 2026-08-30 (Sprint 15) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core (#2–#19, #28, #29) resolved; growth #20–#27 next.
 
 ## Build order (dependency-sorted)
 
@@ -35,7 +35,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 16 | Consulta segura del estado y respuesta del cliente | feature | high | resolved (Sprint 9) — awaiting user close | E-010 |
 | 17 | Seguridad, privacidad, retención y protección contra abuso | task | high | resolved (Sprint 13) — awaiting user close | E-014 |
 | 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | resolved (Sprint 14) — awaiting user close | E-015 |
-| 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | open | — |
+| 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | resolved (Sprint 15) — awaiting user close | E-017 |
 | 29 | El CSP estricto (#17) rompe la hidratación de React en toda la app | bug | high | resolved (Sprint 14) — awaiting user close | E-016 |
 | 20 | Página de captación de profesionales | feature | low | open | — |
 | 21 | Carta de Confianza Praetoria y transparencia | feature | med | open | — |
@@ -47,6 +47,14 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-017 — #19 Pruebas E2E, observabilidad, accesibilidad y despliegue
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/19   Status: resolved 2026-08-30 (Sprint 15) — awaiting user close. Closing this is the EPIC #1 dependency (Keel never closes #1).
+- Diagnosis: n/a (task). AC from the issue.
+- Resolution: `src/lib/observability.ts` (`reportError`, `timeAiCall`/`recordAiCall` — PII-free, test-first) wired into the AI services + the cron route; `src/app/global-error.tsx`. Playwright E2E: `playwright.config.ts` (desktop-chromium + Pixel 5 mobile), `scripts/e2e-run.mjs` (atomic `docs/.keel/e2e-status.json`), `tests/e2e/{smoke,assistant,authz,a11y}.spec.ts` — 30 tests. Founding-token contrast fix (L-005): `--c-text-faint`, `--c-brand`. CI `e2e` job. Docs: `deploy-hostinger.md` finalised, new `runbook.md`, new `known-limitations.md`.
+- Commits: (Sprint 15 commit).
+- Verification: TP-16 — 207 vitest, 30 E2E green on both viewports, axe 0 serious/critical × 5 pages × 2 viewports, `/api/health` 200, `e2e-status.json` result:pass.
+- Pending: the guided assistive-tech pass + the manual device checklist (run against the preview env before go-live); flows 3/5/6 as E2E once a real AI provider is wired (integration-covered now). The actual Hostinger deploy needs operator hPanel access.
 
 ### E-016 — #29 El CSP estricto (#17) rompe la hidratación de React
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/29   Status: resolved 2026-08-30 (Sprint 14) — awaiting user close

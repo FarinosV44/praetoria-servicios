@@ -3,7 +3,7 @@ import { COPY } from "@/config/copy";
 
 /**
  * Web app manifest (issue #18). Colours come from the design tokens
- * (`src/ui/tokens.css`): brand `#c05f3c`, page background `#faf7f2`.
+ * (`src/ui/tokens.css`): brand `#b0522f`, page background `#faf7f2`.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -16,7 +16,7 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     lang: "es-ES",
     background_color: "#faf7f2",
-    theme_color: "#c05f3c",
+    theme_color: "#b0522f",
     icons: [{ src: "/icon", sizes: "512x512", type: "image/png", purpose: "any" }],
   };
 }

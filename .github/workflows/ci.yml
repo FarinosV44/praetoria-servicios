@@ -48,3 +48,49 @@ jobs:
       - run: npm test
       - run: npm audit --audit-level=critical
         continue-on-error: true
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: praetoria
+          POSTGRES_PASSWORD: praetoria
+          POSTGRES_DB: praetoria
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U praetoria"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://praetoria:praetoria@localhost:5432/praetoria?schema=public
+      APP_URL: http://127.0.0.1:3000
+      E2E_BASE_URL: http://127.0.0.1:3000
+      SIGNED_LINK_SECRET: ci-signed-link-secret-0123456789
+      AUTH_SECRET: ci-auth-secret-0123456789
+      WHATSAPP_BUSINESS_NUMBER: "34600000000"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx prisma migrate deploy
+      - run: npx tsx prisma/seed.ts
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      # webServer in playwright.config.ts starts `npm run start`; E2E_NO_SERVER is unset here
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

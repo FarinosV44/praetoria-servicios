@@ -19,7 +19,7 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#c05f3c",
+          background: "#b0522f",
           color: "#faf7f2",
           fontSize: 320,
           fontWeight: 700,

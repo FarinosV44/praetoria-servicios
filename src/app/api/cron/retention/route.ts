@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { env } from "@/lib/env";
 import { log } from "@/lib/logging";
+import { reportError } from "@/lib/observability";
 import { requestService } from "@/server/services/requests";
 import { quoteService } from "@/server/services/quotes";
 import { communicationService } from "@/server/services/communications";
@@ -37,18 +38,23 @@ export async function POST(req: Request) {
   }
 
   const started = Date.now();
-  const result = {
-    expiredDrafts: await requestService.deleteExpiredDrafts(),
-    expiredQuotes: await quoteService.expireStale(),
-    emailsSent: 0,
-    emailsFailed: 0,
-    insuranceCasesPurged: await insuranceService.purgeExpired(),
-  };
-  const queue = await communicationService.sendPending();
-  result.emailsSent = queue.sent;
-  result.emailsFailed = queue.failed;
+  try {
+    const result = {
+      expiredDrafts: await requestService.deleteExpiredDrafts(),
+      expiredQuotes: await quoteService.expireStale(),
+      emailsSent: 0,
+      emailsFailed: 0,
+      insuranceCasesPurged: await insuranceService.purgeExpired(),
+    };
+    const queue = await communicationService.sendPending();
+    result.emailsSent = queue.sent;
+    result.emailsFailed = queue.failed;
 
-  const ms = Date.now() - started;
-  log.info("retention job ran", { ...result, ms });
-  return NextResponse.json({ ok: true, ...result, ms });
+    const ms = Date.now() - started;
+    log.info("retention job ran", { ...result, ms });
+    return NextResponse.json({ ok: true, ...result, ms });
+  } catch (e) {
+    reportError(e, { component: "api/cron/retention", action: "run", ms: Date.now() - started });
+    return NextResponse.json({ ok: false, error: "job failed" }, { status: 500 });
+  }
 }

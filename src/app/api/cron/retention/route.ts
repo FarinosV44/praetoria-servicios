@@ -8,6 +8,7 @@ import { quoteService } from "@/server/services/quotes";
 import { communicationService } from "@/server/services/communications";
 import { insuranceService } from "@/server/services/insurance";
 import { professionalService } from "@/server/services/professionals";
+import { contentService } from "@/server/services/content";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
       emailsFailed: 0,
       insuranceCasesPurged: await insuranceService.purgeExpired(),
       professionalDocsPurged: await professionalService.purgeRejectedDocuments(),
+      articlesPublished: await contentService.publishDue(),
     };
     const queue = await communicationService.sendPending();
     result.emailsSent = queue.sent;

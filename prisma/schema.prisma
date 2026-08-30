@@ -729,3 +729,91 @@ model Review {
 
   @@index([status])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Editorial CMS (issue #24) — block-based content, published from the admin panel
+// without a code deploy.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ArticleStatus {
+  BORRADOR
+  REVISION
+  PROGRAMADO
+  PUBLICADO
+  ARCHIVADO
+}
+
+enum ArticleKind {
+  GUIA
+  ARTICULO
+  FAQ
+  SEGURIDAD
+  SEGUROS
+  CASO
+  PROBLEMA
+  OTRO
+}
+
+model Article {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  excerpt         String?
+  body            Json          // validated Block[] (src/domain/content/blocks.ts)
+  kind            ArticleKind   @default(ARTICULO)
+  status          ArticleStatus @default(BORRADOR)
+
+  author          String?
+  expertReviewer  String?
+  // A hard gate: nothing is PUBLICADO / PROGRAMADO without this (issue #24).
+  reviewedByHuman Boolean       @default(false)
+
+  coverImageSrc   String?
+  coverImageAlt   String?
+  coverCaption    String?
+  coverCredit     String?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+  noindex         Boolean       @default(false)
+  socialImage     String?
+  targetKeywords  String[]
+
+  // Internal only — never rendered publicly.
+  sources         String?
+  internalNotes   String?
+
+  publishAt       DateTime? // scheduled publish time
+  publishedAt     DateTime?
+  nextReviewAt    DateTime?
+
+  revisions       ArticleRevision[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+  @@index([publishAt])
+  @@index([kind])
+}
+
+model ArticleRevision {
+  id              String   @id @default(cuid())
+  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId       String
+  editedByAdminId String?
+  // full snapshot of the editable fields at that moment (for restore)
+  snapshot        Json
+  note            String?
+  createdAt       DateTime @default(now())
+
+  @@index([articleId, createdAt])
+}
+
+model SlugRedirect {
+  id        String   @id @default(cuid())
+  fromSlug  String   @unique
+  toSlug    String
+  createdAt DateTime @default(now())
+}

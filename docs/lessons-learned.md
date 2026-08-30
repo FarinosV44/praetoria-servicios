@@ -29,6 +29,24 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-006 — Reading `e.currentTarget` inside a deferred `setState` updater crashes the component
+- Symptom: the editorial CMS editor (`ArticleEditor`) rendered fine on a normal load but crashed to
+  the global-error boundary under fast form input during the E2E (`locator.fill` on several fields
+  in quick succession right after navigation).
+- Cause: `const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.currentTarget.value }))`. React
+  nullifies `event.currentTarget` after the handler returns; the `setF` updater runs LATER (render
+  phase), so `e.currentTarget` is `null` → `null.value` throws inside the updater → React unwinds to
+  the nearest error boundary.
+- Fix: capture the value synchronously — `const v = e.currentTarget.value; setF((p) => ({ ...p, [k]: v }))`.
+- Where: `src/app/admin/(panel)/contenido/[id]/ArticleEditor.tsx`, Sprint 19.
+- What failed first: caught by the E2E (`professionals.spec.ts` CMS test), not a unit test — the
+  bug only manifests when the updater is deferred AND the event object is reused, which fast
+  successive fills trigger reliably and a single manual edit does not.
+- Check added: the E2E now does the full create→fill-body→fill-author→save walk (previously it was
+  trimmed to dodge the flake); no mechanical `keel-verify` check (no scripts/keel-verify, D-004).
+- Rule for next time: never reference `e`/`e.currentTarget`/`e.target` inside a `setState` updater
+  callback or any other deferred closure — read the primitive value out first.
+
 ## L-005 — Design-system colour tokens failed WCAG AA contrast (caught by the #19 axe audit)
 - Symptom: the automated accessibility pass (axe-core, issue #19) reported 23 `color-contrast`
   violations on the landing and 1–3 on every new page.

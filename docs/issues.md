@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-31 (Sprint 18) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21 + #22 + #23 resolved; growth #24–#27, #20 next.
+> Last inbound sweep: 2026-08-31 (Sprint 19) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21–#24 resolved; growth #25, #26, #20, #27 next.
 
 ## Build order (dependency-sorted)
 
@@ -41,12 +41,21 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 21 | Carta de Confianza Praetoria y transparencia | feature | med | resolved (Sprint 17) — awaiting user close | E-019 |
 | 22 | Verificar y gestionar la red de profesionales | feature | med | resolved (Sprint 16) — awaiting user close | E-018 |
 | 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | resolved (Sprint 18) — awaiting user close | E-020 |
-| 24 | CMS editorial completo para publicaciones y guías | feature | med | open | — |
+| 24 | CMS editorial completo para publicaciones y guías | feature | med | resolved (Sprint 19) — awaiting user close | E-021 |
 | 25 | Arquitectura SEO de servicios, problemas y municipios | feature | med | open | — |
 | 26 | Reseñas verificadas y reputación local | feature | med | open | — |
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-021 — #24 Crear CMS editorial completo para publicaciones y guías
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/24   Status: resolved 2026-08-31 (Sprint 19) — awaiting user close
+- Diagnosis: n/a (feature). Design decision: block-based body (JSON array of 9 typed blocks) rendered by one server component — "vista previa idéntica" is free, no raw-HTML surface.
+- Resolution: domain `content/{slug,article-status,blocks,quality}.ts` (test-first). Migration `20260830230038_editorial_cms` (`Article`, `ArticleRevision`, `SlugRedirect` + `ArticleStatus`/`ArticleKind`). `contentService` (create/update+revision/setStatus[human-review gate]/restoreRevision/publishDue/resolvePublic + slug-change 301). Admin `/admin/contenido` + `[id]` editor + `[id]/preview`. Public `/guias` + `/guias/[slug]` (Article JSON-LD, generateMetadata, noindex, permanentRedirect). `sitemap.ts` async — auto-includes published. Cron `publishDue`. Bug L-006 found + fixed.
+- Commits: (Sprint 19 commit).
+- Verification: TP-20 — 282 vitest (+21), 37 E2E green (per-project run).
+- Pending: a drag-drop block editor UX (v1 edits block JSON in the form). The local-SEO architecture (services × problems × municipios) is #25.
+
 
 ### E-020 — #23 Crear cierre de servicio, garantía e incidencias post-trabajo
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/23   Status: resolved 2026-08-31 (Sprint 18) — awaiting user close

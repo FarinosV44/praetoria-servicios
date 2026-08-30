@@ -80,6 +80,35 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
   };
 }
 
+/**
+ * `Article` node for an editorial page (issue #24). Only visible, real
+ * information — no invented author schema, no fake ratings.
+ */
+export function articleLd(input: {
+  title: string;
+  description: string;
+  slug: string;
+  author: string | null;
+  datePublished: string | null;
+  dateModified: string | null;
+  image: string | null;
+}) {
+  const node: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: input.title,
+    description: input.description,
+    url: siteUrl(`/guias/${input.slug}`),
+    publisher: { "@id": ORG_ID },
+    inLanguage: "es-ES",
+  };
+  if (input.author) node.author = { "@type": "Organization", name: input.author };
+  if (input.datePublished) node.datePublished = input.datePublished;
+  if (input.dateModified) node.dateModified = input.dateModified;
+  if (input.image) node.image = input.image;
+  return node;
+}
+
 export function faqPageLd(items: { q: string; a: string }[]) {
   return {
     "@context": "https://schema.org",

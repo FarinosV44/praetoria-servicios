@@ -34,6 +34,13 @@ test.describe("public pages — smoke + no console errors (AC-19-noconsole)", ()
     expect(meaningfulErrors(errors)).toEqual([]);
   });
 
+  test("the guides index loads (issue #24 CMS)", async ({ page }) => {
+    const errors = collectConsoleErrors(page);
+    await page.goto("/guias");
+    await expect(page.getByRole("heading", { name: /Guías y consejos/i })).toBeVisible();
+    expect(meaningfulErrors(errors)).toEqual([]);
+  });
+
   test("coverage checker: a Valencia-area postcode is within the area (D-013)", async ({ page }) => {
     await page.goto("/cobertura");
     await page.getByLabel(/Código postal/i).fill("46900");

@@ -74,7 +74,7 @@ slices:
   (`src/config/service-content.ts`: covers / typical problems / what the quote includes / how it
   works / insurance angle) — no "trade + municipality" duplication (D10). `/cobertura` with the real
   coverage table + a client-side checker.
-- [x] AC-18-lighthouse — `robots.ts`, `sitemap.ts` (14 URLs), `manifest.ts` (`#c05f3c`), `icon.tsx`,
+- [x] AC-18-lighthouse — `robots.ts`, `sitemap.ts` (14 URLs), `manifest.ts` (`#b0522f`), `icon.tsx`,
   `generateMetadata` + canonical on every new page, JSON-LD (`Organization`, `WebSite`, `FAQPage`,
   `Service`, `BreadcrumbList`) — all fetched and validated by hand.
 

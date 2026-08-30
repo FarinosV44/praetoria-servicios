@@ -119,7 +119,8 @@ export default function HomePage() {
           {L.contrast.heading}
         </h2>
         <p className={styles.message}>{L.contrast.message}</p>
-        <div className={styles.tableWrap}>
+        {/* tabIndex so keyboard users can scroll the table on narrow viewports (a11y, #19) */}
+        <div className={styles.tableWrap} tabIndex={0} role="group" aria-label={L.contrast.heading}>
           <table className={styles.contrastTable}>
             <thead>
               <tr>

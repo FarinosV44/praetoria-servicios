@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logging";
+import { timeAiCall } from "@/lib/observability";
 import { getAdapters } from "@/server/container";
 import { LIMITS } from "@/config/limits";
 import { err, ok, type Result } from "@/lib/result";
@@ -70,16 +71,18 @@ export const analysisService = {
 
     const ai = getAdapters().ai;
     const photos = await loadPhotoBytes(requestId);
-    const res = await ai.analyzeProblem({
-      problemText: request.problemText ?? "",
-      clientChoseUnsure: request.clientChoseUnsure,
-      declaredTrade: request.trade ?? undefined,
-      photos,
-      municipality: request.municipality ?? undefined,
-      priorResult: (priorActive?.result as AnalysisResult) ?? undefined,
-      clientClarification: correction?.clarification ?? undefined,
-      wrongSections: correction?.wrongSections ?? undefined,
-    });
+    const res = await timeAiCall("analyzeProblem", ai.promptVersion, () =>
+      ai.analyzeProblem({
+        problemText: request.problemText ?? "",
+        clientChoseUnsure: request.clientChoseUnsure,
+        declaredTrade: request.trade ?? undefined,
+        photos,
+        municipality: request.municipality ?? undefined,
+        priorResult: (priorActive?.result as AnalysisResult) ?? undefined,
+        clientClarification: correction?.clarification ?? undefined,
+        wrongSections: correction?.wrongSections ?? undefined,
+      }),
+    );
 
     const nextVersion = (priorActive?.version ?? 0) + 1;
 

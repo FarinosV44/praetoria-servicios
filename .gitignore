@@ -44,6 +44,12 @@ docs/continuation-prompt.md
 docs/.keel/e2e-status.json
 docs/.keel/e2e-history.jsonl
 
+# playwright (issue #19)
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+
 # local uploads (dev storage adapter)
 /.storage
 /storage-dev

@@ -29,6 +29,26 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-005 — Design-system colour tokens failed WCAG AA contrast (caught by the #19 axe audit)
+- Symptom: the automated accessibility pass (axe-core, issue #19) reported 23 `color-contrast`
+  violations on the landing and 1–3 on every new page.
+- Cause: two founding tokens (`src/ui/tokens.css`, issue #3) were below the AA 4.5:1 threshold:
+  `--c-text-faint` (`#8a8172` = 3.6:1 on `--c-bg`) and white-on-`--c-brand` (`#c05f3c` = 4.24:1).
+  Used everywhere — every muted caption and every primary button.
+- Fix: darkened `--c-text-faint` → `#6b6353` (4.75:1 even on `--c-brand-soft`) and `--c-brand` →
+  `#b0522f` (white-on-brand 5.1:1, brand-as-bold-text 4.75:1), plus `--c-text-faint` in dark mode
+  for headroom, and the manifest/icon/global-error hexes to match. Also added `tabindex="0"` +
+  `role="group"` to the landing's horizontally-scrollable contrast table (`scrollable-region-focusable`,
+  only fired on the mobile viewport).
+- Where: `src/ui/tokens.css`, `src/app/{manifest.ts,icon.tsx,global-error.tsx,page.tsx}` — Sprint 15.
+- What failed first: the design system's stated a11y criteria (issue #3) were never checked with a
+  tool — WCAG AA was assumed, not measured. The landing (#4) shipped the same way.
+- Check added: `tests/e2e/a11y.spec.ts` — axe with the WCAG 2.0/2.1/2.2 A+AA tags on `/`, `/solicitar`,
+  `/servicios`, `/servicios/[slug]`, `/cobertura`, on both viewports; fails on any serious/critical
+  violation. Runs in CI.
+- Rule for next time: any new colour pairing (token, or a one-off) is checked against 4.5:1 (3:1 for
+  large text) before it ships. The axe e2e pass is the backstop; it is not the first line.
+
 ## L-004 — Strict `script-src 'self'` CSP with no nonce breaks Next 16 hydration site-wide
 - Symptom: `next build` + `next start`, every page throws `Minified React error #412` in the
   console; `/solicitar` never leaves the loading spinner (the assistant never hydrates); the admin

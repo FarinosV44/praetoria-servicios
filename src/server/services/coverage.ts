@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logging";
+import { timeAiCall } from "@/lib/observability";
 import { getAdapters } from "@/server/container";
 import { err, ok, type Result } from "@/lib/result";
 import { coverageResultSchema, type CoverageResult } from "@/domain/analysis/schema";
@@ -49,11 +50,13 @@ export const coverageService = {
     const policyPages = await insuranceService.getPolicyPages(requestId);
 
     const ai = getAdapters().ai;
-    const res = await ai.analyzeCoverage({
-      analysis: analysis.result as never,
-      problemText: request.problemText ?? "",
-      policyPages,
-    });
+    const res = await timeAiCall("analyzeCoverage", ai.promptVersion, () =>
+      ai.analyzeCoverage({
+        analysis: analysis.result as never,
+        problemText: request.problemText ?? "",
+        policyPages,
+      }),
+    );
     if (!res.ok) {
       return err({ kind: "provider", message: "message" in res.error ? res.error.message : res.error.kind });
     }

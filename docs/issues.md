@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-30 (Sprint 15) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core (#2–#19, #28, #29) resolved; growth #20–#27 next.
+> Last inbound sweep: 2026-08-31 (Sprint 16) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #22 resolved; growth #21, #23–#27, #20 next.
 
 ## Build order (dependency-sorted)
 
@@ -39,7 +39,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 29 | El CSP estricto (#17) rompe la hidratación de React en toda la app | bug | high | resolved (Sprint 14) — awaiting user close | E-016 |
 | 20 | Página de captación de profesionales | feature | low | open | — |
 | 21 | Carta de Confianza Praetoria y transparencia | feature | med | open | — |
-| 22 | Verificar y gestionar la red de profesionales | feature | med | open | — |
+| 22 | Verificar y gestionar la red de profesionales | feature | med | resolved (Sprint 16) — awaiting user close | E-018 |
 | 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | open | — |
 | 24 | CMS editorial completo para publicaciones y guías | feature | med | open | — |
 | 25 | Arquitectura SEO de servicios, problemas y municipios | feature | med | open | — |
@@ -47,6 +47,23 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-018 — #22 Verificar y gestionar la red de profesionales antes de asignar trabajos
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/22   Status: resolved 2026-08-31 (Sprint 16) — awaiting user close
+- Diagnosis: n/a (feature). Manual version (issue priority): file + verification + assignment guardrails before real work.
+- Resolution: domain `professionals/{state-machine,assignment,client-view}.ts` (test-first); schema
+  `Professional`/`ProfessionalCredential`/`ProfessionalVerification`/`ProfessionalDocument`/`Assignment`
+  + `ProfessionalStatus`/`VerificationKind` enums + `AdminActionLog.professionalId`; migration
+  `20260830213849_professional_network`. `professionalService` + `assignmentService`. Admin UI
+  `/admin/profesionales` + `[id]` + `AssignPanel` on the request detail. Client `AssignedProfessional`
+  on `/s/[token]` (D6). Cron runs `purgeRejectedDocuments`. `trades.ts` `regulated` flag. C19 in the
+  threat model. Login rate limit 8→20/5min.
+- Commits: (Sprint 16 commit).
+- Verification: TP-17 — 237 vitest (+30), 29 E2E green (3 mobile admin skipped), `professionals.spec.ts`
+  drives create → guardrail → APROBADO → verification.
+- Pending: public professional recruitment is #20 (later). Client-facing professional photo has no
+  upload form yet (consent toggle + client display are done; the photo file itself is set out of band
+  for now) — small follow-up.
 
 ### E-017 — #19 Pruebas E2E, observabilidad, accesibilidad y despliegue
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/19   Status: resolved 2026-08-30 (Sprint 15) — awaiting user close. Closing this is the EPIC #1 dependency (Keel never closes #1).

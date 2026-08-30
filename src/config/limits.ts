@@ -40,4 +40,17 @@ export const LIMITS = {
     // Rows processed per sendPending() call.
     batchSize: 25,
   },
+  professionals: {
+    // Professional documents (identity, fiscal, RC, credentials…) are purged this
+    // long after the professional reaches RECHAZADO (issue #22 retention).
+    docRetentionDaysAfterReject: 180,
+    // A credential / verification / RC policy within this many days of expiry
+    // shows up in the admin "por caducar" alert list.
+    expiryAlertLeadDays: 45,
+    maxDocs: 20,
+    maxDocBytes: 25 * 1024 * 1024,
+    acceptedDocTypes: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
+    acceptedPhotoTypes: ["image/jpeg", "image/png", "image/webp"],
+    maxPhotoBytes: 6 * 1024 * 1024,
+  },
 } as const;

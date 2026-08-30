@@ -36,7 +36,9 @@ export async function signIn(
   password: string,
   ip: string,
 ): Promise<Result<AdminSession, { kind: "invalid" | "rate_limited" | "disabled" }>> {
-  const gate = rateLimit(`login:${ip}`, { limit: 8, windowMs: 300_000 });
+  // 20 / 5 min per IP: brute-force protection that still tolerates several staff
+  // members (and the E2E suite) behind one NAT address.
+  const gate = rateLimit(`login:${ip}`, { limit: 20, windowMs: 300_000 });
   if (!gate.ok) return err({ kind: "rate_limited" });
 
   const user = await db.adminUser.findUnique({ where: { email: email.trim().toLowerCase() } });

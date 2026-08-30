@@ -201,7 +201,9 @@ export const COPY = {
     },
     coverage: {
       heading: "Dónde trabajamos",
-      body: "Valencia ciudad y municipios del norte del área metropolitana:",
+      body:
+        "Damos servicio en toda el área de Valencia: la ciudad y los municipios cercanos. " +
+        "Algunos en los que ya trabajamos de forma habitual:",
     },
     faq: {
       heading: "Preguntas frecuentes",

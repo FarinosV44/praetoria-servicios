@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { ButtonLink, Card, Icon, TRADE_ICONS } from "@/ui";
+import Link from "next/link";
+import { ButtonLink, Card, Icon, JsonLd, TRADE_ICONS } from "@/ui";
 import { COPY } from "@/config/copy";
 import { TRADES } from "@/config/trades";
 import { COVERED_MUNICIPALITIES } from "@/config/coverage";
+import { faqPageLd, organizationLd, websiteLd } from "@/lib/seo";
 import styles from "./page.module.css";
 
 const L = COPY.landing;
@@ -28,6 +30,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main id="contenido" className={styles.page}>
+      <JsonLd data={[organizationLd(), websiteLd(), faqPageLd([...COPY.landing.faq.items])]} />
       {/* HERO — the service and a CTA within one mobile screen */}
       <section className={styles.hero}>
         <p className={styles.kicker}>{COPY.brand.name}</p>
@@ -79,6 +82,9 @@ export default function HomePage() {
           ))}
         </ul>
         <p className={styles.note}>{L.categories.note}</p>
+        <p className={styles.note}>
+          <Link href="/servicios">Ver cada servicio en detalle</Link>
+        </p>
       </section>
 
       {/* NO NEED TO KNOW WHICH PROFESSIONAL */}
@@ -209,6 +215,9 @@ export default function HomePage() {
         </h2>
         <p>{L.coverage.body}</p>
         <p className={styles.muniList}>{COVERED_MUNICIPALITIES.join(" · ")}</p>
+        <p className={styles.note}>
+          <Link href="/cobertura">Ver todos los municipios y comprobar tu zona</Link>
+        </p>
       </section>
 
       {/* FAQ */}
@@ -240,7 +249,9 @@ export default function HomePage() {
       <footer className={styles.footer}>
         <p className={styles.footerBrand}>{COPY.brand.name}</p>
         <p>{L.footer.note}</p>
-        <nav className={styles.footerLinks} aria-label="Enlaces legales">
+        <nav className={styles.footerLinks} aria-label="Enlaces del sitio">
+          <Link href="/servicios">Servicios</Link>
+          <Link href="/cobertura">Cobertura</Link>
           <a href="/legal/privacidad">{L.footer.legalPrivacy}</a>
           <a href="/legal/aviso-legal">{L.footer.legalNotice}</a>
         </nav>

@@ -24,6 +24,7 @@ import {
 } from "@/server/actions/assistant";
 import type { AnalysisView } from "@/server/services/analysis";
 import { COPY } from "@/config/copy";
+import { deviceClass, setAnalyticsConsent, track } from "@/lib/analytics";
 import { loadDraft, saveDraft, clearDraft, type DraftState } from "./draft-storage";
 import { AnalysisPanel } from "./AnalysisPanel";
 import { ContactStep } from "./ContactStep";
@@ -133,6 +134,7 @@ export function Assistant({ startInsurance }: { startInsurance: boolean }) {
   // Move focus to the step heading on change (screen-reader + keyboard).
   useEffect(() => {
     headingRef.current?.focus();
+    if (step === "validate") track("validation_shown", { device: deviceClass() });
   }, [step]);
 
   const ensureDraft = useCallback(async (): Promise<string | null> => {
@@ -200,8 +202,10 @@ export function Assistant({ startInsurance }: { startInsurance: boolean }) {
         confidence: null,
         requiresOnSiteInspection: false,
       });
+      track("analysis_failed", { device: deviceClass() });
       return;
     }
+    track("analysis_completed", { device: deviceClass() });
     setAnalysis(r.value);
   }, []);
 
@@ -209,6 +213,7 @@ export function Assistant({ startInsurance }: { startInsurance: boolean }) {
     if (!requestId) return;
     setBusy(true);
     await recordCorrectionAction(requestId, { wrongSections, clarification });
+    track("validation_corrected", { device: deviceClass() });
     setReanalyses((n) => n + 1);
     setBusy(false);
     setStep("analysis");
@@ -227,6 +232,9 @@ export function Assistant({ startInsurance }: { startInsurance: boolean }) {
     if (!r.ok) {
       return { ok: false as const, fieldErrors: r.error.fieldErrors };
     }
+    const analyticsOk = !!(contact as { consent?: { analytics?: boolean } })?.consent?.analytics;
+    setAnalyticsConsent(analyticsOk);
+    track("request_submitted", { device: deviceClass(), category: trade ?? "no-se" });
     setReference(r.value.reference);
     setStep("done");
     return { ok: true as const, fieldErrors: undefined };
@@ -313,6 +321,7 @@ export function Assistant({ startInsurance }: { startInsurance: boolean }) {
                 onSelect={(key) => {
                   setTrade(key === "no-se" ? undefined : key);
                   setUnsure(key === "no-se");
+                  track("category_selected", { device: deviceClass(), category: key });
                   setStep("photos");
                 }}
               />

@@ -38,15 +38,16 @@
 | 2 Functional spec | done (condensed) | docs/02-functional-spec.md, docs/03-technical-plan.md |
 | 3 Design handoff | deferred — founding design system built inline per issue #3 (D-005); no external Design tool in this engagement | — |
 | 4 Faithful build | n/a (no external design handoff) | — |
-| 5 Development | in progress | docs/sprints/, docs/05-test-points.md |
+| 5 Development | in progress — Sprints 1–14 done (#2–#18, #28, #29); next Sprint 15 = #19 | docs/sprints/, docs/05-test-points.md |
 | 6 Documentation | pending | docs/architecture.md, docs/api/ |
 | 7 Release | pending | docs/07-release.md |
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. Done+verified: #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #28 (17). Awaiting user close on GitHub.
-- User instruction (2026-08-30): "subelo a main ya … subirlo todo a main" — `develop`→`main` merge authorised and DONE this session (16 issues + #17; `--no-ff`; pushed). Remaining backlog: #18 (SEO/analytics/service pages), #19 (E2E/observability/deploy), growth #20–#27. Then the Hostinger deploy (`docs/deploy-hostinger.md` is drafted; needs the operator's hPanel access + where Postgres lives + the env secrets).
-- Next action: Sprint 14 — #18 (SEO local + analítica de conversión + páginas de servicio). Then #19 → growth #20–#27.
+- Phase: 5 — Development. Done+verified: #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #18 #28 (18) + #29 (bug, found + fixed this sprint). Awaiting user close on GitHub.
+- User standing instruction: do every remaining issue, merge `develop`→`main` per sprint (authorised, `--no-ff`), then the Hostinger deploy. Remaining backlog: #19 (E2E/observability/deploy), growth #20–#27. Then the deploy (`docs/deploy-hostinger.md` drafted; needs hPanel access + where Postgres lives + env secrets; NOTE: `APP_URL` must be set at BUILD time now — sitemap/robots bake it).
+- Next action: Sprint 15 — #19 (E2E Playwright + observability + accessibility pass + finalise deploy). Then growth #20–#27 in order #22 → #21 → #23 → #24 → #25 → #26 → #20 → #27.
+- Sprint 14 (#18 SEO + analytics + service pages; #29 CSP hydration fix) closed 2026-08-30 — TP-15 green (200 tests; analytics PII-strip + consent gate test-first; 11 real service pages D10; `/cobertura` + checker; robots/sitemap/manifest/icon; JSON-LD ×5 types; D-013 coverage = toda el área de Valencia; #29: per-request CSP nonce in `src/proxy.ts` + `force-dynamic` layout, browser-verified hydration).
 - Sprint 13 (#17 security/privacy/retention) closed 2026-08-30 — TP-14 green (183 tests; security headers live-verified; SSRF guard; cross-resource authz + PII-redaction tests; `/api/cron/retention`; admin export/delete + ops-log; `docs/threat-model.md` all controls IN PLACE; `docs/deploy-hostinger.md`).
 - Sprint 12 (#4 conversion landing D3/D9 + `/legal/*` provisional pages) closed 2026-08-30 — TP-13 green (lint/typecheck/build clean, 162 tests, browser drive of the landing + legal pages, all CTA hrefs correct).
 - Sprint 11 (#15 coverage analysis + reviewable legal draft, D5) closed 2026-08-30 — TP-12 green (162 tests + browser drive: admin D5 panel with page refs + generated draft + mark-reviewed + revision history; client view hides the draft until reviewed).
@@ -58,7 +59,8 @@
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
 - Open Design Requests: none
 - Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use — MVP not blocked)
-- Forge issues in progress: see docs/issues.md — all 27 open; building in dependency order
+- Forge issues in progress: see docs/issues.md — #2–#18, #28, #29 resolved (awaiting user close); #19–#27 open; building in dependency order
+- Deploy note (#19): `APP_URL` must be set at BUILD time — `/sitemap.xml` and `/robots.txt` bake the base URL. `NEXT_PUBLIC_ANALYTICS_URL` (optional) wires the real analytics beacon.
 
 ### Deferred items (consciously postponed work)
 - Issues #20–#27 (professional intake, verified network, post-service/warranty, editorial CMS, SEO architecture, reviews, SEO control centre) — severity: growth features — review trigger: after issues #1–#19 complete (user decision, this session)
@@ -73,5 +75,10 @@
 - Assistant "seguro" intent path — an in-wizard insurance upload step in `/solicitar` (issue #14). The
   `/s/[token]` insurance section + admin panel cover the AC; the in-assistant entry is a follow-up.
 - ~~#13 QUOTE_AVAILABLE email retro-wire~~ done in Sprint 9 (URL applied at send time, never persisted)
+- Analytics: `landing_cta_click` from the landing (server component) needs a small client wrapper to
+  fire — deferred (low value: no ANALYTICS consent exists yet on a first landing visit). Real provider
+  wiring (`NEXT_PUBLIC_ANALYTICS_URL` → Plausible/GA-style) is a deploy concern (#19).
+- Marketing pages are now `force-dynamic` (D-014, issue #29) — no static prerender. Revisit with
+  ISR/CDN or Next experimental SRI at deploy if page latency matters.
 
-Last updated: 2026-08-30 — Phase 5; 17 issues done (#17 security landed); develop merged to main; next: Sprint 14 (#18 SEO + analytics)
+Last updated: 2026-08-30 — Phase 5; 18 issues done (#18 SEO/analytics/service pages) + #29 (CSP hydration bug) landed in Sprint 14; next: Sprint 15 (#19 E2E + observability + deploy)

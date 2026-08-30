@@ -26,6 +26,17 @@ describe("checkCoverage", () => {
     expect(r.matchedBy).toBeNull();
   });
 
+  it("treats any Valencia-province postcode as within the wider area (D-013)", () => {
+    const r = checkCoverage({ municipality: "Torrent", postalCode: "46900" });
+    expect(r.covered).toBe(true);
+    expect(r.matchedBy).toBe("area");
+    expect(r.area).toBeNull();
+  });
+
+  it("still prefers a confirmed list match over the wider-area rule", () => {
+    expect(checkCoverage({ postalCode: "46001" }).matchedBy).toBe("postalCode");
+  });
+
   it("handles empty input", () => {
     expect(checkCoverage({}).covered).toBe(false);
   });

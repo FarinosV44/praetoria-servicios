@@ -1,33 +1,14 @@
 import type { NextConfig } from "next";
 
 /**
- * Security headers (issue #17). Applied to every response. The CSP is
- * deliberately tight: this app serves its own JS/CSS, self-hosted fonts
- * (next/font inlines them) and same-origin images/blobs only — there is no
- * third-party script, style, frame or analytics beacon in v1.
+ * Static security headers (issue #17). Applied to every response.
  *
- * `'unsafe-inline'` for styles is required by Next's runtime style injection and
- * by CSS-in-JS/`styled-jsx`; scripts use nonces via Next so no `'unsafe-inline'`
- * there. `'unsafe-eval'` is only added in development (React Refresh / Turbopack).
+ * The Content-Security-Policy is NOT here — it needs a per-request nonce for
+ * Next's inline hydration scripts (issue #29) and so lives in `src/proxy.ts`.
+ * `'unsafe-eval'` for dev and the nonce/`'strict-dynamic'` machinery are all in
+ * the proxy; everything below is request-independent.
  */
-const isDev = process.env.NODE_ENV !== "production";
-
-const csp = [
-  "default-src 'self'",
-  `script-src 'self'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self'",
-  "connect-src 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "upgrade-insecure-requests",
-].join("; ");
-
 const SECURITY_HEADERS = [
-  { key: "Content-Security-Policy", value: csp },
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",

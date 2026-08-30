@@ -79,6 +79,44 @@
 - Alternatives rejected: English doc + Spanish summary (double the surface, and the client asked for the doc itself).
 - Supersedes: none (narrows D-006/token-economy for this one artifact)
 
+## D-013 — Coverage is "toda el área de Valencia", with a confirmed-municipality core
+- Date / phase: 2026-08-30 / Phase 5 (issue #18, Sprint 14)
+- Decision: Praetoria da servicio en toda el área de Valencia (ciudad + municipios cercanos). The
+  `COVERAGE` list in `src/config/coverage.ts` is now the **confirmed core** (municipios donde se
+  trabaja de forma habitual, mostrados como ejemplos y con respuesta sin matices). `checkCoverage`
+  additionally treats **any Valencia-province postal code (`46xxx`)** as within coverage
+  (`matchedBy: "area"`), with exact availability confirmed at quote time. Sagunto/Puerto de Sagunto,
+  El Puig, Puçol, Rafelbunyol and La Pobla de Farnals were added to the confirmed list first, then
+  the operator chose the broader phrasing.
+- Why: operator (business) decision, stated in conversation ("pon simplemente en toda el área de
+  Valencia tanto ciudad como municipios cercanos"). It is the operator's real service commitment,
+  so stating it is honest — issue #25 forbids *inventing* coverage, not defining a real service area.
+- Honesty guardrail kept: outside `46xxx` → not covered; non-confirmed `46xxx` → "damos servicio,
+  disponibilidad confirmada al presupuestar", never an unqualified promise. No per-municipality SEO
+  pages were created (D10 still holds — only `/cobertura` and the per-trade `/servicios/[slug]`).
+- Alternatives rejected: a long rigid municipality list (the operator explicitly asked for the
+  simple phrasing); province-wide with no caveat (would over-promise for far towns like Requena/Gandia).
+- Supersedes: narrows the "listed municipality only" reading of `src/config/coverage.ts`.
+
+## D-014 — CSP nonce via proxy; every route force-dynamic (issue #29)
+- Date / phase: 2026-08-30 / Phase 5 (Sprint 14, issue #29)
+- Decision: the Content-Security-Policy moves from `next.config.ts` (static) to `src/proxy.ts`
+  (per-request `nonce` + `'strict-dynamic'` on `script-src`, no `'unsafe-inline'` for scripts).
+  `src/app/layout.tsx` sets `export const dynamic = "force-dynamic"`, making every route
+  server-rendered per request.
+- Why: the static strict CSP blocked Next 16's inline hydration scripts (L-004) — the whole app was
+  non-interactive in a production build. The nonce only reaches inline scripts during a dynamic
+  render, so static prerendering had to go. Alternatives: `script-src 'unsafe-inline'` (reverses
+  #17's hardening, allows injected inline scripts to run) or `experimental.sri` (experimental,
+  unclear coverage of the inline bootstrap). The nonce pattern is Next's own documented strict-CSP
+  approach.
+- Cost accepted: no static prerendering of the marketing pages (`/`, `/servicios/*`, `/cobertura`).
+  For a low-traffic local-services MVP this is negligible; revisit with a CDN / ISR at deploy (#19)
+  if needed.
+- Not checked: whether Next's experimental SRI would let the marketing pages stay static under a
+  strict CSP — deferred, not worth the experimental-flag risk now.
+- Supersedes: the "CSP in next.config.ts headers()" approach from D-? / Sprint 13 (#17).
+
 ## D-010 — Money is integer minor units
 - Date / phase: 2026-08-29 / Phase 2
 - Decision: All monetary amounts stored and computed as integer cents (EUR). No floating point anywhere in quote/budget math. A small `Money` helper owns arithmetic, tax and formatting.

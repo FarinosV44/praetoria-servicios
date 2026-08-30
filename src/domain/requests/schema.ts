@@ -50,6 +50,8 @@ export const consentInputSchema = z.object({
   }),
   operationalComms: z.boolean(),
   marketing: z.boolean().default(false),
+  /** analytics of the conversion funnel — issue #18, never pre-checked */
+  analytics: z.boolean().optional(),
   textVersion: z.string().min(1),
 });
 

@@ -31,4 +31,10 @@ export const LIMITS = {
     // BORRADOR requests with no activity are eligible for deletion after this.
     expiryDays: 30,
   },
+  communications: {
+    // Email send attempts before a Communication row stays FAILED (issue #13 queue/retry).
+    maxAttempts: 4,
+    // Rows processed per sendPending() call.
+    batchSize: 25,
+  },
 } as const;

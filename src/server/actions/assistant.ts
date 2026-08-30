@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { analysisService, type AnalysisView } from "@/server/services/analysis";
 import { requestService } from "@/server/services/requests";
+import { communicationService } from "@/server/services/communications";
 import { contactSchema } from "@/domain/requests/schema";
 import { TRIAGE_RISKS } from "@/domain/assistant/triage";
 import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -83,6 +84,10 @@ export async function finishRequestAction(
       reason: "El cliente confirmó el análisis en el asistente",
     });
   }
+
+  // Send the request confirmation (issue #13). Best-effort — a comms failure
+  // never affects the submitted request.
+  await communicationService.notify({ requestId, kind: "CONFIRMATION" });
 
   return ok({ reference: submitted.value.reference });
 }

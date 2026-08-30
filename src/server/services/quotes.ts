@@ -5,6 +5,7 @@ import { computeTotals, checkComplete } from "@/domain/quotes/compute";
 import type { QuoteDraftInput } from "@/domain/quotes/schema";
 import { requestService } from "./requests";
 import { adminService } from "./admin";
+import { communicationService } from "./communications";
 import { err, ok, type Result } from "@/lib/result";
 import type { Prisma } from "@prisma/client";
 
@@ -201,6 +202,10 @@ export const quoteService = {
       });
     }
     await adminService.logAction(adminId, "quote_sent", request.id, { quoteId: quote.id });
+
+    // Tell the client the quote is available (issue #13). The signed status link
+    // (#16) is retro-wired into this template once it exists.
+    await communicationService.notify({ requestId: request.id, kind: "QUOTE_AVAILABLE" });
     return ok(null);
   },
 

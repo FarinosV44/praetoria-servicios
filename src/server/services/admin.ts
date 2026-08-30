@@ -4,6 +4,7 @@ import { getAdapters } from "@/server/container";
 import { requestService } from "./requests";
 import { analysisService } from "./analysis";
 import { photoService } from "./photos";
+import { communicationService } from "./communications";
 import { env } from "@/lib/env";
 import type { Prisma, RequestStatus, Urgency } from "@prisma/client";
 import { err, ok, type Result } from "@/lib/result";
@@ -101,7 +102,8 @@ export const adminService = {
       where: { requestId: request.id },
       orderBy: { createdAt: "asc" },
     });
-    return { request: full, photos, analysisHistory, corrections };
+    const communications = await communicationService.listForRequest(request.id);
+    return { request: full, photos, analysisHistory, corrections, communications };
   },
 
   async updateClassification(
@@ -164,9 +166,14 @@ export const adminService = {
       reason: "Solicitud de información adicional al cliente",
     });
     if (!r.ok) return err({ kind: r.error.kind });
-    // `message` is admin-authored text (not client PII); recorded so issue #13
-    // can later actually send it by email/WhatsApp.
+    // `message` is admin-authored text (not client PII).
     await this.logAction(adminId, "request_more_info", request.id, {
+      message: message.slice(0, 2000),
+    });
+    // Deliver it to the client on their chosen channel (issue #13).
+    await communicationService.notify({
+      requestId: request.id,
+      kind: "INFO_REQUEST",
       message: message.slice(0, 2000),
     });
     return ok(null);

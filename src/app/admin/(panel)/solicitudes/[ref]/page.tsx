@@ -3,6 +3,7 @@ import Link from "next/link";
 import { adminService } from "@/server/services/admin";
 import { findTrade } from "@/config/trades";
 import { AdminRequestControls } from "./Controls";
+import { CommsPanel } from "./CommsPanel";
 import styles from "../../../admin.module.css";
 
 function fmt(d: Date | null | undefined) {
@@ -16,7 +17,7 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
   const data = await adminService.getDetail(ref);
   if (!data) notFound();
 
-  const { request, photos, analysisHistory, corrections } = data;
+  const { request, photos, analysisHistory, corrections, communications } = data;
   const active = analysisHistory.find((a) => a.isActive);
   const result =
     active && active.outcome !== "PROVIDER_ERROR"
@@ -164,6 +165,21 @@ export default async function RequestDetail({ params }: { params: Promise<{ ref:
               Preparar / ver presupuesto →
             </Link>
           </section>
+
+          <CommsPanel
+            reference={request.reference}
+            communications={communications.map((c) => ({
+              id: c.id,
+              channel: c.channel,
+              kind: c.kind,
+              status: c.status,
+              subject: c.subject,
+              bodyPreview: c.bodyPreview,
+              error: c.error,
+              attempts: c.attempts,
+              createdAt: c.createdAt.toISOString(),
+            }))}
+          />
 
           <AdminRequestControls
             reference={request.reference}

@@ -29,7 +29,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 10 | Captar contacto, consentimiento y preferencia de comunicación | feature | high | resolved (Sprint 5) — awaiting user close | E-006 |
 | 11 | Autenticación y panel administrativo de solicitudes | feature | high | resolved (Sprint 6) — awaiting user close | E-007 |
 | 12 | Gestionar presupuestos y plazos desde administración | feature | high | resolved (Sprint 7) — awaiting user close | E-008 |
-| 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | open | — |
+| 13 | Comunicaciones por email y WhatsApp sin bloquear el MVP | feature | med | resolved (Sprint 8) — awaiting user close | E-009 |
 | 14 | Subir y procesar una póliza de seguro de hogar | feature | med | open | — |
 | 15 | Analizar cobertura y generar borrador jurídico revisable | feature | med | open | — |
 | 16 | Consulta segura del estado y respuesta del cliente | feature | high | open | — |
@@ -46,6 +46,33 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-009 — #13 Comunicaciones por email y WhatsApp
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/13   Status: resolved 2026-08-30 (Sprint 8) — awaiting user close
+- Diagnosis: n/a (feature)
+- Resolution: `src/domain/communications/` (pure — `templates.ts` renders CONFIRMATION /
+  INFO_REQUEST / QUOTE_AVAILABLE / GENERIC to `{subject,text,html}` from `src/config/copy.comms`
+  with a configurable brand name and HTML escaping; `schema.ts` — `canSend` purpose/consent gate,
+  `channelForContact`, `idempotencyKey`). `src/server/services/communications.ts` — `enqueue`
+  (idempotent per request+kind; EMAIL→PENDING, WHATSAPP→LINK_PREPARED, consent + reachability
+  guards), `sendPending({max})` email queue with bounded retries (`LIMITS.communications.maxAttempts`),
+  `retry`, `whatsappLink` (deep link from the persisted body — no secret), `listForRequest`, and
+  `notify` (best-effort enqueue+flush for flow wiring). Wired: `finishRequestAction`→CONFIRMATION,
+  `adminService.requestMoreInfo`→INFO_REQUEST, `quoteService.markSent`→QUOTE_AVAILABLE. Admin:
+  `src/server/actions/communications.ts` + `CommsPanel.tsx` on the request detail (status chips,
+  "Procesar cola de envíos", "Generar enlace de WhatsApp"). No migration (the `Communication` model
+  shipped with #9).
+- Changes: commit "feat(#13): email + WhatsApp communications" on `develop`.
+- Verification: TP-9 — 14 pure + 6 integration tests (108 total green); lint/typecheck/build clean;
+  browser drive of the admin INFO_REQUEST → CommsPanel → WhatsApp link path.
+- Acceptance criteria: nolost ✅, status ✅, simmode ✅, nomarketing ✅; **expire ⚠ delegated to #16**
+  (the private client link and its expiry are issue #16; QUOTE_AVAILABLE carries the URL slot).
+- Replies: beat 1 — completion comment to post on GitHub #13 with this sweep. Beat 2 (deploy) folds
+  into the single end-of-backlog Hostinger deploy per the user's standing instruction.
+- Closed by: still open — the user closes.
+- Lesson: L-003 (WhatsApp link re-rendered without the admin message) — fixed in-sprint.
+- Pending: retro-wire the signed `/s/<token>` URL into the QUOTE_AVAILABLE template at #16;
+  a scheduled `sendPending()` runner at #17/#19.
 
 ### E-001 — #2 Inicializar arquitectura, stack y entorno reproducible
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/2   Status: resolved 2026-08-29 — commented (beat 1); awaiting the user to close

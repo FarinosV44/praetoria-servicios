@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteUrl("/solicitar"), lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: siteUrl("/servicios"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: siteUrl("/cobertura"), lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: siteUrl("/confianza"), lastModified: now, changeFrequency: "yearly", priority: 0.6 },
     // Legal pages are provisional and noindex (issue #17) — deliberately not listed.
   ];
 

@@ -1,0 +1,115 @@
+.page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-12);
+}
+
+.breadcrumb {
+  font-size: var(--text-sm);
+  color: var(--c-text-soft);
+  margin-bottom: var(--space-4);
+}
+.breadcrumb a {
+  color: var(--c-text-soft);
+}
+
+.title {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-2);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--c-text-soft);
+  margin: 0 0 var(--space-6);
+}
+
+.seal {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--c-brand-soft);
+  color: var(--c-brand-active);
+  border: 1px solid var(--c-brand);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+}
+
+.sealNote {
+  font-size: var(--text-sm);
+  color: var(--c-text-faint);
+  margin: var(--space-2) 0 var(--space-6);
+}
+
+.commitment {
+  border-bottom: 1px solid var(--c-border);
+  padding: var(--space-4) 0;
+}
+.commitment h2 {
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-2);
+}
+.commitment p {
+  margin: 0 0 var(--space-2);
+}
+.backing {
+  font-size: var(--text-sm);
+  color: var(--c-text-soft);
+  background: var(--c-surface-sunken);
+  border-left: 3px solid var(--c-accent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.split {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+@media (min-width: 40rem) {
+  .split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.split section {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+.split h2 {
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-3);
+}
+.split ul {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.costs {
+  background: var(--c-accent-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin: var(--space-8) 0;
+}
+.costs h2 {
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-3);
+}
+.costs ul {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cta {
+  margin-top: var(--space-8);
+}

@@ -5,6 +5,7 @@ import { COPY } from "@/config/copy";
 import { TRADES } from "@/config/trades";
 import { COVERED_MUNICIPALITIES } from "@/config/coverage";
 import { faqPageLd, organizationLd, websiteLd } from "@/lib/seo";
+import { TRUST_CHARTER } from "@/config/trust-charter";
 import styles from "./page.module.css";
 
 const L = COPY.landing;
@@ -144,20 +145,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TRUST (ties to #21) */}
+      {/* TRUST — Carta de Confianza summary (#21) */}
       <section className={styles.callout} aria-labelledby="confianza">
         <h2 id="confianza" className={styles.h2}>
           {L.trust.heading}
         </h2>
+        <p className={styles.note}>
+          <span className={styles.managedSeal}>✓ Gestionado por Praetoria</span> — describe cómo
+          trabajamos, no es un sello externo.
+        </p>
         <ul className={styles.checkList}>
-          {L.trust.items.map((t) => (
+          {TRUST_CHARTER.summary.map((t) => (
             <li key={t}>
               <Icon name="ok" size={18} />
               <span>{t}</span>
             </li>
           ))}
         </ul>
-        <p className={styles.note}>{L.trust.note}</p>
+        <p className={styles.note}>
+          {L.trust.note}{" "}
+          <Link href="/confianza">Leer la Carta de Confianza completa</Link> (versión{" "}
+          {TRUST_CHARTER.version}).
+        </p>
       </section>
 
       {/* DATA PROTECTION */}
@@ -253,6 +262,7 @@ export default function HomePage() {
         <nav className={styles.footerLinks} aria-label="Enlaces del sitio">
           <Link href="/servicios">Servicios</Link>
           <Link href="/cobertura">Cobertura</Link>
+          <Link href="/confianza">Carta de Confianza</Link>
           <a href="/legal/privacidad">{L.footer.legalPrivacy}</a>
           <a href="/legal/aviso-legal">{L.footer.legalNotice}</a>
         </nav>

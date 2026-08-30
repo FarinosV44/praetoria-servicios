@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-31 (Sprint 16) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #22 resolved; growth #21, #23–#27, #20 next.
+> Last inbound sweep: 2026-08-31 (Sprint 17) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21 + #22 resolved; growth #23–#27, #20 next.
 
 ## Build order (dependency-sorted)
 
@@ -38,7 +38,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | resolved (Sprint 15) — awaiting user close | E-017 |
 | 29 | El CSP estricto (#17) rompe la hidratación de React en toda la app | bug | high | resolved (Sprint 14) — awaiting user close | E-016 |
 | 20 | Página de captación de profesionales | feature | low | open | — |
-| 21 | Carta de Confianza Praetoria y transparencia | feature | med | open | — |
+| 21 | Carta de Confianza Praetoria y transparencia | feature | med | resolved (Sprint 17) — awaiting user close | E-019 |
 | 22 | Verificar y gestionar la red de profesionales | feature | med | resolved (Sprint 16) — awaiting user close | E-018 |
 | 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | open | — |
 | 24 | CMS editorial completo para publicaciones y guías | feature | med | open | — |
@@ -47,6 +47,21 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-019 — #21 Crear Carta de Confianza Praetoria y transparencia antes de contratar
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/21   Status: resolved 2026-08-31 (Sprint 17) — awaiting user close
+- Diagnosis: n/a (feature).
+- Resolution: `src/config/trust-charter.ts` (versioned; every commitment carries a `backing` naming
+  the real function — test-first). `/confianza` page (full charter, version + fecha de vigencia,
+  seal "Gestionado por Praetoria" ≠ certificación, Praetoria-provides vs professional-executes split,
+  costes antes de aceptar, nota "las versiones nuevas solo afectan a solicitudes futuras"). Landing
+  trust section → charter summary + link. `/s/[token]` shows costs + relevant commitments above the
+  accept button. `decideQuote` records `charterVersion` on the decision evidence. In-text links
+  underlined (a11y). Added to sitemap/robots/footer + the axe pass.
+- Commits: (Sprint 17 commit).
+- Verification: TP-18 — 243 vitest (+6), 33 E2E green (incl. `/confianza` smoke + axe, both viewports).
+- Pending: the "factura o justificante" commitment and the exact garantía wording finalise with the
+  legal-model review (same gate as the definitive legal texts). Charter version stays 1.0 until then.
 
 ### E-018 — #22 Verificar y gestionar la red de profesionales antes de asignar trabajos
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/22   Status: resolved 2026-08-31 (Sprint 16) — awaiting user close

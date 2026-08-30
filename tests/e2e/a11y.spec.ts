@@ -8,7 +8,14 @@ import AxeBuilder from "@axe-core/playwright";
  * (Keel `references/accessibility.md`) and recorded in docs/05-test-points.md.
  */
 
-const PAGES = ["/", "/solicitar", "/servicios/fontaneria", "/servicios", "/cobertura"];
+const PAGES = [
+  "/",
+  "/solicitar",
+  "/servicios/fontaneria",
+  "/servicios",
+  "/cobertura",
+  "/confianza",
+];
 
 for (const path of PAGES) {
   test(`axe: no serious/critical violations on ${path}`, async ({ page }) => {

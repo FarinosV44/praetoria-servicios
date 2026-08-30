@@ -9,6 +9,7 @@ import {
   askClarificationAction,
   decideQuoteAction,
 } from "@/server/actions/clientLink";
+import { TRUST_CHARTER, commitmentsAtAcceptance } from "@/config/trust-charter";
 import styles from "./link.module.css";
 
 type QuoteView = {
@@ -251,6 +252,32 @@ export function ClientStatusView({
               </div>
             )}
           </dl>
+
+          {view.canDecideQuote && (
+            <div className={styles.trustBeforeAccept}>
+              <h3>Antes de aceptar</h3>
+              <ul>
+                {TRUST_CHARTER.preAcceptanceCosts.map((x) => (
+                  <li key={x}>{x}</li>
+                ))}
+              </ul>
+              <p>Compromisos de Praetoria que se aplican a este presupuesto:</p>
+              <ul>
+                {commitmentsAtAcceptance().map((c) => (
+                  <li key={c.id}>
+                    <strong>{c.title}.</strong> {c.body}
+                  </li>
+                ))}
+              </ul>
+              <p className={styles.charterMeta}>
+                Al aceptar, queda registrada la Carta de Confianza versión {TRUST_CHARTER.version}.{" "}
+                <a href="/confianza" target="_blank" rel="noreferrer">
+                  Leer la carta completa
+                </a>
+                .
+              </p>
+            </div>
+          )}
 
           {view.canDecideQuote ? (
             <>

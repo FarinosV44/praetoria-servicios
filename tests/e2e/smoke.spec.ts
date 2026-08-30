@@ -19,6 +19,21 @@ test.describe("public pages — smoke + no console errors (AC-19-noconsole)", ()
     expect(meaningfulErrors(errors)).toEqual([]);
   });
 
+  test("the Carta de Confianza page is versioned and backs every commitment (#21)", async ({
+    page,
+  }) => {
+    const errors = collectConsoleErrors(page);
+    await page.goto("/confianza");
+    await expect(page.getByRole("heading", { name: /Carta de Confianza Praetoria/i })).toBeVisible();
+    await expect(page.getByText(/Versión 1\.0/i)).toBeVisible();
+    await expect(page.getByText(/Cómo lo hacemos posible/i).first()).toBeVisible();
+    await expect(page.getByText(/Qué presta Praetoria/i)).toBeVisible();
+    await expect(page.getByText(/Qué ejecuta el profesional/i)).toBeVisible();
+    // the "no external seal" honesty note
+    await expect(page.getByText(/No es una certificación/i)).toBeVisible();
+    expect(meaningfulErrors(errors)).toEqual([]);
+  });
+
   test("coverage checker: a Valencia-area postcode is within the area (D-013)", async ({ page }) => {
     await page.goto("/cobertura");
     await page.getByLabel(/Código postal/i).fill("46900");

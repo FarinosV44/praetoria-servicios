@@ -131,6 +131,7 @@ describe("clientLinkService", () => {
     const ev = quote?.decisionEvidence as Record<string, unknown>;
     expect(ev.via).toBe("signed-link");
     expect(ev.quoteVersion).toBe(1);
+    expect(ev.charterVersion).toBe("1.0"); // Carta de Confianza version at acceptance (#21)
     expect(ev.ip).toBe("1.2.3.4");
     const req = await db.request.findUnique({ where: { id: requestId } });
     expect(req?.status).toBe("ACEPTADA");

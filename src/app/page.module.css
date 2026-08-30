@@ -334,3 +334,21 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.managedSeal {
+  display: inline-block;
+  background: var(--c-brand-soft);
+  color: var(--c-brand-active);
+  border: 1px solid var(--c-brand);
+  border-radius: var(--radius-full);
+  padding: 0.1rem 0.6rem;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+}
+
+/* in-text links must be distinguishable without colour (a11y: link-in-text-block) */
+.note a,
+.callout p a,
+.section p a {
+  text-decoration: underline;
+}

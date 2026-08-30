@@ -5,6 +5,7 @@ import { env } from "@/lib/env";
 import { LIMITS } from "@/config/limits";
 import { COPY } from "@/config/copy";
 import { findTrade } from "@/config/trades";
+import { TRUST_CHARTER } from "@/config/trust-charter";
 import { formatEuros, type Cents } from "@/lib/money";
 import { phoneLast4Matches } from "@/lib/phone";
 import { issueClientLink, parseClientLink, hashToken } from "@/lib/signed-link";
@@ -251,6 +252,9 @@ export const clientLinkService = {
       via: "signed-link",
       decidedAt: new Date().toISOString(),
       quoteVersion: quote.version,
+      // The Carta de Confianza version in effect at acceptance (issue #21): a
+      // later change to the charter never alters an already-accepted request.
+      charterVersion: TRUST_CHARTER.version,
       ip: evidence.ip ?? null,
       userAgent: evidence.userAgent?.slice(0, 300) ?? null,
     });

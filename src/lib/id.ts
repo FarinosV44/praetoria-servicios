@@ -25,6 +25,11 @@ export function newProfessionalReference(): string {
   return `PRO-${humanId().slice(0, 4)}`;
 }
 
+/** e.g. "INC-7Q2M" — internal incidence reference (issue #23), non-sequential. */
+export function newIncidenceReference(): string {
+  return `INC-${humanId().slice(0, 4)}`;
+}
+
 /** 32-char URL-safe opaque token for signed status links, upload sessions, etc. */
 export function newOpaqueToken(): string {
   return token();

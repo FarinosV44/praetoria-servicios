@@ -6,6 +6,8 @@ import { TRADES } from "@/config/trades";
 import { COVERED_MUNICIPALITIES } from "@/config/coverage";
 import { faqPageLd, organizationLd, websiteLd } from "@/lib/seo";
 import { TRUST_CHARTER } from "@/config/trust-charter";
+import { reviewService } from "@/server/services/reviews";
+import { findTrade } from "@/config/trades";
 import styles from "./page.module.css";
 
 const L = COPY.landing;
@@ -28,7 +30,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: `${COPY.brand.name} — ${COPY.brand.tagline}` },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const reviews = await reviewService.listPublished();
   return (
     <main id="contenido" className={styles.page}>
       <JsonLd data={[organizationLd(), websiteLd(), faqPageLd([...COPY.landing.faq.items])]} />
@@ -168,6 +171,34 @@ export default function HomePage() {
           {TRUST_CHARTER.version}).
         </p>
       </section>
+
+      {/* REVIEWS — only real, authorised, consented (issue #23). Hidden entirely when there are none. */}
+      {reviews.length > 0 && (
+        <section className={styles.section} aria-labelledby="opiniones">
+          <h2 id="opiniones" className={styles.h2}>
+            Opiniones de clientes
+          </h2>
+          <p className={styles.note}>
+            Solo mostramos opiniones de trabajos realmente realizados y cerrados, con la autorización
+            del cliente.
+          </p>
+          <ul className={styles.checkList}>
+            {reviews.map((r) => (
+              <li key={r.id}>
+                <Icon name="ok" size={18} />
+                <span>
+                  <strong>{"★".repeat(r.rating)}</strong>{" "}
+                  {r.comment ? `«${r.comment}» ` : ""}
+                  <em>
+                    — {r.authorDisplayName ?? "Cliente"}
+                    {r.request.trade ? `, ${findTrade(r.request.trade)?.label ?? r.request.trade}` : ""}
+                  </em>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* DATA PROTECTION */}
       <section className={styles.section} aria-labelledby="datos">

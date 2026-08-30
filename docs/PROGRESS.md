@@ -25,7 +25,7 @@
 - Test-first policy: pure-logic (default) — state machine, money, Zod schemas, phone normalisation, AI-output validation get their tests written and seen failing before code. Asked-once default accepted (D-007).
 - Durability: git remote origin https://github.com/FarinosV44/praetoria-servicios.git
 - Autonomy: automatic — Keel does every merge to develop and every push itself / issues: after-sprint / Issue sweep interval: 24h / Issue capture: on
-- Branches: integration branch `develop` / `main`. develop→main merges (user-authorised, per sprint): … → Sprint 16 merge `900e26d` (#22) → Sprint 17 merge (#21). No tag yet (tag at Phase 7 / first real deploy).
+- Branches: integration branch `develop` / `main`. develop→main merges (user-authorised, per sprint): … → Sprint 17 merge `2615ef4` (#21) → Sprint 18 merge (#23). No tag yet (tag at Phase 7 / first real deploy).
 - Notify: none (user chose chat-only) — a block is visible only on the next chat open
 - Chaining: off (user chose "MVP core first"; no chained-chat launch — hand-off file written at every sprint close)
 - Chaining model: n/a
@@ -38,15 +38,16 @@
 | 2 Functional spec | done (condensed) | docs/02-functional-spec.md, docs/03-technical-plan.md |
 | 3 Design handoff | deferred — founding design system built inline per issue #3 (D-005); no external Design tool in this engagement | — |
 | 4 Faithful build | n/a (no external design handoff) | — |
-| 5 Development | MVP core done (#2–#19, #28, #29) + growth #21, #22. Next: #23 (Sprint 18). | docs/sprints/, docs/05-test-points.md |
+| 5 Development | MVP core done (#2–#19, #28, #29) + growth #21, #22, #23. Next: #24 (Sprint 19). | docs/sprints/, docs/05-test-points.md |
 | 6 Documentation | pending | docs/architecture.md, docs/api/ |
 | 7 Release | pending | docs/07-release.md |
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. MVP core (#2–#19, #28, #29) + growth #21, #22 done + verified. Awaiting user close on GitHub (#1 EPIC closes when the user closes all).
+- Phase: 5 — Development. MVP core (#2–#19, #28, #29) + growth #21, #22, #23 done + verified. Awaiting user close on GitHub (#1 EPIC closes when the user closes all).
 - User standing instruction (2026-08-31): "sigue hasta que te ordene lo contrario y siempre en main" — keep building the growth backlog, merge `develop`→`main` every sprint, don't stop.
-- Next action: **growth backlog** order #22 ✅ → #21 ✅ → **#23 (Sprint 18)** → #24 → #25 → #26 → #20 → #27. Separately, before go-live: definitive legal texts + DPIA (release gate), and the actual Hostinger deploy (`docs/deploy-hostinger.md` is final; needs operator hPanel access + the real secrets; `APP_URL` + `NEXT_PUBLIC_*` at BUILD time).
+- Next action: **growth backlog** order #22 ✅ → #21 ✅ → #23 ✅ → **#24 (Sprint 19, CMS editorial)** → #25 → #26 → #20 → #27. Separately, before go-live: definitive legal texts + DPIA (release gate), and the actual Hostinger deploy (`docs/deploy-hostinger.md` is final; needs operator hPanel access + the real secrets; `APP_URL` + `NEXT_PUBLIC_*` at BUILD time).
+- Sprint 18 (#23 cierre de servicio + garantía + incidencias) closed 2026-08-31 — TP-19 green (261 vitest, +18; 34 E2E; incidence state machine test-first with reason+evidence to close; ServiceCompletion/Incidence/Review models; serviceClosureService + reviewService; /s/[token] PostService; /admin/incidencias; landing reviews section only-authorised; C20 threat model).
 - Sprint 17 (#21 Carta de Confianza + transparencia) closed 2026-08-31 — TP-18 green (243 vitest, +6; 33 E2E pass; `src/config/trust-charter.ts` test-first — every commitment backed by a real function; `/confianza` page versioned + dated + seal; landing summary; `/s/[token]` pre-acceptance costs + commitments; `charterVersion` on the decision evidence; in-text links underlined for a11y).
 - Sprint 16 (#22 verified professional network + assignment) closed 2026-08-31 — TP-17 green (237 vitest, +30; 29 E2E pass, 3 mobile admin skipped; domain state-machine/assignment/client-view test-first; `Professional`/`Assignment` schema + migration; `professionalService` + `assignmentService`; `/admin/profesionales` UI + `AssignPanel`; client `AssignedProfessional` on `/s/[token]`; cron purges rejected docs; C19 in threat model; login rate limit 8→20/5min).
 - Sprint 15 (#19 E2E + observability + deploy docs) closed 2026-08-30 — TP-16 green (207 vitest; **30 E2E pass on desktop + Pixel 5 mobile**; axe 0 serious/critical on 5 pages × 2 viewports; `src/lib/observability.ts` PII-free error+AI-metric seams; `docs/{runbook,known-limitations}.md`; `deploy-hostinger.md` final; CI e2e job; L-005 a11y contrast fix). This completes the MVP core → EPIC #1's dependency (Keel never closes #1, the user does).
@@ -62,7 +63,7 @@
 - Unresolved user questions: none blocking. Anthropic API key + real provider keys will be needed before real-provider verification (all adapters have mock/dev impls so the MVP is not blocked — see D-008).
 - Open Design Requests: none
 - Unverified external steps/assets: real AI/storage/email providers not yet configured (dev adapters in use — MVP not blocked)
-- Forge issues in progress: see docs/issues.md — #2–#19, #21, #22, #28, #29 resolved (awaiting user close); #20, #23–#27 (growth) open; building in dependency order
+- Forge issues in progress: see docs/issues.md — #2–#19, #21, #22, #23, #28, #29 resolved (awaiting user close); #20, #24–#27 (growth) open; building in dependency order
 - Deploy note (#19): `APP_URL` and any `NEXT_PUBLIC_*` must be set at BUILD time — `/sitemap.xml`, `/robots.txt`, the analytics beacon URL are all baked. Full procedure in `docs/deploy-hostinger.md`; incident playbooks in `docs/runbook.md`; v1 boundaries in `docs/known-limitations.md`.
 - Release gate before go-live: definitive legal texts + full DPIA (still provisional/noindex).
 
@@ -85,4 +86,4 @@
 - Marketing pages are now `force-dynamic` (D-014, issue #29) — no static prerender. Revisit with
   ISR/CDN or Next experimental SRI at deploy if page latency matters.
 
-Last updated: 2026-08-31 — Phase 5; Sprint 17 (#21 Carta de Confianza) closed, merged to main; next: Sprint 18 = #23 (cierre de servicio, garantía, postservicio)
+Last updated: 2026-08-31 — Phase 5; Sprint 18 (#23 cierre de servicio) closed, merged to main; next: Sprint 19 = #24 (CMS editorial)

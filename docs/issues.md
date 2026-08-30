@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-31 (Sprint 17) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21 + #22 resolved; growth #23–#27, #20 next.
+> Last inbound sweep: 2026-08-31 (Sprint 18) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21 + #22 + #23 resolved; growth #24–#27, #20 next.
 
 ## Build order (dependency-sorted)
 
@@ -40,13 +40,28 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 20 | Página de captación de profesionales | feature | low | open | — |
 | 21 | Carta de Confianza Praetoria y transparencia | feature | med | resolved (Sprint 17) — awaiting user close | E-019 |
 | 22 | Verificar y gestionar la red de profesionales | feature | med | resolved (Sprint 16) — awaiting user close | E-018 |
-| 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | open | — |
+| 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | resolved (Sprint 18) — awaiting user close | E-020 |
 | 24 | CMS editorial completo para publicaciones y guías | feature | med | open | — |
 | 25 | Arquitectura SEO de servicios, problemas y municipios | feature | med | open | — |
 | 26 | Reseñas verificadas y reputación local | feature | med | open | — |
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-020 — #23 Crear cierre de servicio, garantía e incidencias post-trabajo
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/23   Status: resolved 2026-08-31 (Sprint 18) — awaiting user close
+- Diagnosis: n/a (feature).
+- Resolution: domain `service-closure/incidence.ts` (test-first — 5-state incidence machine,
+  reason+evidence to close, SLA, warranty kinds). Migration `20260830223651_service_closure_incidences`
+  (`ServiceCompletion`, `Incidence`, `IncidenceEvent`, `Review` + 3 enums). `serviceClosureService`
+  (completion, client confirm → CERRADA, incidence lifecycle, `buildExpediente`) + `reviewService`
+  (submit only if CERRADA, admin authorise, landing shows only AUTORIZADA + consent). Client
+  `PostService` on `/s/[token]`; admin `CompletionPanel` + `/admin/incidencias`; landing "Opiniones"
+  section (hidden when empty). C20 in the threat model.
+- Commits: (Sprint 18 commit).
+- Verification: TP-19 — 261 vitest (+18), 34 E2E green (incl. `/admin/incidencias` smoke).
+- Pending: the full verified-reviews / reputation system is #26 (this sprint built the linkage).
+  "Factura o justificante" wording + the warranty-term specifics await the legal-model review.
 
 ### E-019 — #21 Crear Carta de Confianza Praetoria y transparencia antes de contratar
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/21   Status: resolved 2026-08-31 (Sprint 17) — awaiting user close

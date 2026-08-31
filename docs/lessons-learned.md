@@ -45,7 +45,13 @@
 - Check added: the E2E now does the full create→fill-body→fill-author→save walk (previously it was
   trimmed to dodge the flake); no mechanical `keel-verify` check (no scripts/keel-verify, D-004).
 - Rule for next time: never reference `e`/`e.currentTarget`/`e.target` inside a `setState` updater
-  callback or any other deferred closure — read the primitive value out first.
+  callback or any other deferred closure — read the primitive value out first. This applies to
+  `.checked` on checkboxes just as much as `.value` on inputs.
+- RECURRENCE (Sprint 22, `ApplicationForm.tsx`): reintroduced as
+  `onChange={(e) => setTrades((prev) => e.currentTarget.checked ? ... : ...)}` on the trade
+  checkboxes — same crash, again caught by the new E2E form-submit test, not by lint or unit tests.
+  When writing ANY checkbox/select/input `onChange` that calls a functional `setState`, the first
+  line of the handler must be `const v = e.currentTarget.value` / `const checked = e.currentTarget.checked`.
 
 ## L-005 — Design-system colour tokens failed WCAG AA contrast (caught by the #19 axe audit)
 - Symptom: the automated accessibility pass (axe-core, issue #19) reported 23 `color-contrast`

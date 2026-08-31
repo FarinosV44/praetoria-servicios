@@ -506,6 +506,47 @@ enum ProfessionalStatus {
   RECHAZADO
 }
 
+// First-contact intake from the public recruitment landing (issue #20). Kept
+// separate from the verified Professional network: approving one creates a
+// Professional in CANDIDATO.
+enum ProfessionalApplicationStatus {
+  NUEVA
+  CONTACTADA
+  EN_VALIDACION
+  APROBADA
+  RECHAZADA
+}
+
+model ProfessionalApplication {
+  id              String                        @id @default(cuid())
+  name            String
+  isCompany       Boolean                       @default(false)
+  trades          String[]
+  municipalities  String[]
+  phone           String
+  email           String
+  availabilityNote String?
+  experienceNote  String?
+  observations    String?
+  consentAt       DateTime
+
+  status          ProfessionalApplicationStatus @default(NUEVA)
+  internalNotes   String?
+  reviewReason    String? // reason recorded on rejection
+  spamFlagged     Boolean                       @default(false)
+  // email|phone|sorted-trades — used for idempotency / dedup (issue #20).
+  fingerprint     String
+
+  // Set when an admin converts an APROBADA application into a network member.
+  professionalId  String?
+
+  createdAt       DateTime                      @default(now())
+  updatedAt       DateTime                      @updatedAt
+
+  @@index([status])
+  @@index([fingerprint])
+}
+
 // What was actually checked in a verification. CONTACT (phone/email) alone never
 // counts as "verificado" for the client-facing scope (issue #22 rule).
 enum VerificationKind {

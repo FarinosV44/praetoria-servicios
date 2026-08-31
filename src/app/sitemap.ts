@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: siteUrl("/zonas"), lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: siteUrl("/cobertura"), lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: siteUrl("/confianza"), lastModified: now, changeFrequency: "yearly", priority: 0.6 },
+    { url: siteUrl("/trabaja-con-nosotros"), lastModified: now, changeFrequency: "yearly", priority: 0.4 },
     // Legal pages are provisional and noindex (issue #17) — deliberately not listed.
   ];
 

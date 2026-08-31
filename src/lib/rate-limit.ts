@@ -24,6 +24,7 @@ export const RATE_LIMITS = {
   submit: { limit: 5, windowMs: 60_000 },
   linkLookup: { limit: 20, windowMs: 60_000 },
   linkIssue: { limit: 5, windowMs: 300_000 },
+  application: { limit: 3, windowMs: 3_600_000 },
 } as const satisfies Record<string, RateLimitRule>;
 
 export function rateLimit(

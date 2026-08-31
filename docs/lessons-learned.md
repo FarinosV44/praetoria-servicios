@@ -29,6 +29,17 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-011 — Turbopack build → switched `npm run build` to `--webpack`
+- Context: continuing L-010 — the host build kept failing. Next 16's default `next build` uses
+  Turbopack, which has a higher peak-memory footprint and is newer/less proven on managed hosts.
+- Change: `npm run build` → `next build --webpack`; `next.config.ts`
+  `experimental.webpackMemoryOptimizations = true`; kept `build:turbo` for local use. Both builders
+  produce the same `output: "standalone"` server. CI + the deploy-bundle workflow inherit it via
+  `npm run build`. Verified locally + in CI.
+- Still unresolved: the operator's Hostinger build has never surfaced a real error — every fix so
+  far (L-007..L-011) has been inference. The CI-bundle path (L-010) removes the host build entirely
+  and is the way forward; if the operator insists on a host build, the actual build log is required.
+
 ## L-010 — Hostinger build kept failing → switched to a CI-built standalone bundle
 - Symptom: even after L-008/L-009, `next build` on Hostinger kept failing ("haga lo que haga falla
   la compilación y la producción"), with all required env vars set. No usable error surfaced from

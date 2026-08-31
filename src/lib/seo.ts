@@ -109,6 +109,31 @@ export function articleLd(input: {
   return node;
 }
 
+/**
+ * `Service` node for an indexable `/zonas/[municipio]` page (issue #25). Only
+ * ever emitted when the page passes the D10 guard, so `areaServed` and
+ * `description` describe a real, served municipality — never a synthetic combo.
+ */
+export function localAreaServiceLd(input: {
+  municipality: string;
+  slug: string;
+  serviceLabel: string | null;
+  description: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: input.serviceLabel
+      ? `${input.serviceLabel} en ${input.municipality}`
+      : `Servicios para el hogar en ${input.municipality}`,
+    serviceType: input.serviceLabel ?? "Servicios para el hogar",
+    provider: { "@id": ORG_ID },
+    areaServed: { "@type": "City", name: input.municipality },
+    description: input.description,
+    url: siteUrl(`/zonas/${input.slug}`),
+  };
+}
+
 export function faqPageLd(items: { q: string; a: string }[]) {
   return {
     "@context": "https://schema.org",

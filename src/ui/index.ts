@@ -20,6 +20,7 @@ export { IntentCards } from "./patterns/IntentCards";
 export type { Intent } from "./patterns/IntentCards";
 export { Uploader } from "./patterns/Uploader";
 export type { UploaderFile } from "./patterns/Uploader";
+export { TrackedCta } from "./patterns/TrackedCta";
 
 export { JsonLd } from "./JsonLd";
 

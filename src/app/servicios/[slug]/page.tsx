@@ -5,6 +5,7 @@ import { ButtonLink, JsonLd } from "@/ui";
 import { COPY } from "@/config/copy";
 import { findTrade } from "@/config/trades";
 import { SERVICE_TRADES, serviceContentFor } from "@/config/service-content";
+import { problemsForTrade } from "@/config/problems";
 import { breadcrumbLd, serviceLd } from "@/lib/seo";
 import styles from "../servicios.module.css";
 
@@ -42,6 +43,7 @@ export default async function ServicioPage({ params }: { params: Promise<{ slug:
   const trade = findTrade(slug);
   if (!trade || !SERVICE_TRADES.some((t) => t.key === slug)) notFound();
   const content = serviceContentFor(slug);
+  const problems = problemsForTrade(slug);
 
   return (
     <main id="contenido" className={styles.page}>
@@ -106,6 +108,21 @@ export default async function ServicioPage({ params }: { params: Promise<{ slug:
           ))}
         </ol>
       </section>
+
+      {problems.length > 0 && (
+        <section className={styles.section} aria-labelledby="problemas-guia">
+          <h2 id="problemas-guia" className={styles.h2}>
+            Problemas concretos que resolvemos
+          </h2>
+          <ul className={styles.list}>
+            {problems.map((p) => (
+              <li key={p.slug}>
+                <Link href={`/problemas/${p.slug}`}>{p.title}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {content.insuranceAngle && (
         <section className={styles.insurance} aria-labelledby="seguro">

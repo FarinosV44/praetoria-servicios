@@ -817,3 +817,44 @@ model SlugRedirect {
   toSlug    String
   createdAt DateTime @default(now())
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Local SEO (issue #25) — a `/zonas/[municipio]` page exists ONLY when an admin
+// creates it, and is indexed ONLY when it carries real, differentiating content
+// (D10 — see src/domain/local-seo/local-page.ts). No LocalPage → the route 404s.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum LocalPageStatus {
+  BORRADOR
+  PUBLICADO
+  ARCHIVADO
+}
+
+model LocalPage {
+  id           String          @id @default(cuid())
+  slug         String          @unique // municipio slug, e.g. "burjassot"
+  municipality String // display name; must match a covered municipality to be indexable
+  serviceKey   String? // optional trade focus (key from src/config/trades.ts)
+
+  intro        String? // page intro paragraph
+
+  // Real differentiating content (D10) — the indexability guard reads these.
+  coverageNote     String   @default("")
+  typicalServices  String[]
+  responseTimeNote String?
+  localFaq         Json     @default("[]") // { q: string; a: string }[]
+  completedJobsNote String?
+  casePhotoNote    String?
+
+  status      LocalPageStatus @default(BORRADOR)
+  noindex     Boolean         @default(false)
+
+  metaTitle       String?
+  metaDescription String?
+
+  publishedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([status])
+}

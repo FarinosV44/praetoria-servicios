@@ -34,6 +34,39 @@ test.describe("public pages — smoke + no console errors (AC-19-noconsole)", ()
     expect(meaningfulErrors(errors)).toEqual([]);
   });
 
+  test("a problem page has real, specific content and a tracked CTA (issue #25 / D10)", async ({
+    page,
+  }) => {
+    const errors = collectConsoleErrors(page);
+    await page.goto("/problemas");
+    await expect(page.getByRole("heading", { level: 1, name: /Problemas del hogar/i })).toBeVisible();
+    await page.getByRole("link", { name: /Fuga de agua en casa/i }).first().click();
+    await expect(page).toHaveURL(/\/problemas\/fuga-de-agua$/);
+    await expect(page.getByRole("heading", { name: /Causas más probables/i })).toBeVisible();
+    await expect(page.getByText(/Cierra la llave de paso general/i)).toBeVisible();
+    // bidirectional linking — related problems are reachable (AC-25-links)
+    await expect(
+      page.getByRole("link", { name: /Humedad o moho en una pared/i }),
+    ).toBeVisible();
+    expect(meaningfulErrors(errors)).toEqual([]);
+  });
+
+  test("zonas index loads and links are not orphaned (AC-25-orphan)", async ({ page }) => {
+    const errors = collectConsoleErrors(page);
+    await page.goto("/");
+    const siteNav = page.getByRole("navigation", { name: /Enlaces del sitio/i });
+    // the footer indexes every SEO surface — nothing is orphaned
+    await expect(siteNav.getByRole("link", { name: "Problemas" })).toHaveAttribute(
+      "href",
+      "/problemas",
+    );
+    await expect(siteNav.getByRole("link", { name: "Zonas" })).toHaveAttribute("href", "/zonas");
+    await page.goto("/zonas");
+    await expect(page.getByRole("heading", { level: 1, name: /Zonas donde trabajamos/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Comprueba tu código postal/i })).toBeVisible();
+    expect(meaningfulErrors(errors)).toEqual([]);
+  });
+
   test("the guides index loads (issue #24 CMS)", async ({ page }) => {
     const errors = collectConsoleErrors(page);
     await page.goto("/guias");
@@ -58,6 +91,8 @@ test.describe("public pages — smoke + no console errors (AC-19-noconsole)", ()
     const xml = await sitemap.text();
     expect(xml).toContain("/servicios/fontaneria");
     expect(xml).toContain("/cobertura");
+    expect(xml).toContain("/problemas/fuga-de-agua");
+    expect(await robots.text()).toContain("/problemas");
 
     const manifest = await request.get("/manifest.webmanifest");
     expect(manifest.ok()).toBeTruthy();

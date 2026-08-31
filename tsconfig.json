@@ -24,14 +24,19 @@
       "@/*": ["./src/*"]
     }
   },
+  "//": "This is the config `next build` type-checks against — APP CODE ONLY (src/ + generated route types). Test files, tooling configs (vitest/playwright) and prisma/seed.ts import devDependencies that are absent in a production install on the deploy host, so they are NOT here. `npm run typecheck` + CI use tsconfig.typecheck.json, which checks everything; vitest type-checks the tests at test time.",
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/dev/types/**/*.ts"
   ],
-  "//": "Test files are excluded from the `next build` type-check — they import `vitest` (a devDependency absent in a production install on the deploy host). They ARE type-checked by `npm run typecheck` via tsconfig.typecheck.json, and by vitest at test time.",
-  "exclude": ["node_modules", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
+  "exclude": [
+    "node_modules",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx"
+  ]
 }

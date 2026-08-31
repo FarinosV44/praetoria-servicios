@@ -43,11 +43,16 @@
   new `tsconfig.typecheck.json` (extends base, re-includes everything) is what `npm run typecheck`
   + CI use, so the tests are still fully type-checked — by vitest at test time and by the CI
   typecheck step.
-- Verified end-to-end: `NODE_ENV=production npm ci --omit=dev` → `postinstall` generates the Prisma
-  client → `next build` produces the standalone server. 392 vitest, full typecheck, lint all green.
+- **(c) follow-up:** the first `tsconfig.json` exclude (`**/*.{test,spec}.*`) still let `next build`
+  type-check `vitest.config.mts` (`import "vitest/config"`) and `playwright.config.ts`
+  (`@playwright/test`), then — after narrowing `include` to `src/**` — the in-`src` `*.test.ts`
+  files came back because `src/**/*.ts` matches them. Final shape: `tsconfig.json` (what
+  `next build` uses) = **`src/**` app code minus `src/**/*.{test,spec}.*`** + `.next` route types,
+  nothing else. `tsconfig.typecheck.json` = everything. Verified `NODE_ENV=production npm ci
+  --omit=dev` → `postinstall` (Prisma client) → `next build` → standalone server, three times over.
 - Rule: same as L-009 — anything the **install hooks** or **`next build`** touch must resolve
-  without devDependencies. That includes transitive config imports (`prisma.config.ts`) and the
-  type-check's file set.
+  without devDependencies. `next build`'s type-check file set is `tsconfig.json`'s
+  `include` minus `exclude`; keep it to shipping app code only.
 
 ## L-012 — Removed Tailwind entirely — it was unused and its build step broke the host
 - Symptom: the real Hostinger build log finally arrived — `next build` (Turbopack, run directly by

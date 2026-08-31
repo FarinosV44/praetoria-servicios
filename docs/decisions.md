@@ -168,6 +168,28 @@
 - Supersedes: extends C20 / the #23 review seed — `authorize()` is kept as a back-compat wrapper over
   the new `moderate()`.
 
+## D-017 — Professional intake is a separate model from the verified network (issue #20)
+- Date / phase: 2026-08-31 / Phase 5 (Sprint 22, issue #20)
+- Decision: the public recruitment form writes a `ProfessionalApplication` (own status
+  `NUEVA / CONTACTADA / EN_VALIDACION / APROBADA / RECHAZADA`, own inbox `/admin/candidaturas`),
+  NOT a `Professional`. An admin converts an APROBADA application, which then creates a
+  `Professional` in `CANDIDATO` (issue #22 lifecycle) and links the two. In this MVP there is no
+  professional login, portal, or dashboard — the application is a one-way first contact.
+  Antispam: a hidden honeypot field (`website`), an IP rate-limit (`RATE_LIMITS.application`,
+  3/hour), and a 30-day fingerprint (email + phone + sorted trades) dedup; a spam or duplicate hit
+  is a SILENT success (no enumeration). File attachments are deliberately out of v1 — the issue
+  says no sensitive docs at first contact.
+- Why: issue #20 ("sin construir todavía un portal ni una asignación automática", "Bandeja separada
+  de candidatos", "No existe acceso del profesional al sistema en este MVP"). Mixing intake into the
+  `Professional` state machine (#22) would either pollute that machine with a "contactado" state it
+  does not need or force every raw web submission through the verified-network model.
+- Alternatives rejected: adding `CONTACTADO` to `ProfessionalStatus` (changes the #22 machine + its
+  tests for a concept that only exists pre-verification); a generic "contact form" with no structure
+  (the issue lists specific fields and a specific admin status flow).
+- Cost accepted: two models with a manual bridge; a small amount of duplicated field shape
+  (name/trades/municipalities/contact).
+- Supersedes: none — complements D-? (issue #22, the verified network).
+
 ## D-010 — Money is integer minor units
 - Date / phase: 2026-08-29 / Phase 2
 - Decision: All monetary amounts stored and computed as integer cents (EUR). No floating point anywhere in quote/budget math. A small `Money` helper owns arithmetic, tax and formatting.

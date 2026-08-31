@@ -296,6 +296,7 @@ export default async function HomePage() {
           <Link href="/zonas">Zonas</Link>
           <Link href="/cobertura">Cobertura</Link>
           <Link href="/confianza">Carta de Confianza</Link>
+          <Link href="/trabaja-con-nosotros">Trabaja con nosotros</Link>
           <a href="/legal/privacidad">{L.footer.legalPrivacy}</a>
           <a href="/legal/aviso-legal">{L.footer.legalNotice}</a>
         </nav>

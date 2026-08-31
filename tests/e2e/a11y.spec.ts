@@ -18,6 +18,7 @@ const PAGES = [
   "/zonas",
   "/cobertura",
   "/confianza",
+  "/trabaja-con-nosotros",
 ];
 
 for (const path of PAGES) {

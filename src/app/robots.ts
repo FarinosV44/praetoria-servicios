@@ -19,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
         "/confianza",
         "/guias",
         "/solicitar",
+        "/trabaja-con-nosotros",
       ],
       disallow: ["/admin", "/s/", "/api/"],
     },

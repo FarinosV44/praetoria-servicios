@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-31 (Sprint 21) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21–#26 resolved; growth #20, #27 next.
+> Last inbound sweep: 2026-08-31 (Sprint 22) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #20–#26 resolved; growth #27 is the last open growth issue.
 
 ## Build order (dependency-sorted)
 
@@ -37,7 +37,7 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 18 | SEO local, analítica de conversión y páginas de servicio | feature | med | resolved (Sprint 14) — awaiting user close | E-015 |
 | 19 | Pruebas E2E, observabilidad, accesibilidad y despliegue | task | high | resolved (Sprint 15) — awaiting user close | E-017 |
 | 29 | El CSP estricto (#17) rompe la hidratación de React en toda la app | bug | high | resolved (Sprint 14) — awaiting user close | E-016 |
-| 20 | Página de captación de profesionales | feature | low | open | — |
+| 20 | Página de captación de profesionales | feature | low | resolved (Sprint 22) — awaiting user close | E-024 |
 | 21 | Carta de Confianza Praetoria y transparencia | feature | med | resolved (Sprint 17) — awaiting user close | E-019 |
 | 22 | Verificar y gestionar la red de profesionales | feature | med | resolved (Sprint 16) — awaiting user close | E-018 |
 | 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | resolved (Sprint 18) — awaiting user close | E-020 |
@@ -47,6 +47,30 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-024 — #20 Página de captación de profesionales
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/20   Status: resolved 2026-08-31 (Sprint 22) — awaiting user close
+- Diagnosis: n/a (feature). Design: `ProfessionalApplication` is a first-contact intake kept
+  separate from the verified `Professional` network (#22); approving + converting one creates a
+  `Professional` in `CANDIDATO`. No professional login/portal/dashboard in this MVP. No sensitive
+  docs at first contact — file upload deliberately deferred.
+- Resolution: domain `professionals/application.ts` (normalise, `applicationFingerprint`,
+  `validateApplicationTransition` NUEVA→CONTACTADA→EN_VALIDACION→APROBADA/RECHAZADA, `isSpamApplication`
+  honeypot/URL/implausible-name) test-first (11). Migration `20260831131252_professional_applications`
+  (`ProfessionalApplication` + `ProfessionalApplicationStatus`). `applicationService` — `submit`
+  (spam gate + 30-day fingerprint dedup, both silent no-ops returning success), `listForAdmin`,
+  `setStatus` (audit), `addNote`, `convertToProfessional` (once); 7 integration tests. Action
+  `submitProfessionalApplicationAction` — zod + honeypot field + IP rate-limit (`RATE_LIMITS.application`
+  3/h). Public `/trabaja-con-nosotros` — form with a visually-hidden honeypot, "qué NO te prometemos"
+  (no min volume), linked ONLY from the footer (does not compete with the client CTA); robots +
+  sitemap. Admin `/admin/candidaturas` — separate inbox by status, internal notes, convert; nav link.
+- Commits: (Sprint 22 commit).
+- Verification: TP-23 — 365 vitest (+18); lint/typecheck/build clean; HTTP (`/trabaja-con-nosotros`
+  200 + canonical, footer-only link, robots/sitemap, `/admin/candidaturas` 307→login); E2E form
+  submit desktop + mobile; a11y pass on the new page. Hit L-006 again (`e.currentTarget` read inside
+  a `setState` updater on the trade checkboxes) — E2E caught it, fixed by capturing the value first.
+- Pending: optional secure file attachments on the application (deferred — the `storage` adapter
+  exists). No professional-facing system remains out of scope for this MVP by design.
 
 ### E-023 — #26 Implementar reseñas verificadas y reputación local
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/26   Status: resolved 2026-08-31 (Sprint 21) — awaiting user close

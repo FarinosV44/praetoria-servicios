@@ -139,3 +139,7 @@ scripts/
   `src/config/reputation.ts`, `src/server/actions/reviews.ts`, `src/ui/reputation/`,
   `src/app/admin/(panel)/opiniones/`. `src/lib/seo.ts::withReviewData`. `Review` model extended +
   `ReviewStatus` gains `RETENIDA_PII`/`RETIRADA`.
+- `[E]` Sprint 22 additions (#20): `src/domain/professionals/application.ts`,
+  `src/server/services/applications.ts`, `src/server/actions/{applications,adminApplications}.ts`,
+  `src/app/trabaja-con-nosotros/`, `src/app/admin/(panel)/candidaturas/`. `ProfessionalApplication`
+  model + `ProfessionalApplicationStatus`. `RATE_LIMITS.application`.

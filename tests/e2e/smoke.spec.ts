@@ -77,6 +77,31 @@ test.describe("public pages — smoke + no console errors (AC-19-noconsole)", ()
     expect(meaningfulErrors(errors)).toEqual([]);
   });
 
+  test("the professional recruitment form submits (issue #20)", async ({ page }) => {
+    const errors = collectConsoleErrors(page);
+    await page.goto("/");
+    // linked only from the footer — it must not compete with the client CTA
+    await expect(
+      page.getByRole("navigation", { name: /Enlaces del sitio/i }).getByRole("link", {
+        name: "Trabaja con nosotros",
+      }),
+    ).toHaveAttribute("href", "/trabaja-con-nosotros");
+
+    await page.goto("/trabaja-con-nosotros");
+    await expect(page.getByRole("heading", { level: 1, name: /Trabaja con Praetoria/i })).toBeVisible();
+    await expect(page.getByText(/No prometemos un volumen mínimo/i)).toBeVisible();
+
+    await page.getByLabel("Nombre o empresa").fill("Taller E2E");
+    await page.getByLabel("Fontanería", { exact: true }).check();
+    await page.getByLabel("Teléfono").fill("612345678");
+    await page.getByLabel("Email").fill(`e2e-${Date.now()}@example.com`);
+    await page.getByLabel(/Autorizo a Praetoria/i).check();
+    await page.getByRole("button", { name: /Enviar candidatura/i }).click();
+
+    await expect(page.getByText(/Hemos recibido tu candidatura/i)).toBeVisible();
+    expect(meaningfulErrors(errors)).toEqual([]);
+  });
+
   test("the guides index loads (issue #24 CMS)", async ({ page }) => {
     const errors = collectConsoleErrors(page);
     await page.goto("/guias");

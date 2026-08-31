@@ -39,6 +39,12 @@ jobs:
           mkdir -p bundle/.next/static
           cp -r .next/static/. bundle/.next/static/
           [ -d public ] && cp -r public bundle/public || true
+          # Prisma's native query engine — belt-and-braces on top of
+          # outputFileTracingIncludes, so the bundle can always reach the DB.
+          mkdir -p bundle/node_modules/.prisma bundle/node_modules/@prisma
+          cp -r node_modules/.prisma/client bundle/node_modules/.prisma/
+          [ -d node_modules/@prisma/engines ] && cp -r node_modules/@prisma/engines bundle/node_modules/@prisma/ || true
+          echo "engine files in bundle:"; find bundle -name "libquery_engine-*" -o -name "query-engine-*" | sed 's/^/  /'
           # prisma schema + migrations, for `prisma migrate deploy` from the box
           # (or run migrations separately against the Supabase direct string)
           mkdir -p bundle/prisma

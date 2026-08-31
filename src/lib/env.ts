@@ -126,27 +126,64 @@ function load(): Env {
   return parsed.data;
 }
 
+/**
+ * Non-throwing env check for the health endpoint — reports WHICH variables are
+ * wrong (names + zod messages, never values) so a broken deploy is diagnosable
+ * with one `curl /api/health` instead of digging through host logs.
+ */
+export function envDiagnostics():
+  | { ok: true }
+  | { ok: false; fields: string[] } {
+  const raw = Object.fromEntries(
+    Object.entries(process.env).map(([k, v]) => [k, v === "" ? undefined : v]),
+  );
+  const parsed = schema.safeParse(raw);
+  if (parsed.success) return { ok: true };
+  return { ok: false, fields: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`) };
+}
+
 // Skip validation entirely during `next build`'s static analysis pass where env is absent.
 const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
 
-export const env: Env = isBuildPhase
-  ? ({
-      NODE_ENV: "production",
-      APP_URL: "http://localhost:3000",
-      DATABASE_URL: "postgres://build",
-      AI_ADAPTER: "mock",
-      STORAGE_ADAPTER: "fs",
-      EMAIL_ADAPTER: "console",
-      WHATSAPP_ADAPTER: "link",
-      OCR_ADAPTER: "mock",
-      ANTHROPIC_MODEL: "claude-sonnet-5",
-      STORAGE_FS_DIR: ".storage",
-      EMAIL_FROM: "build@local",
-      RESPONSE_DEADLINE_HOURS: 24,
-      DEBUG_LOGS: false,
-    } as Env)
-  : load();
+const BUILD_STUB: Env = {
+  NODE_ENV: "production",
+  APP_URL: "http://localhost:3000",
+  DATABASE_URL: "postgres://build",
+  AI_ADAPTER: "mock",
+  STORAGE_ADAPTER: "fs",
+  EMAIL_ADAPTER: "console",
+  WHATSAPP_ADAPTER: "link",
+  OCR_ADAPTER: "mock",
+  ANTHROPIC_MODEL: "claude-sonnet-5",
+  STORAGE_FS_DIR: ".storage",
+  EMAIL_FROM: "build@local",
+  RESPONSE_DEADLINE_HOURS: 24,
+  DEBUG_LOGS: false,
+} as Env;
 
-export const isProd = env.NODE_ENV === "production";
-export const isTest = env.NODE_ENV === "test";
-export const isDev = env.NODE_ENV === "development";
+let _cache: Env | undefined;
+function resolved(): Env {
+  if (!_cache) _cache = isBuildPhase ? BUILD_STUB : load();
+  return _cache;
+}
+
+/**
+ * Lazy so that merely importing `env` (e.g. from the health endpoint) never
+ * triggers `load()` / its throw — only actual property access does. Keeps
+ * `import { env } from "@/lib/env"; env.APP_URL` working everywhere unchanged.
+ */
+export const env: Env = new Proxy({} as Env, {
+  get: (_t, prop) => resolved()[prop as keyof Env],
+  has: (_t, prop) => prop in resolved(),
+  ownKeys: () => Reflect.ownKeys(resolved()),
+  getOwnPropertyDescriptor: (_t, prop) =>
+    Object.getOwnPropertyDescriptor(resolved(), prop) ?? {
+      configurable: true,
+      enumerable: true,
+      value: resolved()[prop as keyof Env],
+    },
+});
+
+export const isProd = () => env.NODE_ENV === "production";
+export const isTest = () => env.NODE_ENV === "test";
+export const isDev = () => env.NODE_ENV === "development";

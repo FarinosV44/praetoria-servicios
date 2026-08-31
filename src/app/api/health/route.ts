@@ -1,30 +1,58 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Healthcheck (issue #2). Reports app + database reachability + whether the
- * migrations have been applied, without leaking configuration. 200 when the DB
- * is reachable AND migrated, 503 otherwise — so a deploy that "came up" but
- * can't serve any DB-backed page has one clear place to look.
+ * Healthcheck (issue #2) + deploy diagnostics.
+ *
+ * Deliberately imports nothing at module scope that touches `env` or `db` — a
+ * misconfigured env makes `src/lib/env.ts` throw on load, and this endpoint must
+ * still answer so the problem is visible with one `curl` instead of host logs.
+ * Everything is loaded lazily inside the handler and wrapped in try/catch.
+ *
+ * 200  → env valid, DB reachable, migrations applied
+ * 503  → env valid but DB unreachable / not migrated  (see `detail`)
+ * 500  → env invalid  (see `envErrors` — variable names + reasons, never values)
  */
 export async function GET() {
+  // 1. Environment — the #1 cause of "500 on every route".
+  let envOk = false;
+  let envErrors: string[] | undefined;
+  try {
+    const { envDiagnostics } = await import("@/lib/env");
+    const d = envDiagnostics();
+    if (d.ok) {
+      envOk = true;
+    } else {
+      envErrors = d.fields;
+    }
+  } catch (e) {
+    envErrors = [e instanceof Error ? e.message : String(e)];
+  }
+
+  if (!envOk) {
+    return NextResponse.json(
+      {
+        status: "misconfigured",
+        time: new Date().toISOString(),
+        checks: { env: false },
+        envErrors,
+        hint: "Fix these environment variables in the host panel and redeploy. Only DATABASE_URL, and (in production) AUTH_SECRET + SIGNED_LINK_SECRET, are hard requirements; AUTH_SECRET / SIGNED_LINK_SECRET must be 16+ characters; APP_URL must be a full https:// URL.",
+      },
+      { status: 500 },
+    );
+  }
+
+  // 2. Database + migrations.
   let dbReachable = false;
   let migrated = false;
   let detail: string | undefined;
 
   try {
+    const { db } = await import("@/lib/db");
     await db.$queryRaw`SELECT 1`;
     dbReachable = true;
-  } catch (e) {
-    detail = e instanceof Error ? e.message.split("\n")[0] : "database unreachable";
-  }
-
-  if (dbReachable) {
     try {
-      // `_prisma_migrations` exists once `prisma migrate deploy` has run at least once.
       const rows = await db.$queryRaw<{ n: bigint }[]>`
         SELECT count(*)::bigint AS n FROM "_prisma_migrations" WHERE finished_at IS NOT NULL
       `;
@@ -33,6 +61,8 @@ export async function GET() {
     } catch {
       detail = "database reachable but `_prisma_migrations` is missing — run `prisma migrate deploy`";
     }
+  } catch (e) {
+    detail = e instanceof Error ? e.message.split("\n")[0] : "database unreachable";
   }
 
   const ok = dbReachable && migrated;
@@ -40,8 +70,7 @@ export async function GET() {
     {
       status: ok ? "ok" : "degraded",
       time: new Date().toISOString(),
-      checks: { database: dbReachable, migrations: migrated },
-      env: env.NODE_ENV,
+      checks: { env: true, database: dbReachable, migrations: migrated },
       ...(detail ? { detail } : {}),
     },
     { status: ok ? 200 : 503 },

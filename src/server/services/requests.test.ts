@@ -44,6 +44,22 @@ describe("requestService", () => {
     expect(draft.clientChoseUnsure).toBe(true);
   });
 
+  it("records SEO entry attribution (path + referrer host only) when supplied (issue #27)", async () => {
+    const draft = await requestService.createDraft(
+      { trade: "fontaneria", clientChoseUnsure: false },
+      { entryPath: "/problemas/fuga-de-agua", entryReferrerHost: "www.google.com" },
+    );
+    expect(draft.entryPath).toBe("/problemas/fuga-de-agua");
+    expect(draft.entryReferrerHost).toBe("www.google.com");
+
+    // a non-path value is rejected (defence in depth — no full URLs, no junk)
+    const clean = await requestService.createDraft(
+      { trade: "fontaneria", clientChoseUnsure: false },
+      { entryPath: "https://evil.example/x", entryReferrerHost: null },
+    );
+    expect(clean.entryPath).toBeNull();
+  });
+
   it("stores the problem + location and computes coverage", async () => {
     const draft = await requestService.createDraft({ clientChoseUnsure: false });
     const r = await requestService.describeProblem(draft.id, {

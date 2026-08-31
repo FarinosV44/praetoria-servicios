@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-31 (Sprint 22) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #20–#26 resolved; growth #27 is the last open growth issue.
+> Last inbound sweep: 2026-08-31 (Sprint 23) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. **Every issue #2–#29 is resolved and commented; the growth backlog is empty.** #1 (EPIC) stays open until the user closes the rest.
 
 ## Build order (dependency-sorted)
 
@@ -44,9 +44,38 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 24 | CMS editorial completo para publicaciones y guías | feature | med | resolved (Sprint 19) — awaiting user close | E-021 |
 | 25 | Arquitectura SEO de servicios, problemas y municipios | feature | med | resolved (Sprint 20) — awaiting user close | E-022 |
 | 26 | Reseñas verificadas y reputación local | feature | med | resolved (Sprint 21) — awaiting user close | E-023 |
-| 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
+| 27 | Centro de control SEO local y oportunidades de contenido | feature | low | resolved (Sprint 23) — awaiting user close | E-025 |
 
 ## Entries (one per issue worked)
+
+### E-025 — #27 Centro de control SEO local y oportunidades de contenido
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/27   Status: resolved 2026-08-31 (Sprint 23) — awaiting user close
+- Diagnosis: n/a (feature). Design (D-018): no real Search Console / analytics API in this MVP
+  (providers env-only, D-008) → **CSV import is the always-available path**. Everything shown carries
+  period + source + a `kind` of real / estimate / recommendation, and the panel never claims a change
+  caused a ranking move.
+- Resolution: domain `seo/{metrics-csv,opportunities,linking-gaps,faq-suggestions}.ts` test-first
+  (23): `parseSeoCsv` maps EN+ES GSC headers, coerces `%`/decimals, and **drops any row whose query
+  contains PII** (`detectPii`); `lowCtrQueries` / `strikingDistanceQueries` / `staleContent` /
+  `intentCannibalization`; `internalLinkingGaps` from #25's data (problem→no service page, zone
+  published-but-not-indexable with reasons, guide with 0 internal links); `faqCandidatesFromRequests`
+  redacts (`redactPii`) then groups by trade. Migration `20260831134657_seo_control_centre`
+  (`SeoMetricImport` + `SeoMetricRow`) + `Request.entryPath` / `entryReferrerHost`. `seoService` —
+  `importCsv` (parse + PII-reject + store), `overview` (all sections), `pagesWithTrafficNoRequests`
+  (join imported page → `Request.entryPath`), `draftFromQuery` (→ `contentService.create`, never
+  auto-published); 5 integration tests. `EntryTracker` client component — first-touch
+  `praetoria_entry` cookie, **path + referrer host only, no query string, no full URL**;
+  `createDraftAction` reads it server-side (never from client input) → `Request.entryPath`. Admin
+  `/admin/seo` — CSV import form, sections each labelled período/fuente/tipo, "crear borrador desde
+  consulta", explicit "no causa-efecto" copy; nav link. `RATE_LIMITS.application` raised 3→10/h
+  (NAT'd offices; the honeypot + fingerprint dedup are the real defences). C23 in threat model.
+- Commits: (Sprint 23 commit).
+- Verification: TP-24 — 389 vitest (+24); lint/typecheck/build clean; HTTP (`/admin/seo` 307→login);
+  E2E — CSV import through the admin form (1 kept, 1 dropped for PII, message shown), entry cookie is
+  set with path only on desktop + mobile. E2E-created rows deleted.
+- Pending: real GSC / GA4 / GBP API integrations are deferred (env-only, D-008). "Tráfico sin
+  solicitudes" needs `entryPath` data to accumulate before it is meaningful. **This was the last
+  growth issue — the backlog is now empty.**
 
 ### E-024 — #20 Página de captación de profesionales
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/20   Status: resolved 2026-08-31 (Sprint 22) — awaiting user close

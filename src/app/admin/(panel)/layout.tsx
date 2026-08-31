@@ -22,6 +22,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           <Link href="/admin/opiniones">Opiniones</Link>
           <Link href="/admin/contenido">Contenido</Link>
           <Link href="/admin/zonas">Zonas</Link>
+          <Link href="/admin/seo">SEO</Link>
           <span className={styles.who}>{session.name}</span>
           <form action={logoutAction}>
             <button type="submit" className={styles.logout}>

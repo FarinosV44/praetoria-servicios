@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { requestService } from "@/server/services/requests";
 import { contactSchema, createDraftSchema, describeProblemSchema } from "@/domain/requests/schema";
@@ -17,6 +18,21 @@ export type ActionError =
   | { kind: "not_found" }
   | { kind: "conflict"; message: string };
 
+/** Reads the first-party `praetoria_entry` cookie (path + referrer host only). */
+async function readEntryAttribution(): Promise<{ entryPath?: string; entryReferrerHost?: string }> {
+  try {
+    const raw = (await cookies()).get("praetoria_entry")?.value;
+    if (!raw) return {};
+    const parsed = JSON.parse(decodeURIComponent(raw)) as { p?: unknown; r?: unknown };
+    return {
+      entryPath: typeof parsed.p === "string" ? parsed.p : undefined,
+      entryReferrerHost: typeof parsed.r === "string" && parsed.r ? parsed.r : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
 export async function createDraftAction(
   input: unknown,
 ): Promise<Result<{ id: string; reference: string }, ActionError>> {
@@ -24,7 +40,7 @@ export async function createDraftAction(
   if (!parsed.success) {
     return err({ kind: "validation", fieldErrors: z.flattenError(parsed.error).fieldErrors });
   }
-  const draft = await requestService.createDraft(parsed.data);
+  const draft = await requestService.createDraft(parsed.data, await readEntryAttribution());
   return ok({ id: draft.id, reference: draft.reference });
 }
 

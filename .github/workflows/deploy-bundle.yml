@@ -1,0 +1,73 @@
+name: Deploy bundle
+
+# Manually triggered. Builds the self-contained standalone server and uploads a
+# ready-to-upload tarball as a workflow artifact, so the app never has to build
+# on the (RAM-constrained) hosting box. See docs/deploy-hostinger.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: "APP_URL baked into the build (e.g. https://your-domain)"
+        required: true
+        type: string
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npx prisma generate
+
+      - name: Build (standalone)
+        run: npm run build
+        env:
+          APP_URL: ${{ inputs.app_url }}
+          NODE_ENV: production
+
+      - name: Assemble bundle
+        run: |
+          set -e
+          mkdir -p bundle
+          cp -r .next/standalone/. bundle/
+          mkdir -p bundle/.next/static
+          cp -r .next/static/. bundle/.next/static/
+          [ -d public ] && cp -r public bundle/public || true
+          # prisma schema + migrations, for `prisma migrate deploy` from the box
+          # (or run migrations separately against the Supabase direct string)
+          mkdir -p bundle/prisma
+          cp -r prisma/schema.prisma prisma/migrations bundle/prisma/
+          cp prisma.config.ts bundle/ 2>/dev/null || true
+          cat > bundle/START.md <<'EOF'
+          # Running this bundle
+
+          Start command:  node server.js
+          Working dir:    this folder
+          Node:           >= 20
+
+          Required env vars (set them in the host's panel):
+            NODE_ENV=production
+            DATABASE_URL=<supabase transaction pooler, port 6543, ?pgbouncer=true&connection_limit=1>
+            AUTH_SECRET=<32+ random chars>
+            SIGNED_LINK_SECRET=<32+ random chars, different>
+            APP_URL=<the value this bundle was built with>
+
+          Migrations (run once, from your machine or CI, against the Supabase
+          DIRECT/SESSION string on port 5432 — NOT the pooler):
+            DATABASE_URL="<direct string>" npx prisma migrate deploy
+
+          Health check:  curl https://<domain>/api/health
+          EOF
+          tar -czf deploy-bundle.tgz -C bundle .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deploy-bundle
+          path: deploy-bundle.tgz
+          retention-days: 14

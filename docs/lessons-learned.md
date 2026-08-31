@@ -29,6 +29,24 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-010 — Hostinger build kept failing → switched to a CI-built standalone bundle
+- Symptom: even after L-008/L-009, `next build` on Hostinger kept failing ("haga lo que haga falla
+  la compilación y la producción"), with all required env vars set. No usable error surfaced from
+  the host.
+- Likely cause (not confirmable without the host's build log): the entry Node plan's RAM limit —
+  a Turbopack build of a ~40-route app is killed mid-build and the platform reports only "failed".
+  Possibly also Passenger not routing to `next start`'s own server.
+- Fix: `next.config.ts` → `output: "standalone"` (+ `outputFileTracingIncludes` for Prisma's query
+  engine). `next build` now emits `.next/standalone/server.js` — a self-contained server with only
+  traced deps. New `\.github/workflows/deploy-bundle.yml` (`workflow_dispatch`, takes `APP_URL`)
+  builds it in CI and uploads `deploy-bundle.tgz`; the operator downloads it, uploads to Hostinger,
+  sets 5 env vars, start command `server.js`. No `npm install` or build on the host.
+  `docs/deploy-hostinger.md` rewritten around this path. Verified locally: assembled the standalone
+  dir (`.next/static` + `public` copied in), `node server.js` serves every route, DB + migrations
+  detected. `next start` (used by the e2e job) still works alongside the standalone output.
+- Rule for next time: for a memory-constrained or Passenger-style host, ship a CI-built
+  `output: "standalone"` bundle — never build on the box.
+
 ## L-009 — Build-time tooling in `devDependencies` broke the Hostinger build
 - Symptom: after setting `NODE_ENV=production` in the hPanel Node app, the next deploy failed to
   build ("no me compila").

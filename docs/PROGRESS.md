@@ -25,7 +25,7 @@
 - Test-first policy: pure-logic (default) — state machine, money, Zod schemas, phone normalisation, AI-output validation get their tests written and seen failing before code. Asked-once default accepted (D-007).
 - Durability: git remote origin https://github.com/FarinosV44/praetoria-servicios.git
 - Autonomy: automatic — Keel does every merge to develop and every push itself / issues: after-sprint / Issue sweep interval: 24h / Issue capture: on
-- Branches: integration branch `develop` / `main`. develop→main merges (user-authorised, per sprint): … → Sprint 18 merge `1e0130b` (#23) → Sprint 19 merge (#24) → Sprint 20 merge `6377fe2` (#25) → Sprint 21 merge `3fa8bd7` (#26) → Sprint 22 merge (#20). No tag yet (tag at Phase 7 / first real deploy).
+- Branches: integration branch `develop` / `main`. develop→main merges (user-authorised, per sprint): … → Sprint 18 merge `1e0130b` (#23) → Sprint 19 merge (#24) → Sprint 20 merge `6377fe2` (#25) → Sprint 21 merge `3fa8bd7` (#26) → Sprint 22 merge `98b5c0a` (#20). No tag yet (tag at Phase 7 / first real deploy).
 - Notify: none (user chose chat-only) — a block is visible only on the next chat open
 - Chaining: off (user chose "MVP core first"; no chained-chat launch — hand-off file written at every sprint close)
 - Chaining model: n/a

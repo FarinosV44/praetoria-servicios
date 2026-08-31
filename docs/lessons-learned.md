@@ -29,6 +29,28 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-008 — `env.ts` fail-fast was too aggressive → a fresh deploy 500'd on every route
+- Symptom: the Hostinger deployment (app on Hostinger, DB on Supabase) returned "Internal Server
+  Error" on **every** URL, including `/api/health` — which by its own logic can only return 200/503.
+- Cause: `src/lib/env.ts` runs `load()` at module evaluation and THREW on any failed check. The
+  `superRefine` made `WHATSAPP_BUSINESS_NUMBER` a hard requirement whenever `WHATSAPP_ADAPTER=link`
+  (the default), plus SMTP/S3/Claude vars for their adapters. A deploy that set `DATABASE_URL` +
+  the secrets but not the WhatsApp number → `env.ts` throws at import → every module that imports
+  `env` (i.e. all of them) fails to load → 500 everywhere, with no useful page-level error.
+- Fix: only `DATABASE_URL` (always) and `AUTH_SECRET` + `SIGNED_LINK_SECRET` (production) stay
+  FATAL. Every adapter-config gap moved to `warnGaps()` — a one-line `[env]` `console.warn` at boot,
+  app still starts, that feature degrades (`src/adapters/whatsapp` already returned `null` without a
+  number). The FATAL message now names the offending vars and says which three are actually
+  required. Verified: prod env with only the 3 required vars boots (with warnings); missing a
+  secret still fails fast with a clear message.
+- Also: `/api/health` now reports `checks.migrations` (does `_prisma_migrations` have a finished
+  row) + a `detail` string — so "DB unreachable" vs "DB reachable but not migrated" is one curl
+  away. `docs/deploy-hostinger.md` gained a Supabase connection-string table (direct/session for
+  migrations, transaction pooler for runtime) and an ISE troubleshooting section.
+- Rule for next time: a boot-time config validator should throw ONLY for config without which the
+  process genuinely cannot serve a single request. Anything feature-scoped is a warning + a
+  degraded feature, never a dead site.
+
 ## L-007 — Public marketing pages 500'd wholesale when Postgres was unreachable
 - Symptom: user reported "internal server error y no me deja ver nada" — every public page
   (`/`, `/servicios/*`, `/zonas`, `/guias`) returned a 500. Confirmed by pointing `DATABASE_URL`

@@ -60,30 +60,48 @@ const schema = z
     DEBUG_LOGS: bool.default(false),
   })
   .superRefine((val, ctx) => {
+    // FATAL — the app genuinely cannot run without these. Everything else is a
+    // feature-level gap: warn (see `warnGaps` below) and let the app boot, so a
+    // missing WhatsApp number or SMTP URL never takes the whole site down.
     const require = (cond: boolean, path: string, message: string) => {
       if (!cond) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
     };
     if (val.NODE_ENV === "production") {
-      require(!!val.AUTH_SECRET, "AUTH_SECRET", "AUTH_SECRET is required in production");
-      require(!!val.SIGNED_LINK_SECRET, "SIGNED_LINK_SECRET", "SIGNED_LINK_SECRET is required in production");
-      // CRON_SECRET is not a hard boot requirement: without it the retention
-      // endpoint simply refuses every call (401). Set it to enable the cron.
-    }
-    if (val.AI_ADAPTER === "claude") {
-      require(!!val.ANTHROPIC_API_KEY, "ANTHROPIC_API_KEY", "required when AI_ADAPTER=claude");
-    }
-    if (val.STORAGE_ADAPTER === "s3") {
-      require(!!val.S3_BUCKET, "S3_BUCKET", "required when STORAGE_ADAPTER=s3");
-      require(!!val.S3_ACCESS_KEY_ID, "S3_ACCESS_KEY_ID", "required when STORAGE_ADAPTER=s3");
-      require(!!val.S3_SECRET_ACCESS_KEY, "S3_SECRET_ACCESS_KEY", "required when STORAGE_ADAPTER=s3");
-    }
-    if (val.EMAIL_ADAPTER === "smtp") {
-      require(!!val.SMTP_URL, "SMTP_URL", "required when EMAIL_ADAPTER=smtp");
-    }
-    if (val.WHATSAPP_ADAPTER === "link") {
-      require(!!val.WHATSAPP_BUSINESS_NUMBER, "WHATSAPP_BUSINESS_NUMBER", "required when WHATSAPP_ADAPTER=link");
+      require(!!val.AUTH_SECRET, "AUTH_SECRET", "AUTH_SECRET is required in production (32+ random chars)");
+      require(
+        !!val.SIGNED_LINK_SECRET,
+        "SIGNED_LINK_SECRET",
+        "SIGNED_LINK_SECRET is required in production (32+ random chars)",
+      );
     }
   });
+
+/** Non-fatal configuration gaps — logged once at boot, never block startup. */
+function warnGaps(val: Env): void {
+  const gap = (cond: boolean, msg: string) => {
+    if (cond) console.warn(`[env] ${msg}`);
+  };
+  gap(
+    val.WHATSAPP_ADAPTER === "link" && !val.WHATSAPP_BUSINESS_NUMBER,
+    "WHATSAPP_BUSINESS_NUMBER not set — WhatsApp links are disabled (the app still runs).",
+  );
+  gap(
+    val.AI_ADAPTER === "claude",
+    "AI_ADAPTER=claude is not wired yet (src/server/container.ts) — the assistant will fail. Use AI_ADAPTER=mock.",
+  );
+  gap(
+    val.EMAIL_ADAPTER === "smtp" && !val.SMTP_URL,
+    "EMAIL_ADAPTER=smtp but SMTP_URL not set — email sending is disabled.",
+  );
+  gap(
+    val.STORAGE_ADAPTER === "s3" && (!val.S3_BUCKET || !val.S3_ACCESS_KEY_ID || !val.S3_SECRET_ACCESS_KEY),
+    "STORAGE_ADAPTER=s3 but the S3_* vars are incomplete — uploads will fail.",
+  );
+  gap(
+    val.NODE_ENV === "production" && !val.CRON_SECRET,
+    "CRON_SECRET not set — POST /api/cron/retention refuses every call (fail-safe).",
+  );
+}
 
 export type Env = z.infer<typeof schema>;
 
@@ -97,9 +115,14 @@ function load(): Env {
   if (!parsed.success) {
     // Log the field names only — never the values — then fail fast.
     const fields = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
-    console.error("[env] Invalid environment configuration:\n  " + fields.join("\n  "));
+    console.error(
+      "[env] FATAL: invalid environment configuration — the app cannot start:\n  " +
+        fields.join("\n  ") +
+        "\n  (only DATABASE_URL, and AUTH_SECRET + SIGNED_LINK_SECRET in production, are hard requirements.)",
+    );
     throw new Error("Invalid environment configuration. See logs for the offending variables.");
   }
+  warnGaps(parsed.data);
   return parsed.data;
 }
 

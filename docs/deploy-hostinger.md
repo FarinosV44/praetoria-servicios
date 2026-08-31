@@ -42,6 +42,44 @@ Create `.env` from `.env.example`:
 | `NEXT_PUBLIC_ANALYTICS_URL` | *(optional)* | a Plausible/GA-style collector endpoint; when set, consented analytics events are `sendBeacon`-ed there. Unset → events only hit the server log. This is a `NEXT_PUBLIC_` var so it is **baked at build time**. |
 | `DEBUG_LOGS` | `0` in production | flip to `1` temporarily to capture verbose logs for a support case (`docs/runbook.md`) |
 
+## Supabase as the database
+
+Supabase gives **two** connection strings — use the right one for each job:
+
+| Use | Which string | Port | Notes |
+|---|---|---|---|
+| **`prisma migrate deploy`** (and `prisma db push`) | **Direct connection** (Project Settings → Database → *Connection string* → **Direct**) or the **Session pooler** | 5432 | Migrations run DDL in transactions and use prepared statements — the *transaction* pooler breaks both. If your host has no IPv6, the Direct string won't resolve → use the **Session pooler** (IPv4). |
+| **The app at runtime** (`DATABASE_URL`) | **Transaction pooler** | 6543 | Add `?pgbouncer=true&connection_limit=1` to the URL. A long-lived Node process can also use the Direct/Session string, but the pooler is safer on shared hosting. |
+
+- URL-encode the password if it contains `@ : / ?` etc. (`%40`, `%3A`, …).
+- Append `sslmode=require` if the host doesn't add it.
+- **Run the migration from your machine or CI, once**, pointing `DATABASE_URL` at the *direct/session*
+  string:
+  `DATABASE_URL="postgresql://postgres.<ref>:<pwd>@aws-0-<region>.pooler.supabase.com:5432/postgres" npx prisma migrate deploy`
+  Then set the Hostinger app's `DATABASE_URL` to the *transaction pooler* string for runtime.
+- Create the first admin with a SQL `INSERT` in the Supabase SQL editor (hash from `src/lib/password.ts`).
+
+## Troubleshooting — "Internal Server Error" on every page (incl. `/api/health`)
+
+`/api/health` catches DB errors and returns 200/503 — it never 500s from its own logic. **A 500 on
+`/api/health` means a module failed to load before the handler ran**, which is almost always the env
+check. Check, in order:
+
+1. **`/api/health`** once the app boots — `{"checks":{"database":true,"migrations":true}}` is
+   healthy. `database:false` → the `DATABASE_URL` string is wrong / unreachable (see Supabase table
+   above). `migrations:false` → the string works but `prisma migrate deploy` was never run against
+   this DB.
+2. **The app log at startup.** `[env] FATAL: invalid environment configuration` lists exactly which
+   vars are missing. Only **three** are hard requirements: `DATABASE_URL`, and — because
+   `NODE_ENV=production` — `AUTH_SECRET` and `SIGNED_LINK_SECRET` (32+ chars each, different values).
+   Everything else (`WHATSAPP_BUSINESS_NUMBER`, `SMTP_URL`, `S3_*`, `CRON_SECRET`) is a `[env]`
+   **warning** — the app boots without it and that feature is just disabled.
+3. **`NODE_ENV`** must be exactly `production`. If it's unset, the secrets aren't required but other
+   behaviour differs; if it's a typo, zod rejects it → FATAL.
+4. **The start command** — it must be `npm run start` (which runs `next start`), not `next build`,
+   and the build must have completed (`.next/BUILD_ID` present). A half-built `.next` 500s everything.
+5. **Node version** — Next 16 needs Node ≥ 20. Check hPanel's Node selector.
+
 ## First deploy
 
 1. **Push `main`.** On the server, clone or pull `main`.
@@ -110,7 +148,8 @@ emits a structured `unhandled error` log (issue #19) and returns 500 without a s
 
 ## Health & alerts
 
-- `GET /api/health` → 200 `{status:"ok",checks:{database:true}}`, 503 when the DB is unreachable.
+- `GET /api/health` → 200 `{status:"ok",checks:{database:true,migrations:true}}`; 503 (with a `detail`
+  string) when the DB is unreachable OR reachable-but-not-migrated.
   Wire hPanel's uptime monitor (or an external one like UptimeRobot) to it with a 1–5 min interval
   and alert on two consecutive failures.
 - Error + AI-latency logs go to stdout as single-line JSON (`level`, `msg`, redacted fields). Point

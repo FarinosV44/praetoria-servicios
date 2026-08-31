@@ -36,9 +36,17 @@
   `experimental.webpackMemoryOptimizations = true`; kept `build:turbo` for local use. Both builders
   produce the same `output: "standalone"` server. CI + the deploy-bundle workflow inherit it via
   `npm run build`. Verified locally + in CI.
-- Still unresolved: the operator's Hostinger build has never surfaced a real error — every fix so
-  far (L-007..L-011) has been inference. The CI-bundle path (L-010) removes the host build entirely
-  and is the way forward; if the operator insists on a host build, the actual build log is required.
+- **Actual error obtained (finally):** Hostinger's git deploy ("hbuilds", path
+  `/home/<user>/domains/<domain>/hbuilds/source/`) runs `next build` **directly** — so it uses
+  Turbopack (Next 16 default) and ignores our `--webpack` script. Turbopack's PostCSS transform
+  (`turbopack:///[turbopack-node]/transforms/postcss.ts?config=[project]/postcss.config.mjs`) spawns
+  a child process to evaluate the Tailwind v4 PostCSS plugin; on Hostinger's small build container
+  that child keeps dying and Turbopack retries it → hundreds of identical `require`/`init`/`map`
+  frames then `ERROR: Failed to build the application`. The webpack build path does not spawn that
+  child and builds fine (verified local + CI).
+- Resolution: the operator must point Hostinger's **Build command** at `npm run build` (webpack), OR
+  build off-Hostinger (the deploy-bundle workflow) and disable Hostinger's build step. Documented in
+  `docs/deploy-hostinger.md`.
 
 ## L-010 — Hostinger build kept failing → switched to a CI-built standalone bundle
 - Symptom: even after L-008/L-009, `next build` on Hostinger kept failing ("haga lo que haga falla

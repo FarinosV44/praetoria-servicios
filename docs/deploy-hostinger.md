@@ -5,8 +5,16 @@
 
 ## Recommended path — build in CI, upload the bundle (no build on the host)
 
-Hostinger's entry Node plans have little RAM; `next build` there is killed mid-build with no clear
-error ("no compila"). Avoid it entirely:
+Hostinger's git-connected app deploy ("hbuilds") runs **`next build` directly**, which in Next 16
+defaults to **Turbopack**. On Hostinger's small build container Turbopack's PostCSS/Tailwind step
+crashes in a retry loop → `ERROR: Failed to build the application` (stack full of repeated
+`turbopack:///[turbopack-node]/transforms/postcss.ts` frames). The **webpack** build
+(`npm run build` → `next build --webpack`, with `experimental.webpackMemoryOptimizations`) does not
+hit this.
+
+**If Hostinger lets you set a custom Build command:** set it to `npm run build` and redeploy. Done.
+
+**If it doesn't (or still fails):** build off-Hostinger and upload the result:
 
 1. **GitHub → Actions → "Deploy bundle" → Run workflow.** Enter `APP_URL` =
    `https://<your-domain>` (exact, no trailing slash). It builds the standalone server and uploads

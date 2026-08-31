@@ -292,6 +292,8 @@ export default async function HomePage() {
         <p>{L.footer.note}</p>
         <nav className={styles.footerLinks} aria-label="Enlaces del sitio">
           <Link href="/servicios">Servicios</Link>
+          <Link href="/problemas">Problemas</Link>
+          <Link href="/zonas">Zonas</Link>
           <Link href="/cobertura">Cobertura</Link>
           <Link href="/confianza">Carta de Confianza</Link>
           <a href="/legal/privacidad">{L.footer.legalPrivacy}</a>

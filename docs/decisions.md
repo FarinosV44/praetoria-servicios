@@ -117,6 +117,32 @@
   strict CSP — deferred, not worth the experimental-flag risk now.
 - Supersedes: the "CSP in next.config.ts headers()" approach from D-? / Sprint 13 (#17).
 
+## D-015 — Local SEO: curated problems + admin-gated municipio pages (issue #25)
+- Date / phase: 2026-08-31 / Phase 5 (Sprint 20, issue #25)
+- Decision: two sources, two guarantees. (1) `/problemas/[slug]` is a **curated hand-written**
+  catalogue in `src/config/problems.ts` — static, `dynamicParams=false`, every page carries real
+  symptom/cause/safety content, so all are always indexable. (2) `/zonas/[municipio]` is
+  **CMS-backed** (`LocalPage` model): a page exists only when an admin creates it and is indexed
+  only when `isLocalPageIndexable` passes — covered municipality (confirmed list, not the wider
+  "área de Valencia" postcode rule) + a non-empty coverage note + at least 2 of {typical services,
+  response-time note, local FAQ, completed-jobs note, authorised-photo note} + published + not
+  flagged noindex. Failing the guard → the page still renders for a human but emits
+  `robots: noindex` and is left out of the sitemap. No `LocalPage` row → the route 404s.
+  `sitemap.ts` becomes `force-dynamic` so admin changes take effect without a rebuild.
+- Why: issue #25 / D10 — "no combinaciones automáticas fontanero × cada municipio con el mismo
+  texto; una página local se indexa SOLO con información real y específica" and "el administrador
+  controla la indexación sin editar código". A curated list is the honest way to have real problem
+  content; a content-gated CMS model is the honest way to let the operator add municipio pages only
+  where they have something true to say.
+- Alternatives rejected: generating a page per (trade × municipality) with templated text (exactly
+  what D10 forbids); driving municipio pages off the `Article` CMS with kind=PROBLEMA (no structured
+  place for coverage/response-time/FAQ signals, and no indexability guard).
+- Cost accepted: `sitemap.xml` is rendered per request (same trade-off as D-014 for the marketing
+  pages; negligible at MVP traffic).
+- Supersedes: narrows D-013's "within the área de Valencia" — that rule still governs the coverage
+  checker and quoting, but a municipio SEO page needs a **confirmed** municipality, not just a 46xxx
+  postcode.
+
 ## D-010 — Money is integer minor units
 - Date / phase: 2026-08-29 / Phase 2
 - Decision: All monetary amounts stored and computed as integer cents (EUR). No floating point anywhere in quote/budget math. A small `Money` helper owns arithmetic, tax and formatting.

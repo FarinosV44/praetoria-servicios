@@ -10,7 +10,16 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/servicios/", "/cobertura", "/confianza", "/guias", "/solicitar"],
+      allow: [
+        "/",
+        "/servicios/",
+        "/problemas",
+        "/zonas",
+        "/cobertura",
+        "/confianza",
+        "/guias",
+        "/solicitar",
+      ],
       disallow: ["/admin", "/s/", "/api/"],
     },
     sitemap: siteUrl("/sitemap.xml"),

@@ -129,3 +129,9 @@ scripts/
   `scripts/e2e-run.mjs`, `src/domain/professionals/`, `src/server/services/{professionals,assignment}.ts`,
   `src/server/actions/professionals.ts`, `src/app/admin/(panel)/profesionales/`,
   `src/app/admin/(panel)/solicitudes/[ref]/AssignPanel.tsx`, `src/app/s/[token]/AssignedProfessional.tsx`.
+- `[E]` Sprint 17–20 additions: `src/config/{trust-charter.ts,content.ts,problems.ts}`,
+  `src/app/confianza/`, `src/domain/{service-closure,content,local-seo}/`,
+  `src/server/services/{serviceClosure,reviews,content,localPage}.ts`,
+  `src/server/actions/{content,localPage}.ts`, `src/app/s/[token]/PostService.tsx`,
+  `src/app/admin/(panel)/{incidencias,contenido,zonas}/`, `src/ui/content/BlockRenderer.tsx`,
+  `src/ui/patterns/TrackedCta.tsx`, `src/app/{guias,problemas,zonas}/`.

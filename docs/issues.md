@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-31 (Sprint 19) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21–#24 resolved; growth #25, #26, #20, #27 next.
+> Last inbound sweep: 2026-08-31 (Sprint 20) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21–#25 resolved; growth #26, #20, #27 next.
 
 ## Build order (dependency-sorted)
 
@@ -42,11 +42,34 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 22 | Verificar y gestionar la red de profesionales | feature | med | resolved (Sprint 16) — awaiting user close | E-018 |
 | 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | resolved (Sprint 18) — awaiting user close | E-020 |
 | 24 | CMS editorial completo para publicaciones y guías | feature | med | resolved (Sprint 19) — awaiting user close | E-021 |
-| 25 | Arquitectura SEO de servicios, problemas y municipios | feature | med | open | — |
+| 25 | Arquitectura SEO de servicios, problemas y municipios | feature | med | resolved (Sprint 20) — awaiting user close | E-022 |
 | 26 | Reseñas verificadas y reputación local | feature | med | open | — |
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-022 — #25 Arquitectura SEO de servicios, problemas y municipios
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/25   Status: resolved 2026-08-31 (Sprint 20) — awaiting user close
+- Diagnosis: n/a (feature). Design decision (D-015): two sources with different guarantees.
+  `/problemas/[slug]` is a **curated hand-written** list (`src/config/problems.ts`, 15 entries) — every
+  page real, always indexable. `/zonas/[municipio]` is **CMS-backed** (`LocalPage`) — a page exists
+  only when an admin creates it and is indexed only when it passes `isLocalPageIndexable`
+  (D10: covered municipality + real coverage note + ≥2 differentiating signals + published + not
+  noindex). No combinatorial "trade × municipality" pages.
+- Resolution: domain `local-seo/local-page.ts` (indexability guard, test-first, 6). `src/config/problems.ts`
+  + `problems.test.ts` (well-formedness, 9). Migration `20260831080332_local_seo_pages` (`LocalPage` +
+  `LocalPageStatus`). `localPageService` (create/update/setStatus/setNoindex/getPublic/listIndexable/
+  listPublished/listForAdmin, 9 integration tests). Public `/problemas` + `/problemas/[slug]` (static,
+  breadcrumb JSON-LD, `TrackedCta` → `landing_cta_click`); `/zonas` + `/zonas/[municipio]` (DB-backed,
+  404 when no page, `robots noindex` when the guard fails, `Service`/`FAQPage` JSON-LD only when
+  indexable). Bidirectional linking service↔problema↔zona; `/problemas` + `/zonas` in the landing
+  footer (no orphans). `sitemap.ts` → `force-dynamic`, adds all problems + only indexable zones;
+  `robots.ts` allows `/problemas` + `/zonas`. Admin `/admin/zonas` list (eligibility verdict + reason)
+  + editor (real-content fields, status, noindex toggle) + nav link.
+- Commits: (Sprint 20 commit).
+- Verification: TP-21 — 306 vitest (+24); lint/typecheck/build clean; HTTP checks (canonical, 404,
+  noindex on a thin zone, sitemap gates zones by the guard); E2E desktop 26 + mobile 21 pass (5 skipped).
+- Pending: SEO control centre (opportunity surfacing) is #27; verified reviews feeding zone pages is #26.
 
 ### E-021 — #24 Crear CMS editorial completo para publicaciones y guías
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/24   Status: resolved 2026-08-31 (Sprint 19) — awaiting user close

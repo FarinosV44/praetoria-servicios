@@ -13,6 +13,9 @@ const PAGES = [
   "/solicitar",
   "/servicios/fontaneria",
   "/servicios",
+  "/problemas",
+  "/problemas/fuga-de-agua",
+  "/zonas",
   "/cobertura",
   "/confianza",
 ];

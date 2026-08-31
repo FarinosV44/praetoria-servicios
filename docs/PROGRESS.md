@@ -15,7 +15,7 @@
 - Design system: founding — canonical, will live at src/ui/ + src/app/globals.css tokens (see issue #3)
 - Keel portability: lock only (embedded skill copy not vendored — D-004)
 - Assistant config: none (portability lock only)
-- E2E: `npm run test:e2e` (Playwright; `scripts/e2e-run.mjs` wrapper → `docs/.keel/e2e-status.json`). desktop-chromium 26 + mobile-chrome (Pixel 5) 21 pass, 5 mobile admin-panel skipped. **Run one project at a time with `--workers=1`** — this machine OOMs both at once (CI runs both fine). Needs `npm run e2e:install` once. CI `e2e` job runs it on push to `main` / PRs.
+- E2E: `npm run test:e2e` (Playwright; `scripts/e2e-run.mjs` wrapper → `docs/.keel/e2e-status.json`). desktop-chromium 28 + mobile-chrome (Pixel 5) 22 pass, 6 mobile admin-panel skipped. **Run one project at a time with `--workers=1`** — this machine OOMs both at once (CI runs both fine). Needs `npm run e2e:install` once. CI `e2e` job runs it on push to `main` / PRs.
 - CI runs on: main (default) — GitHub Actions on push to main, tags, and PRs to main
 - Keel baseline: v5.19.2
 - Website intent: no (the product IS the website; marketing landing is issue #4, in-app)
@@ -25,7 +25,7 @@
 - Test-first policy: pure-logic (default) — state machine, money, Zod schemas, phone normalisation, AI-output validation get their tests written and seen failing before code. Asked-once default accepted (D-007).
 - Durability: git remote origin https://github.com/FarinosV44/praetoria-servicios.git
 - Autonomy: automatic — Keel does every merge to develop and every push itself / issues: after-sprint / Issue sweep interval: 24h / Issue capture: on
-- Branches: integration branch `develop` / `main`. develop→main merges (user-authorised, per sprint): … → Sprint 18 merge `1e0130b` (#23) → Sprint 19 merge (#24) → Sprint 20 merge (#25). No tag yet (tag at Phase 7 / first real deploy).
+- Branches: integration branch `develop` / `main`. develop→main merges (user-authorised, per sprint): … → Sprint 18 merge `1e0130b` (#23) → Sprint 19 merge (#24) → Sprint 20 merge `6377fe2` (#25) → Sprint 21 merge (#26). No tag yet (tag at Phase 7 / first real deploy).
 - Notify: none (user chose chat-only) — a block is visible only on the next chat open
 - Chaining: off (user chose "MVP core first"; no chained-chat launch — hand-off file written at every sprint close)
 - Chaining model: n/a
@@ -38,15 +38,16 @@
 | 2 Functional spec | done (condensed) | docs/02-functional-spec.md, docs/03-technical-plan.md |
 | 3 Design handoff | deferred — founding design system built inline per issue #3 (D-005); no external Design tool in this engagement | — |
 | 4 Faithful build | n/a (no external design handoff) | — |
-| 5 Development | MVP core done (#2–#19, #28, #29) + growth #21–#25. Next: #26 (Sprint 21). | docs/sprints/, docs/05-test-points.md |
+| 5 Development | MVP core done (#2–#19, #28, #29) + growth #21–#26. Next: #20 (Sprint 22). | docs/sprints/, docs/05-test-points.md |
 | 6 Documentation | pending | docs/architecture.md, docs/api/ |
 | 7 Release | pending | docs/07-release.md |
 | 8 Website | n/a | — |
 
 ## Current position
-- Phase: 5 — Development. MVP core (#2–#19, #28, #29) + growth #21–#25 done + verified. Awaiting user close on GitHub (#1 EPIC closes when the user closes all).
+- Phase: 5 — Development. MVP core (#2–#19, #28, #29) + growth #21–#26 done + verified. Awaiting user close on GitHub (#1 EPIC closes when the user closes all).
 - User standing instruction (2026-08-31): "sigue hasta que te ordene lo contrario y siempre en main" — keep building the growth backlog, merge `develop`→`main` every sprint, don't stop.
-- Next action: **growth backlog** #22 ✅ → #21 ✅ → #23 ✅ → #24 ✅ → #25 ✅ → **#26 (Sprint 21, reseñas verificadas + reputación local)** → #20 → #27. Separately, before go-live: definitive legal texts + DPIA (release gate), and the actual Hostinger deploy (`docs/deploy-hostinger.md` is final; needs operator hPanel access + the real secrets; `APP_URL` + `NEXT_PUBLIC_*` at BUILD time).
+- Next action: **growth backlog** #22 ✅ → #21 ✅ → #23 ✅ → #24 ✅ → #25 ✅ → #26 ✅ → **#20 (Sprint 22, landing de captación de profesionales)** → #27. Separately, before go-live: definitive legal texts + DPIA (release gate), and the actual Hostinger deploy (`docs/deploy-hostinger.md` is final; needs operator hPanel access + the real secrets; `APP_URL` + `NEXT_PUBLIC_*` at BUILD time).
+- Sprint 21 (#26 reseñas verificadas + reputación local) closed 2026-08-31 — TP-22 green (347 vitest, +41; E2E desktop 28 / mobile 22, 6 skipped; `domain/reputation/{aggregate,pii,moderation,spam}.ts` test-first; migration `20260831083721_reviews_reputation` — `Review` extensions + `ReviewStatus` RETENIDA_PII/RETIRADA; `reviewService` moderate/applyRedaction/respond/withdraw/openIncidence/aggregateFor; honest-by-construction — no fabrication, no cherry-pick (`isPublishable` rating-blind, `listPublished` no rating filter), PII auto-hold + redaction gate, "verificada" defined not implied, consent+withdrawal traced, negative→incidence; public `ReviewsSection` renders nothing without real reviews; `withReviewData` JSON-LD only when count>0; `/admin/opiniones` moderation queue; D-016, C21).
 - Sprint 20 (#25 arquitectura SEO local) closed 2026-08-31 — TP-21 green (306 vitest, +24; E2E desktop 26 / mobile 21, 5 skipped; `local-seo/local-page.ts` indexability guard test-first; `src/config/problems.ts` 15 curated problems test-first; `LocalPage` model + migration `20260831080332_local_seo_pages`; `localPageService` create/update/setStatus/setNoindex/getPublic/listIndexable; public `/problemas` (static, curated) + `/zonas` (admin-gated, D10 guard → noindex + sitemap exclusion when thin); `TrackedCta` → `landing_cta_click`; `sitemap.ts` force-dynamic; `/admin/zonas` list+editor; footer indexes both; a11y link-in-text-block fix; D-015).
 - Sprint 19 (#24 CMS editorial) closed 2026-08-31 — TP-20 green (282 vitest, +21; 37 E2E; block-based content model test-first; Article/ArticleRevision/SlugRedirect + migration; contentService with human-review publish gate + 301 redirects + scheduled publish; /admin/contenido editor + preview + history/restore; public /guias + Article JSON-LD; sitemap auto-updates; L-006 deferred-updater bug fixed).
 - Sprint 18 (#23 cierre de servicio + garantía + incidencias) closed 2026-08-31 — TP-19 green (261 vitest, +18; 34 E2E; incidence state machine test-first with reason+evidence to close; ServiceCompletion/Incidence/Review models; serviceClosureService + reviewService; /s/[token] PostService; /admin/incidencias; landing reviews section only-authorised; C20 threat model).

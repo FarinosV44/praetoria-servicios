@@ -646,8 +646,10 @@ enum IncidenceStatus {
 
 enum ReviewStatus {
   PENDIENTE
+  RETENIDA_PII
   AUTORIZADA
   RECHAZADA
+  RETIRADA
 }
 
 model ServiceCompletion {
@@ -716,15 +718,47 @@ model Review {
   id                  String       @id @default(cuid())
   request             Request      @relation(fields: [requestId], references: [id], onDelete: Cascade)
   requestId           String       @unique
-  rating              Int // 1..5
-  comment             String?
+  rating              Int // 1..5 overall
+  // Optional dimensions (issue #26) — 1..5 each, null = not rated.
+  punctuality         Int?
+  clarity             Int?
+  cleanliness         Int?
+  result              Int?
+  comment             String? // the published text (redacted if PII was found)
+  originalComment     String? // internal only — pre-redaction text, for audit
   // A name is only shown if the client explicitly consented.
   authorDisplayName   String?
   publishConsent      Boolean      @default(false)
+  // Who did the work — kept internally on the review (issue #26).
+  professionalId      String?
+
   // Publication is an explicit admin decision; never automatic.
   status              ReviewStatus @default(PENDIENTE)
   authorizedByAdminId String?
   authorizedAt        DateTime?
+  publishedAt         DateTime?
+
+  // Moderation (issue #26).
+  piiFlagged          Boolean      @default(false)
+  piiKinds            String[]
+  spamFlagged         Boolean      @default(false)
+  duplicateFlagged    Boolean      @default(false)
+  moderationReason    String?
+  moderatedByAdminId  String?
+  moderatedAt         DateTime?
+
+  // Praetoria's public response.
+  praetoriaResponse   String?
+  respondedByAdminId  String?
+  respondedAt         DateTime?
+
+  // Right to withdraw.
+  withdrawnAt         DateTime?
+  withdrawalReason    String?
+
+  // A negative review can open an incidence (issue #26) — link kept, no PII.
+  incidenceId         String?
+
   createdAt           DateTime     @default(now())
 
   @@index([status])

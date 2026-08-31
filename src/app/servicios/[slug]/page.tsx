@@ -6,7 +6,9 @@ import { COPY } from "@/config/copy";
 import { findTrade } from "@/config/trades";
 import { SERVICE_TRADES, serviceContentFor } from "@/config/service-content";
 import { problemsForTrade } from "@/config/problems";
-import { breadcrumbLd, serviceLd } from "@/lib/seo";
+import { breadcrumbLd, serviceLd, withReviewData } from "@/lib/seo";
+import { reviewService } from "@/server/services/reviews";
+import { ReviewsSection } from "@/ui/reputation/ReviewsSection";
 import styles from "../servicios.module.css";
 
 export function generateStaticParams() {
@@ -44,12 +46,25 @@ export default async function ServicioPage({ params }: { params: Promise<{ slug:
   if (!trade || !SERVICE_TRADES.some((t) => t.key === slug)) notFound();
   const content = serviceContentFor(slug);
   const problems = problemsForTrade(slug);
+  const [reviewAggregate, publishedReviews] = await Promise.all([
+    reviewService.aggregateFor({ trade: slug }),
+    reviewService.listPublished({ trade: slug, take: 10 }),
+  ]);
 
   return (
     <main id="contenido" className={styles.page}>
       <JsonLd
         data={[
-          serviceLd(trade),
+          withReviewData(serviceLd(trade), {
+            count: reviewAggregate.count,
+            average: reviewAggregate.average,
+            reviews: publishedReviews.map((r) => ({
+              rating: r.rating,
+              comment: r.comment,
+              author: r.authorDisplayName,
+              datePublished: r.publishedAt ? r.publishedAt.toISOString() : null,
+            })),
+          }),
           breadcrumbLd([
             { name: "Inicio", path: "/" },
             { name: "Servicios", path: "/servicios" },
@@ -131,6 +146,8 @@ export default async function ServicioPage({ params }: { params: Promise<{ slug:
           <p>{COPY.disclaimers.insuranceNotGuaranteed}</p>
         </section>
       )}
+
+      <ReviewsSection trade={slug} heading={`Opiniones verificadas de ${trade.label.toLowerCase()}`} />
 
       <div className={styles.cta}>
         <ButtonLink href="/solicitar" size="lg">

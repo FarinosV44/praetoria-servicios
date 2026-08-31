@@ -49,6 +49,12 @@ export function PostService({
   const [comment, setComment] = useState("");
   const [publishConsent, setPublishConsent] = useState(false);
   const [authorName, setAuthorName] = useState("");
+  const [dims, setDims] = useState<Record<"punctuality" | "clarity" | "cleanliness" | "result", number | "">>({
+    punctuality: "",
+    clarity: "",
+    cleanliness: "",
+    result: "",
+  });
 
   if (!completion && rawStatus !== "CERRADA") return null;
 
@@ -208,9 +214,39 @@ export function PostService({
               ))}
             </select>
           </label>
+          <fieldset style={{ border: "none", padding: 0, margin: "0.5rem 0" }}>
+            <legend>Detalle (opcional)</legend>
+            {(
+              [
+                ["punctuality", "Puntualidad"],
+                ["clarity", "Claridad"],
+                ["cleanliness", "Limpieza"],
+                ["result", "Resultado"],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} style={{ display: "inline-flex", gap: "0.35rem", marginRight: "1rem" }}>
+                {label}{" "}
+                <select
+                  value={dims[key]}
+                  onChange={(e) => {
+                    const v = e.currentTarget.value;
+                    setDims((p) => ({ ...p, [key]: v === "" ? "" : Number(v) }));
+                  }}
+                >
+                  <option value="">—</option>
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
+          </fieldset>
           <Field
             as="textarea"
             label="Comentario (opcional)"
+            hint="No incluyas teléfonos, direcciones ni correos: si aparecen, retiramos el dato antes de publicar."
             value={comment}
             onChange={(e) => setComment(e.currentTarget.value)}
           />
@@ -239,6 +275,10 @@ export function PostService({
                     comment: comment || undefined,
                     publishConsent,
                     authorDisplayName: authorName || undefined,
+                    punctuality: dims.punctuality === "" ? null : dims.punctuality,
+                    clarity: dims.clarity === "" ? null : dims.clarity,
+                    cleanliness: dims.cleanliness === "" ? null : dims.cleanliness,
+                    result: dims.result === "" ? null : dims.result,
                   }),
                 "Gracias por tu valoración.",
               )

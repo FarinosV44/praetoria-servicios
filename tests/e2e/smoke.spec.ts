@@ -34,6 +34,16 @@ test.describe("public pages — smoke + no console errors (AC-19-noconsole)", ()
     expect(meaningfulErrors(errors)).toEqual([]);
   });
 
+  test("a service page shows no reviews section when there are no real reviews (issue #26 AC-nodemo)", async ({
+    page,
+  }) => {
+    await page.goto("/servicios/fontaneria");
+    // no invented rating, no "sé el primero" empty state
+    await expect(page.getByRole("heading", { name: /Opiniones verificadas/i })).toHaveCount(0);
+    const html = await page.content();
+    expect(html).not.toContain("aggregateRating");
+  });
+
   test("a problem page has real, specific content and a tracked CTA (issue #25 / D10)", async ({
     page,
   }) => {

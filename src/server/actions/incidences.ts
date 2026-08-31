@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireSession } from "@/server/auth";
 import { serviceClosureService } from "@/server/services/serviceClosure";
-import { reviewService } from "@/server/services/reviews";
 import { INCIDENCE_STATUSES } from "@/domain/service-closure/incidence";
 import { WARRANTY_KINDS } from "@/domain/service-closure/incidence";
 import { err, ok, type Result } from "@/lib/result";
@@ -65,13 +64,6 @@ export async function transitionIncidenceAction(incidenceId: string, input: unkn
     { reason: parsed.data.reason, evidenceNote: parsed.data.evidenceNote, note: parsed.data.note },
     s.adminId,
   );
-  if (r.ok) revalidatePath("/admin/incidencias");
-  return r.ok ? ok(null) : err({ kind: r.error.kind });
-}
-
-export async function authorizeReviewAction(reviewId: string, decision: "AUTORIZADA" | "RECHAZADA"): A {
-  const s = await requireSession();
-  const r = await reviewService.authorize(reviewId, decision, s.adminId);
   if (r.ok) revalidatePath("/admin/incidencias");
   return r.ok ? ok(null) : err({ kind: r.error.kind });
 }

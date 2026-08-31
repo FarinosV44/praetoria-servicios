@@ -135,3 +135,7 @@ scripts/
   `src/server/actions/{content,localPage}.ts`, `src/app/s/[token]/PostService.tsx`,
   `src/app/admin/(panel)/{incidencias,contenido,zonas}/`, `src/ui/content/BlockRenderer.tsx`,
   `src/ui/patterns/TrackedCta.tsx`, `src/app/{guias,problemas,zonas}/`.
+- `[E]` Sprint 21 additions (#26): `src/domain/reputation/{aggregate,pii,moderation,spam}.ts`,
+  `src/config/reputation.ts`, `src/server/actions/reviews.ts`, `src/ui/reputation/`,
+  `src/app/admin/(panel)/opiniones/`. `src/lib/seo.ts::withReviewData`. `Review` model extended +
+  `ReviewStatus` gains `RETENIDA_PII`/`RETIRADA`.

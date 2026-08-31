@@ -58,9 +58,18 @@ test("the incidences panel loads (issue #23)", async ({ page }) => {
   const errors = collectConsoleErrors(page);
   await login(page);
   await page.goto("/admin/incidencias");
-  await expect(page.getByRole("heading", { name: /Incidencias y valoraciones/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Incidencias", exact: true })).toBeVisible();
   await expect(page.getByText(/Incidencias abiertas/i)).toBeVisible();
-  await expect(page.getByText(/Valoraciones pendientes de autorizar/i)).toBeVisible();
+  expect(meaningfulErrors(errors)).toEqual([]);
+});
+
+test("the reviews moderation panel loads (issue #26)", async ({ page }) => {
+  const errors = collectConsoleErrors(page);
+  await login(page);
+  await page.goto("/admin/opiniones");
+  await expect(page.getByRole("heading", { name: /Opiniones verificadas/i })).toBeVisible();
+  // the honest "verificada" explainer is on the page
+  await expect(page.getByText(/trabajo gestionado y cerrado por Praetoria/i)).toBeVisible();
   expect(meaningfulErrors(errors)).toEqual([]);
 });
 

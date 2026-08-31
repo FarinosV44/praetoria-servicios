@@ -43,11 +43,17 @@ export async function openIncidenceAction(token: string, description: string): A
   return r.ok ? ok({ reference: r.value.reference }) : err({ kind: r.error.kind });
 }
 
+const dimensionSchema = z.number().int().min(1).max(5).nullish();
+
 const reviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
   comment: z.string().trim().max(1500).optional(),
   publishConsent: z.boolean(),
   authorDisplayName: z.string().trim().max(80).optional(),
+  punctuality: dimensionSchema,
+  clarity: dimensionSchema,
+  cleanliness: dimensionSchema,
+  result: dimensionSchema,
 });
 
 export async function submitReviewAction(token: string, input: unknown): A {

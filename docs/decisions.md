@@ -143,6 +143,31 @@
   checker and quoting, but a municipio SEO page needs a **confirmed** municipality, not just a 46xxx
   postcode.
 
+## D-016 — Verified reviews: honest by construction (issue #26)
+- Date / phase: 2026-08-31 / Phase 5 (Sprint 21, issue #26)
+- Decision: the review system is built so that dishonesty is structurally hard, not just discouraged.
+  (1) **No fabrication** — a `Review` exists only for a `CERRADA` request; there are no seeds, no
+  demo rows, and `aggregateFor` computes over the real published set only, returning an empty
+  aggregate (no `AggregateRating` JSON-LD) at zero. (2) **No cherry-picking** — publication is a
+  per-review admin decision; `isPublishable` is rating-blind and `listPublished` exposes only
+  transparent *sorts*, never a rating *filter*; every non-publish outcome records a reason in
+  `AdminActionLog`. (3) **PII scrubbed before publish** — `detectPii` at submit auto-holds the review
+  (`RETENIDA_PII`); `moderate` refuses `AUTORIZADA` while the PII flag stands; `applyRedaction` is the
+  only way through. (4) **"Verificada" is defined, not implied** — `REPUTATION.verifiedMeaning` states
+  the concrete fact (trabajo gestionado y cerrado por Praetoria) next to every list. (5) **Consent +
+  withdrawal traced** — `publishConsent`, `withdrawnAt`, `withdrawalReason`, plus audit rows.
+  (6) A negative review can open an incidence.
+- Why: issue #26 acceptance criteria + D10 (no invented ratings, no fabricated counts). A reputation
+  system that *can* be gamed *will* be, so the guarantees live in pure, tested functions
+  (`domain/reputation/*`) and in query shapes that have no cherry-pick affordance.
+- Alternatives rejected: a free-text moderation field with no state machine (nothing stops a
+  publish-only-5★ workflow); storing an aggregate column (drifts from the real set, invites a manual
+  override); third-party review widgets (opaque, not verifiable against real jobs).
+- Cost accepted: PII detection is deliberately conservative — false positives cost a manual redaction
+  step. Averages recompute per request (no cache); fine at MVP volume.
+- Supersedes: extends C20 / the #23 review seed — `authorize()` is kept as a back-compat wrapper over
+  the new `moderate()`.
+
 ## D-010 — Money is integer minor units
 - Date / phase: 2026-08-29 / Phase 2
 - Decision: All monetary amounts stored and computed as integer cents (EUR). No floating point anywhere in quote/budget math. A small `Money` helper owns arithmetic, tax and formatting.

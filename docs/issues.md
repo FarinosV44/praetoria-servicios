@@ -2,7 +2,7 @@
 
 > Living log of forge issues (GitHub: FarinosV44/praetoria-servicios). Inventory first, one entry per issue worked.
 > Updated the moment an issue is triaged, worked, or closed.
-> Last inbound sweep: 2026-08-31 (Sprint 20) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21–#25 resolved; growth #26, #20, #27 next.
+> Last inbound sweep: 2026-08-31 (Sprint 21) — no new external issues or comments; open-issue activity is our own beat-1 comments awaiting user close. MVP core + #21–#26 resolved; growth #20, #27 next.
 
 ## Build order (dependency-sorted)
 
@@ -43,10 +43,35 @@ Rationale: data model (#9) and design tokens (#3) underpin everything. Photos (#
 | 23 | Cierre de servicio, garantía e incidencias post-trabajo | feature | med | resolved (Sprint 18) — awaiting user close | E-020 |
 | 24 | CMS editorial completo para publicaciones y guías | feature | med | resolved (Sprint 19) — awaiting user close | E-021 |
 | 25 | Arquitectura SEO de servicios, problemas y municipios | feature | med | resolved (Sprint 20) — awaiting user close | E-022 |
-| 26 | Reseñas verificadas y reputación local | feature | med | open | — |
+| 26 | Reseñas verificadas y reputación local | feature | med | resolved (Sprint 21) — awaiting user close | E-023 |
 | 27 | Centro de control SEO local y oportunidades de contenido | feature | low | open | — |
 
 ## Entries (one per issue worked)
+
+### E-023 — #26 Implementar reseñas verificadas y reputación local
+- Link: https://github.com/FarinosV44/praetoria-servicios/issues/26   Status: resolved 2026-08-31 (Sprint 21) — awaiting user close
+- Diagnosis: n/a (feature). Builds on the #23 seed (`Review` model, `reviewService.submit/authorize`).
+  The unique per-request/client link already exists — the signed `/s/[token]` link; the form is in
+  `PostService.tsx`.
+- Resolution (D-016): domain `reputation/{aggregate,pii,moderation,spam}.ts` test-first (30). Migration
+  `20260831083721_reviews_reputation` — `Review` gains dimensions, `professionalId`, moderation
+  fields, `praetoriaResponse`, withdrawal fields, `publishedAt`, `incidenceId`; `ReviewStatus` gains
+  `RETENIDA_PII` + `RETIRADA`. `reviewService` — `submit` (dimensions + auto-hold on PII + spam/dup
+  flags), `moderate` (single entry point, reason for every non-publish, PII gate), `applyRedaction`,
+  `respond`, `withdraw`, `openIncidence`, `aggregateFor` (reproducible), `listPublished`
+  (transparent sort, NEVER a rating filter). 11 integration tests. Public `ReviewsSection` (server) +
+  `ReviewList` (client sort) on `/servicios/[slug]` and indexable `/zonas/[municipio]` — renders
+  nothing when there is no real review; `withReviewData` adds `AggregateRating`+`Review` JSON-LD
+  only when `count > 0`. `/s/[token]` review form gains optional dimensions + a PII warning. Admin
+  `/admin/opiniones` moderation queue (pendiente / retenida-PII / publicada / rechazada / retirada),
+  redaction, response, withdrawal, "abrir incidencia"; `/admin/incidencias` now links to it.
+  `src/config/reputation.ts` (honest "verificada" text + optional GBP link).
+- Commits: (Sprint 21 commit).
+- Verification: TP-22 — 347 vitest (+41); lint/typecheck/build clean; HTTP checks (aggregate 3.7 from
+  3 seeded reviews, 2★ comment shown, JSON-LD `AggregateRating`+`Review`; no reviews → nothing
+  rendered, no markup); E2E desktop 28 + mobile 22 pass (6 skipped). Seeded reviews deleted after.
+- Pending: nothing structural. A Google Business Profile review URL can be set via
+  `NEXT_PUBLIC_GBP_REVIEW_URL` when the operator has one. SEO control centre is #27.
 
 ### E-022 — #25 Arquitectura SEO de servicios, problemas y municipios
 - Link: https://github.com/FarinosV44/praetoria-servicios/issues/25   Status: resolved 2026-08-31 (Sprint 20) — awaiting user close

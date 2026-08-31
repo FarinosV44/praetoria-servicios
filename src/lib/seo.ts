@@ -67,6 +67,45 @@ export function serviceLd(trade: Trade) {
   };
 }
 
+/**
+ * Merge real review data into a `Service` (or other) JSON-LD node (issue #26).
+ * Call ONLY when `count > 0` — schema.org markup must match visible content and
+ * we never emit an invented rating. `reviews` should already be the published,
+ * consented set (redacted comments).
+ */
+export function withReviewData<T extends Record<string, unknown>>(
+  node: T,
+  data: {
+    count: number;
+    average: number | null;
+    reviews: {
+      rating: number;
+      comment: string | null;
+      author: string | null;
+      datePublished: string | null;
+    }[];
+  },
+): T {
+  if (data.count < 1 || data.average === null) return node;
+  return {
+    ...node,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: data.average,
+      reviewCount: data.count,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    review: data.reviews.slice(0, 10).map((r) => ({
+      "@type": "Review",
+      reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+      author: { "@type": "Person", name: r.author ?? "Cliente de Praetoria" },
+      ...(r.comment ? { reviewBody: r.comment } : {}),
+      ...(r.datePublished ? { datePublished: r.datePublished } : {}),
+    })),
+  };
+}
+
 export function breadcrumbLd(items: { name: string; path: string }[]) {
   return {
     "@context": "https://schema.org",

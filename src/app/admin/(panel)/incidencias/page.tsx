@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { serviceClosureService } from "@/server/services/serviceClosure";
 import { reviewService } from "@/server/services/reviews";
-import { findTrade } from "@/config/trades";
 import { EmptyState } from "@/ui";
 import { IncidenceControls } from "./IncidenceControls";
-import { ReviewControls } from "./ReviewControls";
 import styles from "../../admin.module.css";
 
 function fmt(d: Date | null) {
@@ -14,14 +12,16 @@ function fmt(d: Date | null) {
 }
 
 export default async function IncidencesPage() {
-  const [open, pendingReviews] = await Promise.all([
+  const [open, pending, heldPii] = await Promise.all([
     serviceClosureService.listOpenIncidences(),
     reviewService.listForAdmin("PENDIENTE"),
+    reviewService.listForAdmin("RETENIDA_PII"),
   ]);
+  const reviewsToReview = pending.length + heldPii.length;
 
   return (
     <div>
-      <h1>Incidencias y valoraciones</h1>
+      <h1>Incidencias</h1>
 
       <section className={styles.card}>
         <h2>Incidencias abiertas ({open.length})</h2>
@@ -70,26 +70,13 @@ export default async function IncidencesPage() {
       </section>
 
       <section className={styles.card}>
-        <h2>Valoraciones pendientes de autorizar ({pendingReviews.length})</h2>
-        {pendingReviews.length === 0 ? (
-          <EmptyState
-            title="Nada pendiente"
-            description="Solo se publican valoraciones reales, autorizadas y con consentimiento del cliente."
-          />
-        ) : (
-          <ul>
-            {pendingReviews.map((r) => (
-              <li key={r.id} style={{ marginBottom: "0.75rem" }}>
-                <strong>{r.rating}/5</strong> · solicitud {r.request.reference} ·{" "}
-                {findTrade(r.request.trade)?.label ?? r.request.trade} ·{" "}
-                {r.publishConsent ? "con consentimiento de publicación" : "SIN consentimiento (no publicable)"}
-                {r.comment ? ` — «${r.comment}»` : ""}
-                <br />
-                <ReviewControls id={r.id} />
-              </li>
-            ))}
-          </ul>
-        )}
+        <h2>Opiniones</h2>
+        <p>
+          {reviewsToReview > 0
+            ? `${reviewsToReview} opinión(es) esperando moderación.`
+            : "Nada pendiente de moderar."}{" "}
+          <Link href="/admin/opiniones">Ir a Opiniones →</Link>
+        </p>
       </section>
     </div>
   );

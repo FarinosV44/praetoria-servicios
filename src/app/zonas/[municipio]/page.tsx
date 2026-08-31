@@ -7,6 +7,7 @@ import { findTrade } from "@/config/trades";
 import { SERVICE_TRADES } from "@/config/service-content";
 import { localPageService, faqOf } from "@/server/services/localPage";
 import { breadcrumbLd, faqPageLd, localAreaServiceLd } from "@/lib/seo";
+import { ReviewsSection } from "@/ui/reputation/ReviewsSection";
 import styles from "../../servicios/servicios.module.css";
 
 export async function generateMetadata({
@@ -148,6 +149,8 @@ export default async function ZonaPage({
           <Link href={`/servicios/${page.serviceKey}`}>{trade.label.toLowerCase()}</Link>.
         </p>
       )}
+
+      <ReviewsSection trade={page.serviceKey ?? undefined} />
 
       <div className={styles.cta}>
         <TrackedCta href="/solicitar" source="zona" category={page.serviceKey ?? undefined}>

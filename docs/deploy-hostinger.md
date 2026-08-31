@@ -83,23 +83,49 @@ check. Check, in order:
 ## First deploy
 
 1. **Push `main`.** On the server, clone or pull `main`.
-2. `npm ci` — the `prisma` CLI is a devDependency and IS needed for migrations; run `npm ci` (not `--omit=dev`) on the box that runs them, or run migrations from CI.
+2. `npm ci` (or `npm install`). Everything the build needs — `next`, `typescript`, `@types/*`,
+   `tailwindcss`, `@tailwindcss/postcss`, `prisma` — is in `dependencies`, so a production-only
+   install (`--omit=dev`, or `NODE_ENV=production` at install time, which Hostinger sets) still
+   builds. `postinstall` runs `prisma generate` automatically.
 3. Create `.env` (table above). Double-check `APP_URL` before the build.
 4. `npx prisma migrate deploy` — see **Safe migrations** below.
 5. **Create the first admin** — do NOT run `prisma/seed.ts` in production (it seeds a known dev password). Insert one row into `AdminUser` with a scrypt hash produced by `src/lib/password.ts` (`hashPassword`), e.g. a one-off `npx tsx` script that prints the hash for a password you choose, then a single SQL `INSERT`.
 6. `npm run build` (with `APP_URL` and any `NEXT_PUBLIC_*` set).
 7. Start the app via hPanel's Node.js app manager.
-8. Smoke: `curl -sSf https://<domain>/api/health` → `{"status":"ok","checks":{"database":true}}`; open `/`, `/solicitar` (the assistant must load past its spinner), `/servicios/fontaneria`, `/cobertura`.
+8. Smoke: `curl -sSf https://<domain>/api/health` → `{"status":"ok","checks":{"database":true,"migrations":true}}`; open `/`, `/solicitar` (the assistant must load past its spinner), `/servicios/fontaneria`, `/cobertura`.
+
+### The minimum set of environment variables
+
+Set these by hand in hPanel's Node app → Environment variables, then redeploy:
+
+| Variable | Required? | Value |
+|---|---|---|
+| `NODE_ENV` | **yes** | `production` |
+| `DATABASE_URL` | **yes** | Supabase **transaction pooler** string (port 6543) + `?pgbouncer=true&connection_limit=1`, password URL-encoded |
+| `AUTH_SECRET` | **yes** | 32+ random chars (`openssl rand -base64 32`) |
+| `SIGNED_LINK_SECRET` | **yes** | 32+ random chars, **different** from `AUTH_SECRET` |
+| `APP_URL` | **yes** | `https://<your-domain>` — exact, no trailing slash. Must be present when `npm run build` runs. |
+| `CRON_SECRET` | recommended | 32+ random chars — enables `POST /api/cron/retention`; without it that endpoint 401s (the site still works) |
+| `WHATSAPP_BUSINESS_NUMBER` | optional | E.164 without `+` (e.g. `34600111222`). Absent → the WhatsApp buttons are hidden; nothing else changes. |
+| `AI_ADAPTER` | optional | leave unset (defaults to `mock`). `claude` is **not wired yet** — setting it breaks the assistant. |
+| everything else (`SMTP_*`, `S3_*`, `EMAIL_*`, `OCR_*`, `STORAGE_*`) | optional | leave unset. The app boots and logs a one-line `[env]` warning for each; that feature is simply disabled. Uploads use the local filesystem (`.storage/`) by default. |
+
+Only the five **yes** rows are enforced at boot. Miss one → the app logs
+`[env] FATAL: invalid environment configuration` and every route 500s until it's fixed.
 
 ## Redeploy
 
 ```
 git pull origin main
-npm ci
-npx prisma migrate deploy          # safe: see below
+npm ci                             # postinstall runs `prisma generate`
+npx prisma migrate deploy          # safe: see below. Use the DIRECT/SESSION Supabase string here.
 npm run build                      # APP_URL must be in the environment
 # restart the Node app (hPanel app manager or the process manager)
 ```
+
+If `npm run build` OOMs on shared hosting (the process is killed with no error), build once
+locally or in CI and upload the `.next` directory alongside the code, then only `npm ci --omit=dev`
++ `prisma migrate deploy` + restart on the server.
 
 If hPanel offers a deploy webhook, point it at this sequence. Keep the previous release directory
 (or a git tag) for the rollback path in `docs/runbook.md`.

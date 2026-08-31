@@ -5,6 +5,7 @@ import { COPY } from "@/config/copy";
 import { COVERED_MUNICIPALITIES } from "@/config/coverage";
 import { localPageService } from "@/server/services/localPage";
 import { breadcrumbLd } from "@/lib/seo";
+import { safe } from "@/lib/safe";
 import styles from "../servicios/servicios.module.css";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ZonasIndexPage() {
-  const pages = await localPageService.listPublished();
+  const pages = await safe(() => localPageService.listPublished(), [], "zonas.list");
 
   return (
     <main id="contenido" className={styles.page}>

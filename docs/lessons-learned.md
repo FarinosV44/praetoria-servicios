@@ -29,6 +29,31 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-007 — Public marketing pages 500'd wholesale when Postgres was unreachable
+- Symptom: user reported "internal server error y no me deja ver nada" — every public page
+  (`/`, `/servicios/*`, `/zonas`, `/guias`) returned a 500. Confirmed by pointing `DATABASE_URL`
+  at a closed port: `PrismaClientInitializationError` ("Can't reach database server").
+- Cause: server components did an unguarded `await someService.<dbCall>()` for an OPTIONAL section
+  (the landing "reviews" block, a service page's ratings, the guides list). When the query threw,
+  the exception bubbled to the route and Next returned a 500 for the whole page — a public
+  marketing page taken down by a section that should just be hidden. The `entry` point was Sprint 18
+  (landing reviews) and it spread with every DB-backed section added since (#25, #26).
+- Fix: `src/lib/safe.ts` — `safe(fn, fallback, label)` runs the query, and on failure logs
+  (`log.error`) and returns the fallback. Applied to the optional DB reads in `src/app/page.tsx`,
+  `src/app/servicios/[slug]/page.tsx`, `src/ui/reputation/ReviewsSection.tsx`, `src/app/zonas/page.tsx`,
+  `src/app/zonas/[municipio]/page.tsx` (→ `notFound()` on failure), `src/app/guias/page.tsx`,
+  `src/app/guias/[slug]/page.tsx`. Verified: with the DB down every public route now returns 200
+  (degraded), not 500.
+- What failed first: `safe.test.ts` (the reproduction — a rejecting `fn` must yield the fallback,
+  not throw). The end-to-end proof is a dev server with `DATABASE_URL` on a dead port hitting each
+  route.
+- Rule for next time: a server component that renders a public page must wrap every OPTIONAL
+  DB/IO read in `safe(...)`. Only the data the page genuinely cannot exist without (e.g. the article
+  on `/guias/[slug]` — which still degrades to `notFound()`, never a 500) may be allowed to fail.
+- Note: `src/lib/env.ts` throws at module load on an invalid `.env`, which also 500s every page —
+  that one is intentional (fail-fast on misconfiguration). If a user reports "everything 500s",
+  check BOTH: is Postgres up (`docker compose up -d`), and is `.env` valid.
+
 ## L-006 — Reading `e.currentTarget` inside a deferred `setState` updater crashes the component
 - Symptom: the editorial CMS editor (`ArticleEditor`) rendered fine on a normal load but crashed to
   the global-error boundary under fast form input during the E2E (`locator.fill` on several fields

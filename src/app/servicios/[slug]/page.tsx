@@ -8,7 +8,9 @@ import { SERVICE_TRADES, serviceContentFor } from "@/config/service-content";
 import { problemsForTrade } from "@/config/problems";
 import { breadcrumbLd, serviceLd, withReviewData } from "@/lib/seo";
 import { reviewService } from "@/server/services/reviews";
+import { computeAggregate } from "@/domain/reputation/aggregate";
 import { ReviewsSection } from "@/ui/reputation/ReviewsSection";
+import { safe } from "@/lib/safe";
 import styles from "../servicios.module.css";
 
 export function generateStaticParams() {
@@ -47,8 +49,8 @@ export default async function ServicioPage({ params }: { params: Promise<{ slug:
   const content = serviceContentFor(slug);
   const problems = problemsForTrade(slug);
   const [reviewAggregate, publishedReviews] = await Promise.all([
-    reviewService.aggregateFor({ trade: slug }),
-    reviewService.listPublished({ trade: slug, take: 10 }),
+    safe(() => reviewService.aggregateFor({ trade: slug }), computeAggregate([]), "servicio.reviewAggregate"),
+    safe(() => reviewService.listPublished({ trade: slug, take: 10 }), [], "servicio.reviews"),
   ]);
 
   return (

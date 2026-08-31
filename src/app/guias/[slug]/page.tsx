@@ -8,13 +8,18 @@ import { CONTENT } from "@/config/content";
 import { contentService } from "@/server/services/content";
 import { headingsOf, faqItemsOf } from "@/domain/content/blocks";
 import { articleLd, breadcrumbLd, faqPageLd } from "@/lib/seo";
+import { safe } from "@/lib/safe";
 import styles from "@/ui/content/content.module.css";
 
 const fmt = (d: Date | null) =>
   d ? new Intl.DateTimeFormat("es-ES", { dateStyle: "long" }).format(d) : null;
 
 async function load(slug: string) {
-  const r = await contentService.resolvePublic(slug);
+  const r = await safe(
+    () => contentService.resolvePublic(slug),
+    { kind: "none" as const },
+    "guia.resolve",
+  );
   if (r.kind === "redirect") permanentRedirect(`/guias/${r.to}`);
   if (r.kind === "none") return null;
   return r.article;

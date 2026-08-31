@@ -39,13 +39,6 @@ const nextConfig: NextConfig = {
     "/**": ["./node_modules/.prisma/client/**", "./node_modules/@prisma/engines/**"],
   },
 
-  // `npm run build` uses `--webpack` (the Turbopack build is hungrier and less
-  // battle-tested on constrained / managed hosts). This trims webpack's peak
-  // memory — matters on a small hosting box.
-  experimental: {
-    webpackMemoryOptimizations: true,
-  },
-
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },

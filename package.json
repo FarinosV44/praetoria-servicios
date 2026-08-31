@@ -7,8 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
-    "build:turbo": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint",
@@ -29,7 +28,6 @@
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -39,7 +37,6 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
-    "tailwindcss": "^4",
     "tsx": "^4.19.2",
     "typescript": "^5",
     "zod": "^4.5.4"

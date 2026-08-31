@@ -29,6 +29,29 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-012 — Removed Tailwind entirely — it was unused and its build step broke the host
+- Symptom: the real Hostinger build log finally arrived — `next build` (Turbopack, run directly by
+  Hostinger's git deploy, ignoring `npm run build`) failed with hundreds of repeated
+  `turbopack:///[turbopack-node]/transforms/postcss.ts?config=[project]/postcss.config.mjs` frames
+  → `ERROR: Failed to build the application`. Turbopack spawns a child process to evaluate the
+  Tailwind v4 PostCSS plugin (which loads the native `@tailwindcss/oxide`); on Hostinger's build
+  container it dies and Turbopack retries it forever.
+- Investigation: audited every `className` in the codebase — **not one Tailwind utility class**.
+  All styling is `src/ui/tokens.css` custom properties + per-component `*.module.css`. Tailwind's
+  entire footprint was `@import "tailwindcss"` + a never-referenced `@theme inline` block in
+  `globals.css`. It was `create-next-app` scaffolding, never adopted.
+- Fix: removed it. Deleted `postcss.config.mjs`; dropped `tailwindcss` + `@tailwindcss/postcss`
+  from package.json; removed the two lines from `globals.css`; `build` back to plain `next build`.
+  Next compiles CSS Modules + nesting natively with no postcss config. `next build` (Turbopack,
+  the host default) now succeeds — no PostCSS step, no native module, no child process.
+- Verified: production Turbopack build green; CSS chunks still carry the full token set + reset;
+  392 vitest; E2E 32 desktop (incl. axe on every page — visuals unchanged). D-019.
+- Rule for next time: before fighting a build toolchain issue on a host, check whether the tool is
+  even used. `create-next-app` adds Tailwind + ESLint + more by default; a project that styles with
+  CSS Modules should drop what it doesn't touch.
+- This closes the L-007..L-012 deploy saga: the site builds on Hostinger's default `next build`
+  with only the 5 required env vars, no build-command override, no bundle upload.
+
 ## L-011 — Turbopack build → switched `npm run build` to `--webpack`
 - Context: continuing L-010 — the host build kept failing. Next 16's default `next build` uses
   Turbopack, which has a higher peak-memory footprint and is newer/less proven on managed hosts.

@@ -1,16 +1,11 @@
-@import "tailwindcss";
+/*
+ * Global base styles. All design tokens live in ../ui/tokens.css; components
+ * use CSS Modules. Tailwind was removed (Sprint 24 hotfix, L-012) — the app
+ * used no utility classes, and its PostCSS/native-module step broke the build
+ * on constrained hosts. Next handles CSS Modules + nesting natively, no
+ * postcss.config needed.
+ */
 @import "../ui/tokens.css";
-
-@theme inline {
-  --color-bg: var(--c-bg);
-  --color-surface: var(--c-surface);
-  --color-border: var(--c-border);
-  --color-text: var(--c-text);
-  --color-brand: var(--c-brand);
-  --color-accent: var(--c-accent);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-}
 
 *,
 *::before,

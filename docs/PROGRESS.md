@@ -5,7 +5,7 @@
 ## Project card
 - Name / one-line purpose: Praetoria Servicios — mobile-first Spanish web app that turns a home problem explained with photos and plain language into a clear technical request, reviewed by AI and managed by an admin.
 - Project type: web-app (Next.js full-stack) / secondary: none
-- Stack & target platform(s): Next.js 16 (App Router) + React 19 + TypeScript strict + Tailwind v4; PostgreSQL + Prisma; Zod; decoupled adapters for AI / storage / email / WhatsApp / OCR. Target: modern browsers, mobile-first (320px+). See docs/03-technical-plan.md.
+- Stack & target platform(s): Next.js 16 (App Router) + React 19 + TypeScript strict; plain CSS + CSS Modules + token custom properties (Tailwind removed — L-012); PostgreSQL + Prisma; Zod; decoupled adapters for AI / storage / email / WhatsApp / OCR. Target: modern browsers, mobile-first (320px+). See docs/03-technical-plan.md.
 - License: UNLICENSED (private, proprietary) — see D-003
 - Docs language: English (token economy). Product UI language: Spanish (es-ES).
 - Security profile: references/security/web-app.md

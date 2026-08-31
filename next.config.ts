@@ -26,6 +26,19 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+
+  // Self-contained server for constrained / Passenger-style hosting (Hostinger).
+  // `next build` produces `.next/standalone/server.js` with only the traced
+  // runtime deps — no full `node_modules` on the server, far less RAM. The build
+  // can run in CI and only the bundle is shipped. See docs/deploy-hostinger.md.
+  output: "standalone",
+
+  // File tracing misses Prisma's native query-engine binary — pull it in
+  // explicitly so the standalone bundle can reach the database.
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/.prisma/client/**", "./node_modules/@prisma/engines/**"],
+  },
+
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },

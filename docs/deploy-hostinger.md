@@ -1,14 +1,42 @@
 # Deploy — Hostinger hPanel (Node.js hosting)
 
-> Finalised in issue #19. What still needs the operator: hPanel access, where
-> Postgres lives (hPanel managed vs external), and the real secret values. The
-> steps below are complete and tested against a local production build.
+> What still needs the operator: hPanel access, the Supabase connection strings, and the real
+> secret values.
 
-## What runs
+## Recommended path — build in CI, upload the bundle (no build on the host)
 
-- A single Next.js 16 Node process (`npm run start`, listens on the port hPanel assigns via `PORT`).
-  **Every route is server-rendered** (no static export — the CSP nonce needs a dynamic render, D-014).
-- PostgreSQL 16 — hPanel's managed database or an external managed Postgres. `DATABASE_URL` points at it.
+Hostinger's entry Node plans have little RAM; `next build` there is killed mid-build with no clear
+error ("no compila"). Avoid it entirely:
+
+1. **GitHub → Actions → "Deploy bundle" → Run workflow.** Enter `APP_URL` =
+   `https://<your-domain>` (exact, no trailing slash). It builds the standalone server and uploads
+   **`deploy-bundle`** (a `.tgz`) as an artifact — download it from the finished run.
+2. **Run the migrations once** against the Supabase **Direct / Session pooler** string (port 5432,
+   *not* the 6543 pooler): from your machine or a CI step,
+   `DATABASE_URL="postgresql://postgres.<ref>:<pwd>@aws-0-<region>.pooler.supabase.com:5432/postgres" npx prisma migrate deploy`
+3. **Create the first admin** — one `INSERT` into `AdminUser` (Supabase SQL editor) with a scrypt
+   hash from `src/lib/password.ts#hashPassword`. Do **not** run `prisma/seed.ts` in production.
+4. **On Hostinger:** extract the tarball into the app root. Set the env vars (table below). Set the
+   **startup file / command to `server.js`** (or `node server.js`), Node **≥ 20**. Start the app.
+5. **Verify:** `curl https://<domain>/api/health` → `{"checks":{"database":true,"migrations":true}}`.
+
+`server.js` is a plain HTTP server that listens on `$PORT` — it works under Passenger and under
+hPanel's Node app manager. It carries only the traced runtime dependencies, so there is no
+`npm install` on the host and the memory footprint is small.
+
+### Redeploying
+Re-run the workflow, download the new bundle, replace the app folder's contents (keep the env
+vars), restart. Run `prisma migrate deploy` again only if the release added a migration.
+
+---
+
+## Alternative — build on the host (only if the box has enough RAM)
+
+- A single Next.js 16 Node process. **Every route is server-rendered** (the CSP nonce needs a
+  dynamic render, D-014). Everything `next build` needs (`typescript`, `@types/*`, `tailwindcss`,
+  `@tailwindcss/postcss`, `prisma`) is in `dependencies`, so a production-only install still builds;
+  `postinstall` runs `prisma generate`.
+- PostgreSQL — Supabase (or hPanel managed). `DATABASE_URL` points at it.
 - No separate worker: the retention/queue job is an HTTP endpoint hit by hPanel's cron.
 
 ## Environments

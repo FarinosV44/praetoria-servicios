@@ -6,7 +6,7 @@
 |---|---|
 | Framework | Next.js 16 (App Router, React Server Components), React 19 |
 | Language | TypeScript, `strict: true` |
-| Styling | Tailwind CSS v4 (CSS-first config in `globals.css`), design tokens as CSS custom properties |
+| Styling | Plain CSS + CSS Modules; design tokens as CSS custom properties (`src/ui/tokens.css`). Tailwind removed in a post-Sprint-23 hotfix (L-012) — no utility classes were used and its build step was breaking constrained hosts. |
 | UI primitives | Radix UI primitives (accessible unstyled) + local `src/ui` components |
 | DB | PostgreSQL 16, Prisma ORM, versioned SQL migrations (`prisma/migrations`) |
 | Validation | Zod — schemas shared between client, server actions and API routes (`src/domain/**/schema.ts`) |

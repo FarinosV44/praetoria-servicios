@@ -215,6 +215,28 @@
 - Supersedes: none — builds on D-015 (#25 data feeds the linking-gap signals) and D-016 (`detectPii`
   reused for the no-PII-in-queries gate).
 
+## D-019 — Tailwind removed; plain CSS + CSS Modules only (post-Sprint-23 hotfix)
+- Date / phase: 2026-08-31 / Phase 5 (deploy hotfix, L-012)
+- Decision: remove Tailwind v4 entirely. The codebase used **zero** utility classes — every
+  `className` is a CSS-Module reference, the `next/font` variable, or a plain semantic class; no
+  `@apply`, no `@tailwind`. Tailwind's only footprint was `@import "tailwindcss"` + a dead
+  `@theme inline` block in `globals.css`. Its `@tailwindcss/postcss` + native `@tailwindcss/oxide`
+  build step was crashing `next build` (Turbopack) on Hostinger's constrained build container
+  (L-010/L-011/L-012). Deleted `postcss.config.mjs`, dropped `tailwindcss` + `@tailwindcss/postcss`,
+  stripped the two lines from `globals.css`. Next handles CSS Modules + nesting natively — no
+  postcss config needed. `npm run build` back to plain `next build`.
+- Why: the styling system is `src/ui/tokens.css` (CSS custom properties) + per-component
+  `*.module.css`. Tailwind was scaffolded by `create-next-app` (D-002) and never adopted. Removing
+  it makes the build portable to any host with no config, and removes a native-module dependency.
+- Alternatives rejected: forcing `next build --webpack` (Hostinger runs `next build` directly, can't
+  be overridden from config); pre-compiling Tailwind CSS in CI (adds a fragile step for a framework
+  that isn't used); keeping Tailwind and fighting the host (endless).
+- Cost: none functional — verified identical rendering (CSS chunks still carry the full token set +
+  reset + `.skip-link`), 392 vitest green, E2E 32 desktop green (incl. axe on every page). If
+  someone later wants utility classes, re-add `tailwindcss` + `@tailwindcss/postcss` +
+  `postcss.config.mjs` + `@import "tailwindcss"`.
+- Supersedes: the "Tailwind v4 for styling" part of D-002.
+
 ## D-010 — Money is integer minor units
 - Date / phase: 2026-08-29 / Phase 2
 - Decision: All monetary amounts stored and computed as integer cents (EUR). No floating point anywhere in quote/budget math. A small `Money` helper owns arithmetic, tax and formatting.

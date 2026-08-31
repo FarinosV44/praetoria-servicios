@@ -5,16 +5,12 @@
 
 ## Recommended path — build in CI, upload the bundle (no build on the host)
 
-Hostinger's git-connected app deploy ("hbuilds") runs **`next build` directly**, which in Next 16
-defaults to **Turbopack**. On Hostinger's small build container Turbopack's PostCSS/Tailwind step
-crashes in a retry loop → `ERROR: Failed to build the application` (stack full of repeated
-`turbopack:///[turbopack-node]/transforms/postcss.ts` frames). The **webpack** build
-(`npm run build` → `next build --webpack`, with `experimental.webpackMemoryOptimizations`) does not
-hit this.
+**As of L-012 the build works on Hostinger's default `next build` with no config change** — Tailwind
+(whose Turbopack PostCSS step was crashing the build) was removed because the app never used it.
+Just connect the repo, set the 5 required env vars, deploy.
 
-**If Hostinger lets you set a custom Build command:** set it to `npm run build` and redeploy. Done.
-
-**If it doesn't (or still fails):** build off-Hostinger and upload the result:
+The standalone-bundle path below is kept as a fallback (e.g. if the host build container is ever too
+small even for the plain build):
 
 1. **GitHub → Actions → "Deploy bundle" → Run workflow.** Enter `APP_URL` =
    `https://<your-domain>` (exact, no trailing slash). It builds the standalone server and uploads

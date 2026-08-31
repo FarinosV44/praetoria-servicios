@@ -29,6 +29,23 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-009 — Build-time tooling in `devDependencies` broke the Hostinger build
+- Symptom: after setting `NODE_ENV=production` in the hPanel Node app, the next deploy failed to
+  build ("no me compila").
+- Cause: Hostinger runs the dependency install with `NODE_ENV=production`, which makes npm skip
+  `devDependencies`. `next build` needs `typescript`, `@types/*`, `tailwindcss` and
+  `@tailwindcss/postcss` — all were in `devDependencies` — so the build had no TypeScript compiler
+  and no PostCSS/Tailwind plugin. (Next 16 no longer runs ESLint during `next build`, so
+  `eslint` / `eslint-config-next` staying dev is fine.)
+- Fix: moved `typescript`, `@types/node`, `@types/react`, `@types/react-dom`, `tailwindcss`,
+  `@tailwindcss/postcss`, `prisma`, `tsx` into `dependencies`; added `"postinstall": "prisma
+  generate"`. Verified a `NODE_ENV=production npm ci --omit=dev` install then contains everything
+  `next build` needs. `docs/deploy-hostinger.md` updated (minimum-env table + OOM fallback).
+- Rule for next time: anything `next build` / `prisma migrate deploy` / the running server touches
+  must be in `dependencies`, not `devDependencies` — a deploy host may do a production-only install.
+  `devDependencies` is only for things that run in dev or CI (test runner, linter, playwright,
+  prettier).
+
 ## L-008 — `env.ts` fail-fast was too aggressive → a fresh deploy 500'd on every route
 - Symptom: the Hostinger deployment (app on Hostinger, DB on Supabase) returned "Internal Server
   Error" on **every** URL, including `/api/health` — which by its own logic can only return 200/503.

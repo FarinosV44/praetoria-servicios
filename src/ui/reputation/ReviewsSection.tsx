@@ -1,7 +1,8 @@
 import { reviewService } from "@/server/services/reviews";
 import { REPUTATION } from "@/config/reputation";
-import { REVIEW_DIMENSIONS } from "@/domain/reputation/aggregate";
+import { REVIEW_DIMENSIONS, computeAggregate } from "@/domain/reputation/aggregate";
 import { TRADES } from "@/config/trades";
+import { safe } from "@/lib/safe";
 import { ReviewList } from "./ReviewList";
 import styles from "./reviews.module.css";
 
@@ -19,9 +20,10 @@ export async function ReviewsSection({
   trade?: string;
   heading?: string;
 }) {
+  // A failed query here just hides the section — it never 500s the host page.
   const [aggregate, reviews] = await Promise.all([
-    reviewService.aggregateFor({ trade }),
-    reviewService.listPublished({ trade, take: 20 }),
+    safe(() => reviewService.aggregateFor({ trade }), computeAggregate([]), "reviews.aggregate"),
+    safe(() => reviewService.listPublished({ trade, take: 20 }), [], "reviews.list"),
   ]);
 
   if (aggregate.count === 0 || reviews.length === 0) return null;

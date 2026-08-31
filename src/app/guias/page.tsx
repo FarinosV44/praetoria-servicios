@@ -5,6 +5,7 @@ import { COPY } from "@/config/copy";
 import { CONTENT } from "@/config/content";
 import { contentService } from "@/server/services/content";
 import { breadcrumbLd } from "@/lib/seo";
+import { safe } from "@/lib/safe";
 import styles from "@/ui/content/content.module.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function GuiasIndex() {
-  const articles = await contentService.listPublished();
+  const articles = await safe(() => contentService.listPublished(), [], "guias.list");
 
   return (
     <main id="contenido" className={styles.page}>

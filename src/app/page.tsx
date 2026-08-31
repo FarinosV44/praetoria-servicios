@@ -8,6 +8,7 @@ import { faqPageLd, organizationLd, websiteLd } from "@/lib/seo";
 import { TRUST_CHARTER } from "@/config/trust-charter";
 import { reviewService } from "@/server/services/reviews";
 import { findTrade } from "@/config/trades";
+import { safe } from "@/lib/safe";
 import styles from "./page.module.css";
 
 const L = COPY.landing;
@@ -31,7 +32,8 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const reviews = await reviewService.listPublished();
+  // The reviews block is optional — never let a DB blip 500 the landing page.
+  const reviews = await safe(() => reviewService.listPublished(), [], "landing.reviews");
   return (
     <main id="contenido" className={styles.page}>
       <JsonLd data={[organizationLd(), websiteLd(), faqPageLd([...COPY.landing.faq.items])]} />

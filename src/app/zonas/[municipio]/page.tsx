@@ -8,6 +8,7 @@ import { SERVICE_TRADES } from "@/config/service-content";
 import { localPageService, faqOf } from "@/server/services/localPage";
 import { breadcrumbLd, faqPageLd, localAreaServiceLd } from "@/lib/seo";
 import { ReviewsSection } from "@/ui/reputation/ReviewsSection";
+import { safe } from "@/lib/safe";
 import styles from "../../servicios/servicios.module.css";
 
 export async function generateMetadata({
@@ -16,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ municipio: string }>;
 }): Promise<Metadata> {
   const { municipio } = await params;
-  const found = await localPageService.getPublic(municipio);
+  const found = await safe(() => localPageService.getPublic(municipio), null, "zona.getPublic");
   if (!found) return {};
   const { page, indexable } = found;
   const description =
@@ -41,7 +42,7 @@ export default async function ZonaPage({
   params: Promise<{ municipio: string }>;
 }) {
   const { municipio } = await params;
-  const found = await localPageService.getPublic(municipio);
+  const found = await safe(() => localPageService.getPublic(municipio), null, "zona.getPublic");
   if (!found) notFound();
   const { page, indexable } = found;
 

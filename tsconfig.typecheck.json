@@ -1,0 +1,13 @@
+{
+  "//": "Full type-check including test files — used by `npm run typecheck` and CI. `next build` uses the base tsconfig.json, which excludes tests (they need devDependencies that aren't installed on a production deploy host).",
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

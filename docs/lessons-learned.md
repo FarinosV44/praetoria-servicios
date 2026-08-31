@@ -29,6 +29,26 @@
 - Rule for next time: when a value was rendered and persisted once, later steps read the persisted
   copy — they never re-run the renderer with a subset of the original inputs.
 
+## L-013 — Production install broke `postinstall` (dotenv) and `next build` (test files import vitest)
+- Context: after L-012 the Tailwind crash was gone; the Hostinger deploy then surfaced TWO more
+  production-install failures, one after the other.
+- **(a) `postinstall` → `prisma generate` → `Cannot find module 'dotenv/config'`.** `prisma.config.ts`
+  does `import "dotenv/config"`, and `dotenv` was a devDependency — absent in Hostinger's
+  `NODE_ENV=production` install → `prisma generate` throws → "Failed to install dependencies".
+  Fix: moved `dotenv` to `dependencies`.
+- **(b) `next build` → `Cannot find module 'vitest'`** in `*.test.ts` files. `next build` type-checks
+  the whole project against `tsconfig.json`, which `include`d `**/*.ts` — so the `.test.ts` files
+  (which `import { ... } from "vitest"`) were checked, and `vitest` isn't in a production install.
+  Fix: `tsconfig.json` now excludes `**/*.{test,spec}.{ts,tsx}` (that's what `next build` uses); a
+  new `tsconfig.typecheck.json` (extends base, re-includes everything) is what `npm run typecheck`
+  + CI use, so the tests are still fully type-checked — by vitest at test time and by the CI
+  typecheck step.
+- Verified end-to-end: `NODE_ENV=production npm ci --omit=dev` → `postinstall` generates the Prisma
+  client → `next build` produces the standalone server. 392 vitest, full typecheck, lint all green.
+- Rule: same as L-009 — anything the **install hooks** or **`next build`** touch must resolve
+  without devDependencies. That includes transitive config imports (`prisma.config.ts`) and the
+  type-check's file set.
+
 ## L-012 — Removed Tailwind entirely — it was unused and its build step broke the host
 - Symptom: the real Hostinger build log finally arrived — `next build` (Turbopack, run directly by
   Hostinger's git deploy, ignoring `npm run build`) failed with hundreds of repeated

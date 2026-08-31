@@ -102,6 +102,19 @@ test.describe("public pages — smoke + no console errors (AC-19-noconsole)", ()
     expect(meaningfulErrors(errors)).toEqual([]);
   });
 
+  test("first-touch entry attribution cookie is set, path only (issue #27)", async ({ page }) => {
+    await page.goto("/problemas/fuga-de-agua");
+    await page.waitForFunction(() => document.cookie.includes("praetoria_entry"));
+    const cookies = await page.context().cookies();
+    const entry = cookies.find((c) => c.name === "praetoria_entry");
+    expect(entry).toBeTruthy();
+    const value = JSON.parse(decodeURIComponent(entry!.value)) as { p: string; r: string };
+    expect(value.p).toBe("/problemas/fuga-de-agua");
+    // no query string, no full URL ever stored
+    expect(value.p).not.toContain("?");
+    expect(value.p).not.toContain("://");
+  });
+
   test("the guides index loads (issue #24 CMS)", async ({ page }) => {
     const errors = collectConsoleErrors(page);
     await page.goto("/guias");

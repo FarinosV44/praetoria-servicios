@@ -56,6 +56,11 @@ model Request {
   postalCode    String?
   withinCoverage Boolean?
 
+  // SEO attribution (issue #27) — first-touch landing PATH only (no query
+  // string) + referrer HOST only. Never PII, never a full URL.
+  entryPath         String?
+  entryReferrerHost String?
+
   contact       Contact?
   location      RequestLocation?
   photos        Photo[]
@@ -932,4 +937,40 @@ model LocalPage {
   updatedAt   DateTime        @updatedAt
 
   @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Local SEO control centre (issue #27). No Search Console / analytics API in
+// this MVP — metrics arrive by CSV import. A row's `query` is validated PII-free
+// before it is ever stored.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SeoMetricImport {
+  id               String          @id @default(cuid())
+  source           String // e.g. "gsc-csv", "manual"
+  periodStart      DateTime
+  periodEnd        DateTime
+  note             String?
+  rowCount         Int             @default(0)
+  skippedCount     Int             @default(0)
+  createdByAdminId String
+  createdAt        DateTime        @default(now())
+  rows             SeoMetricRow[]
+}
+
+model SeoMetricRow {
+  id           String          @id @default(cuid())
+  import       SeoMetricImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  importId     String
+  query        String
+  page         String?
+  clicks       Int             @default(0)
+  impressions  Int             @default(0)
+  ctr          Float           @default(0) // 0..1
+  position     Float           @default(0)
+  device       String? // mobile | tablet | desktop
+  municipality String?
+
+  @@index([importId])
+  @@index([page])
 }

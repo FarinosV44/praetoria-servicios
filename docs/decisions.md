@@ -190,6 +190,31 @@
   (name/trades/municipalities/contact).
 - Supersedes: none — complements D-? (issue #22, the verified network).
 
+## D-018 — SEO control centre: CSV-first, labelled signals, no causality claims (issue #27)
+- Date / phase: 2026-08-31 / Phase 5 (Sprint 23, issue #27)
+- Decision: with no Search Console / analytics API in this MVP (D-008), the control centre is built
+  around **CSV import** (`SeoMetricImport` / `SeoMetricRow`). The parser rejects any row whose query
+  contains PII (`detectPii`) before storage. Every figure on `/admin/seo` is presented with its
+  **period**, its **source**, and a **kind** — `real` (a stored measurement), `estimate` (something
+  derived, e.g. expected CTR at a position), or `recommendation` (an action the panel proposes). The
+  panel never states that a change caused a ranking move. Organic-entry attribution uses a
+  first-party `praetoria_entry` cookie holding the **landing path and referrer host only** — no query
+  string, no full URL, nothing PII — copied onto `Request.entryPath` server-side (never from client
+  input). Internal-link and FAQ proposals are shown for a human to act on; nothing is auto-applied,
+  and AI content is never auto-published (the #24 human-review gate).
+- Why: issue #27 acceptance criteria — CSV mode when no integration; metrics state period + source;
+  distinguish real / estimate / recommendation; no PII in queries or events; no unproven causality;
+  measure organic entry → validated request → accepted quote.
+- Alternatives rejected: blocking the feature on a real GSC OAuth integration (out of scope, D-008);
+  storing a full landing URL for attribution (query strings carry PII and campaign params — the rule
+  is path + referrer host only); a single "insights" list with no real/estimate/recommendation
+  distinction (the AC explicitly requires it).
+- Cost accepted: attribution and "traffic without requests" are only as good as the imported data +
+  accumulated `entryPath` history; both are empty until an operator starts importing and traffic
+  flows. `RATE_LIMITS.application` was raised 3→10/hour so a NAT'd office isn't locked out.
+- Supersedes: none — builds on D-015 (#25 data feeds the linking-gap signals) and D-016 (`detectPii`
+  reused for the no-PII-in-queries gate).
+
 ## D-010 — Money is integer minor units
 - Date / phase: 2026-08-29 / Phase 2
 - Decision: All monetary amounts stored and computed as integer cents (EUR). No floating point anywhere in quote/budget math. A small `Money` helper owns arithmetic, tax and formatting.

@@ -9,11 +9,10 @@ export type PiiKind = "phone" | "email" | "address";
 
 const EMAIL = /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi;
 
-// Spanish phone: 9 digits starting 6/7/8/9, optional +34, optional spaces/dashes
-// in groups. Requires at least one separator OR a leading +/00 34 so bare
-// 4-digit prices and years don't match.
-const PHONE =
-  /(?:(?:\+|00)\s?34[\s.-]?)?(?:[67]\d{2}|[89]\d{2})(?:[\s.-]?\d{2}){3}\b|\b(?:\+|00)\s?34[\s.-]?\d{9}\b/g;
+// Spanish phone: 9 digits starting 6/7/8/9, optional +34 / 0034 prefix, and any
+// common grouping (612345678, 612 34 56 78, 612 345 678, 612-345-678). The
+// leading \b + a 6-9 start keeps bare 4-digit prices and years out.
+const PHONE = /(?:(?:\+|00)\s?34[\s.-]?)?\b[6-9](?:[\s.-]?\d){8}\b/g;
 
 // Street address: a via type + name + number.
 const ADDRESS =

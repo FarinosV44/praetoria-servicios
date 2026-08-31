@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { COPY } from "@/config/copy";
+import { EntryTracker } from "@/ui/EntryTracker";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#contenido" className="skip-link">
           Saltar al contenido
         </a>
+        <EntryTracker />
         {children}
       </body>
     </html>

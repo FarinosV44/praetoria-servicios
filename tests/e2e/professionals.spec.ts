@@ -99,3 +99,28 @@ test("create an article, edit its block body, save (issue #24)", async ({ page }
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page.getByText(/^Guardado\.$/)).toBeVisible();
 });
+
+test("the local SEO control centre imports a CSV and shows PII-safe metrics (issue #27)", async ({
+  page,
+}) => {
+  const errors = collectConsoleErrors(page);
+  await login(page);
+  await page.goto("/admin/seo");
+  await expect(page.getByRole("heading", { name: /Centro de control SEO local/i })).toBeVisible();
+  // the honesty note: no causality claims
+  await expect(page.getByText(/no afirma que ning[úu]n cambio haya causado/i)).toBeVisible();
+
+  const csv = [
+    "Consulta,Página,Clics,Impresiones,CTR,Posición",
+    "fontanero valencia,/servicios/fontaneria,4,3000,0.13%,3.4",
+    "llamar 612345678,/x,1,10,10%,5",
+  ].join("\n");
+  await page.getByLabel(/Contenido del CSV/i).fill(csv);
+  await page.getByLabel(/Período: desde/i).fill("2026-07-01");
+  await page.getByLabel(/Período: hasta/i).fill("2026-07-31");
+  await page.getByRole("button", { name: "Importar", exact: true }).click();
+
+  await expect(page.getByText(/Importadas 1 filas\. Descartadas 1/i)).toBeVisible();
+  await expect(page.getByText(/datos personales/i)).toBeVisible();
+  expect(meaningfulErrors(errors)).toEqual([]);
+});

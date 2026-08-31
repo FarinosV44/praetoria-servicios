@@ -143,3 +143,7 @@ scripts/
   `src/server/services/applications.ts`, `src/server/actions/{applications,adminApplications}.ts`,
   `src/app/trabaja-con-nosotros/`, `src/app/admin/(panel)/candidaturas/`. `ProfessionalApplication`
   model + `ProfessionalApplicationStatus`. `RATE_LIMITS.application`.
+- `[E]` Sprint 23 additions (#27): `src/domain/seo/{metrics-csv,opportunities,linking-gaps,faq-suggestions}.ts`,
+  `src/server/services/seo.ts`, `src/server/actions/seo.ts`, `src/ui/EntryTracker.tsx`,
+  `src/app/admin/(panel)/seo/`. `SeoMetricImport` + `SeoMetricRow` models; `Request.entryPath` /
+  `entryReferrerHost`. `createDraft` takes an optional `attribution` arg.

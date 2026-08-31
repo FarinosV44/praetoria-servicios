@@ -50,9 +50,21 @@ async function createUniqueReference(): Promise<string> {
 }
 
 export const requestService = {
-  async createDraft(input: CreateDraftInput): Promise<Request> {
+  async createDraft(
+    input: CreateDraftInput,
+    attribution?: { entryPath?: string | null; entryReferrerHost?: string | null },
+  ): Promise<Request> {
     const reference = await createUniqueReference();
     const expiresAt = new Date(Date.now() + LIMITS.draft.expiryDays * 24 * 3600_000);
+
+    // SEO attribution (issue #27) — path only, referrer host only, length-capped.
+    const entryPath =
+      attribution?.entryPath && attribution.entryPath.startsWith("/")
+        ? attribution.entryPath.slice(0, 200)
+        : null;
+    const entryReferrerHost = attribution?.entryReferrerHost
+      ? attribution.entryReferrerHost.slice(0, 120)
+      : null;
 
     return db.request.create({
       data: {
@@ -60,6 +72,8 @@ export const requestService = {
         status: "BORRADOR",
         trade: input.trade && input.trade !== "no-se" ? input.trade : null,
         clientChoseUnsure: input.clientChoseUnsure || input.trade === "no-se",
+        entryPath,
+        entryReferrerHost,
         expiresAt,
         statusHistory: {
           create: { to: "BORRADOR", actorType: "SYSTEM", reason: "draft created" },
